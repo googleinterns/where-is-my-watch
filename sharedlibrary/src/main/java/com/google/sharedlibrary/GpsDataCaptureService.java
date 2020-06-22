@@ -4,14 +4,20 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.nfc.Tag;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 public class GpsDataCaptureService extends Service {
+    private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Handler handler = new Handler();
 
     @Nullable
     @Override
@@ -28,4 +34,13 @@ public class GpsDataCaptureService extends Service {
             return GpsDataCaptureService.this;
         }
     }
+
+    @Override
+    public void onLowMemory(){
+        Log.e(TAG, "Watch is low on memory!");
+    }
+
+    /**
+     *
+     */
 }
