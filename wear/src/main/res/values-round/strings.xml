@@ -1,2 +1,4 @@
 <resources>
+    <string name="start_capture">START</string>
+    <string name="stop_capture">STOP</string>
 </resources>

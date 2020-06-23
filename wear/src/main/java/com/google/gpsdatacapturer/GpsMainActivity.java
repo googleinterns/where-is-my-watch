@@ -1,4 +1,4 @@
-package com.google.myapplication;
+package com.google.gpsdatacapturer;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.sharedlibrary.GpsDataCaptureService;
 import com.google.sharedlibrary.GpsDataCaptureService.GpsDataCaptureBinder;
@@ -23,6 +25,21 @@ public class GpsMainActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps_main);
 
+        Button startButton = (Button) findViewById(R.id.start_button);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onStartButtonClick(v);
+            }
+        });
+
+        Button stopButton = (Button) findViewById(R.id.stop_button);
+        stopButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                onStopButtonClick(v);
+            }
+        });
         // Enables Always-on
         setAmbientEnabled();
     }
@@ -38,6 +55,24 @@ public class GpsMainActivity extends WearableActivity {
         super.onStop();
         unbindGpsDataCaptureService();
         isBound = false;
+    }
+
+    /**
+     * On click of Start button, start capturing gps data
+     */
+    public void onStartButtonClick(View view){
+        if(isBound){
+            gpsDataCaptureService.startCapture();
+        }
+    }
+
+    /**
+     * On click of Stop button, stop capturing gps data
+     */
+    public void onStopButtonClick(View view){
+        if(isBound){
+            gpsDataCaptureService.stopCapture();
+        }
     }
 
     /**

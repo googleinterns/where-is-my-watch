@@ -28,7 +28,7 @@ public class GpsDataCaptureService extends Service {
     @Override
     public void onLocationChanged(Location location) {
         long currentTimeStamp = System.currentTimeMillis();
-        //send data to map
+        //Todo: send data to map
 
         //write data to file
         writeToFile(location);

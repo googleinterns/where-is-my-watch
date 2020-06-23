@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/My_Application.iml" filepath="$PROJECT_DIR$/.idea/modules/My_Application.iml" group="My_Application" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" group="My Application/mobile" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sharedlibrary/sharedlibrary.iml" filepath="$PROJECT_DIR$/.idea/modules/sharedlibrary/sharedlibrary.iml" group="My Application/sharedlibrary" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/wear.iml" group="My Application/wear" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GpsDataCapturer.iml" filepath="$PROJECT_DIR$/.idea/modules/GpsDataCapturer.iml" group="GpsDataCapturer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" filepath="$PROJECT_DIR$/.idea/modules/mobile/mobile.iml" group="GpsDataCapturer/mobile" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sharedlibrary/sharedlibrary.iml" filepath="$PROJECT_DIR$/.idea/modules/sharedlibrary/sharedlibrary.iml" group="GpsDataCapturer/sharedlibrary" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wear/wear.iml" filepath="$PROJECT_DIR$/.idea/modules/wear/wear.iml" group="GpsDataCapturer/wear" />
     </modules>
   </component>
 </project>

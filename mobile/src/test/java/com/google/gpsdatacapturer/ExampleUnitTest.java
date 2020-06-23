@@ -1,4 +1,4 @@
-package com.google.myapplication;
+package com.google.gpsdatacapturer;
 
 import org.junit.Test;
 

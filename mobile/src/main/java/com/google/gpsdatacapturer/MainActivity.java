@@ -1,4 +1,4 @@
-package com.google.myapplication;
+package com.google.gpsdatacapturer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
