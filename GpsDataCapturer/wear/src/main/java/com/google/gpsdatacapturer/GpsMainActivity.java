@@ -30,6 +30,10 @@ public class GpsMainActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps_main);
 
+        requestPermissionsIfNotGranted();
+
+        startAndBindGpsDataCaptureService();
+
         Button startButton = (Button) findViewById(R.id.start_button);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,14 +56,13 @@ public class GpsMainActivity extends WearableActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        requestPermissionsIfNotGranted();
-        bindGpsDataCaptureService();
+        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onStop(){
         super.onStop();
-        unbindGpsDataCaptureService();
+        stopAndUnbindGpsDataCaptureService();
         isBound = false;
     }
 
@@ -88,18 +91,24 @@ public class GpsMainActivity extends WearableActivity {
      * On click of Start button, start capturing gps data
      */
     public void onStartButtonClick(View view){
-        if(isBound){
-            gpsDataCaptureService.startCapture();
+        if(!isBound){
+            Log.i(TAG, "GpsDataCaptureService is not bound, could not start capture.");
+            return;
         }
+        Log.i(TAG, "Start capture data.");
+        gpsDataCaptureService.startCapture();
+
     }
 
     /**
      * On click of Stop button, stop capturing gps data
      */
     public void onStopButtonClick(View view){
-        if(isBound){
-            gpsDataCaptureService.stopCapture();
+        if(!isBound){
+            Log.i(TAG, "GpsDataCaptureService is not bound");
         }
+        Log.i(TAG, "Stop capture data.");
+        gpsDataCaptureService.stopCapture();
     }
 
     /**
@@ -124,8 +133,14 @@ public class GpsMainActivity extends WearableActivity {
     /**
      * Bind the activity to GpsDataCaptureService
      */
-    private void bindGpsDataCaptureService(){
+    private void startAndBindGpsDataCaptureService(){
         serviceIntent = new Intent(this, GpsDataCaptureService.class);
+        //start GpsDataCaptureService
+        try{
+            startService(serviceIntent);
+        }catch (Exception e){
+            Log.e(TAG, "Could not start gpsDataCaptureService", e);
+        }
         //Bind to GpsDataCaptureService
         try {
             bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
@@ -137,12 +152,18 @@ public class GpsMainActivity extends WearableActivity {
     /**
      * Unbind the activity from GpsDataCaptureService
      */
-    private void unbindGpsDataCaptureService(){
+    private void stopAndUnbindGpsDataCaptureService(){
         //Unbind from GpsDataCaptureService
         try {
             unbindService(gpsServiceConnection);
         }catch (Exception e){
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
+        }
+
+        try{
+            stopService(serviceIntent);
+        }catch (Exception e){
+            Log.e(TAG, "Could not stop gpsDataCaptureService", e);
         }
     }
 }

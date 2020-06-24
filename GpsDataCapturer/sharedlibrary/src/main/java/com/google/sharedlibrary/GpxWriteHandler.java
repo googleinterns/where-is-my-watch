@@ -60,14 +60,8 @@ public class GpxWriteHandler implements Runnable {
                     }
                 }
 
-                int offsetFromEnd = (addNewSegment) ? xmlFooter().length() : xmlFooterWithSegment().length();
-                long startPosition = gpxFile.length() - offsetFromEnd;
-                String trackPoint = getTrackPointXml(location, formattedTime);
+                //Todo: write data to file
 
-                RandomAccessFile raf = new RandomAccessFile(gpxFile, "rw");
-                raf.seek(startPosition);
-                raf.write(trackPoint.getBytes());
-                raf.close();
                 Log.d(TAG, "Finished writing to GPX file");
 
             } catch (Exception e) {
