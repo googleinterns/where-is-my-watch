@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
 public class GpxWriteHandler implements Runnable {
@@ -23,7 +24,7 @@ public class GpxWriteHandler implements Runnable {
     private Location location;
     private File gpxFile = null;
     private boolean addNewSegment;
-
+    private static final int SIZE = 20800;
     public GpxWriteHandler(String formattedTime, File gpxFile, Location location, boolean addNewSegment){
         this.formattedTime = formattedTime;
         this.gpxFile = gpxFile;
@@ -36,17 +37,15 @@ public class GpxWriteHandler implements Runnable {
     public void run() {
         synchronized (GpxFileWriter.lock){
             try{
+                FileWriter fileWriter = new FileWriter(gpxFile, true);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
                 if(!Files.exists(gpxFile.toPath())){
                     try {
                         gpxFile.createNewFile();
                     } catch (IOException e) {
                         Log.d(TAG, "Could not create new file", e);
                     }
-
                     try {
-                        FileWriter fileWriter = new FileWriter(gpxFile, true);
-                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
                         bufferedWriter.write(xmlHeader(formattedTime));
                         bufferedWriter.write("<trk>");
                         bufferedWriter.write(xmlFooter());
@@ -59,9 +58,13 @@ public class GpxWriteHandler implements Runnable {
                         Log.d(TAG, "Could not find gpxFile", e);
                     }
                 }
+                bufferedWriter.write(getTrackPointXml(location,formattedTime));
+
+                bufferedWriter.flush();
+                bufferedWriter.close();
 
                 //Todo: write data to file
-
+                Log.i(TAG, getTrackPointXml(location,formattedTime));
                 Log.d(TAG, "Finished writing to GPX file");
 
             } catch (Exception e) {

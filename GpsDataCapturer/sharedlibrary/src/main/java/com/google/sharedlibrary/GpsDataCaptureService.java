@@ -178,11 +178,11 @@ public class GpsDataCaptureService extends Service {
      */
     private void createGpsDataFolder(){
         try {
-            Log.i(TAG, "Create GpsDataFolder path");
             gpxDataFolder = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             if (!gpxDataFolder.exists()) {
                 gpxDataFolder.mkdir();
             }
+            Log.i(TAG, "Create GpsDataFolder path" + gpxDataFolder.getName());
         } catch (Exception e) {
             Log.e(TAG, "Could not create new folder.", e);
         }
@@ -193,7 +193,7 @@ public class GpsDataCaptureService extends Service {
      */
     private void createGpxFile(){
         try {
-            Log.i(TAG, "Create a new gpxFile");
+            Log.i(TAG, "Create a new gpxFile " + fileName);
             gpxFile = new File(gpxDataFolder, fileName +" .xml");
             gpxFile.createNewFile();
         } catch (Exception ex) {
