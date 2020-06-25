@@ -29,12 +29,9 @@ public class GpxFileWriter {
     });
 
     private static File gpxFile;
-    private static boolean addNewSegment;
 
-
-    public GpxFileWriter(File gpxFile, boolean addNewSegment){
+    public GpxFileWriter(File gpxFile){
         this.gpxFile = gpxFile;
-        this.addNewSegment = addNewSegment;
     }
 
     public static void write(Context context, Location location) throws Exception{
@@ -47,7 +44,25 @@ public class GpxFileWriter {
         sdf.setTimeZone(TimeZone.getTimeZone("PST"));
         String formattedTime = sdf.format(time);
 
-        Runnable writeHandler = new GpxWriteHandler(formattedTime, gpxFile, location, addNewSegment);
+        Runnable writeHandler = new GpxWriteHandler(formattedTime, gpxFile, location);
         EXECUTOR.execute(writeHandler);
+    }
+
+    /**
+     * Create the xml header with version, creator and metadata
+     * @param formattedTime time of on location changed in format
+     * @return header string
+     */
+    public static String xmlHeader(String formattedTime){
+        StringBuilder header = new StringBuilder();
+        header.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        header.append("<gpx version=\"1.1\" creator=\"GpsDataCapturer " + BuildConfig.VERSION_CODE + "\" ");
+        header.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+        header.append("xmlns=\"http://www.topografix.com/GPX/1/1\" ");
+        header.append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 ");
+        header.append("http://www.topografix.com/GPX/1/1/gpx.xsd\">");
+        header.append("<metadata><time>").append(formattedTime).append("</time></metadata>");
+        header.append("<trk>");
+        return header.toString();
     }
 }

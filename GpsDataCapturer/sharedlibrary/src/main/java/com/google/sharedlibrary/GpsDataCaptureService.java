@@ -19,7 +19,11 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -121,9 +125,17 @@ public class GpsDataCaptureService extends Service {
      * Stop capturing data
      */
     public void stopCapture() {
+        try {
+            FileWriter fileWriter = new FileWriter(gpxFile);
+            fileWriter.write("</trk></gpx>");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         stopLocationManager();
         resetFileName();
         resetGpxFile();
+        stopSelf();
     }
 
     /**
@@ -165,7 +177,7 @@ public class GpsDataCaptureService extends Service {
      * @param location the location captured from GPS
      */
     private void writeToFile(Location location){
-        GpxFileWriter fileWriter = new GpxFileWriter(gpxFile, true);
+        GpxFileWriter fileWriter = new GpxFileWriter(gpxFile);
         try{
             Log.d(TAG, "Starting file writer");
             fileWriter.write(getApplicationContext(), location);
@@ -178,11 +190,11 @@ public class GpsDataCaptureService extends Service {
      */
     private void createGpsDataFolder(){
         try {
-            gpxDataFolder = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            gpxDataFolder = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
             if (!gpxDataFolder.exists()) {
                 gpxDataFolder.mkdir();
             }
-            Log.i(TAG, "Create GpsDataFolder path" + gpxDataFolder.getName());
+            Log.i(TAG, "Create GpsDataFolder path" + gpxDataFolder.getPath());
         } catch (Exception e) {
             Log.e(TAG, "Could not create new folder.", e);
         }
@@ -196,6 +208,8 @@ public class GpsDataCaptureService extends Service {
             Log.i(TAG, "Create a new gpxFile " + fileName);
             gpxFile = new File(gpxDataFolder, fileName +" .xml");
             gpxFile.createNewFile();
+            FileWriter fileWriter = new FileWriter(gpxFile);
+            fileWriter.write(GpxFileWriter.xmlHeader(fileName));
         } catch (Exception ex) {
             Log.e(TAG, "Could not create new file.", ex);
         }
