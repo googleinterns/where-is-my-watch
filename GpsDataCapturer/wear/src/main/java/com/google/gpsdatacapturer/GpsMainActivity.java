@@ -1,17 +1,22 @@
 package com.google.gpsdatacapturer;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.wearable.activity.WearableActivity;
+import android.support.wearable.view.WearableDialogHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
@@ -22,80 +27,141 @@ public class GpsMainActivity extends WearableActivity {
     private static final String TAG = "GpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
     private static Intent serviceIntent;
+    private LocationManager locationManager;
     private static boolean isBound = false;
-    private static final int REQUEST_CODE = 1340;
+    private static final int LOCATION_REQUEST_CODE = 1;
+    private static final int READ_WRITE_REQUEST_CODE = 2;
+    private static boolean isStart = true;
+    private boolean isGpsEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps_main);
 
-        requestPermissionsIfNotGranted();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        requestLocationPermissionsIfNotGranted();
+        requestReadWritePermissionsIfNotGranted();
+
+        checkGpsStatus();
+        setGpsEnabled();
 
         startAndBindGpsDataCaptureService();
 
-        Button startButton = (Button) findViewById(R.id.start_button);
-        startButton.setOnClickListener(new View.OnClickListener() {
+        final Button startAndStopButton = (Button) findViewById(R.id.start_stop_button);
+        startAndStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStartButtonClick(v);
+                if (isStart) {
+                    onStartButtonClick(v);
+                    startAndStopButton.setText(R.string.stop_capture);
+                    isStart = false;
+                } else {
+                    onStopButtonClick(v);
+                    startAndStopButton.setText(R.string.start_capture);
+                    isStart = true;
+                }
             }
         });
 
-        Button stopButton = (Button) findViewById(R.id.stop_button);
-        stopButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                onStopButtonClick(v);
-            }
-        });
         // Enables Always-on
         setAmbientEnabled();
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
         startAndBindGpsDataCaptureService();
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         stopAndUnbindGpsDataCaptureService();
         isBound = false;
     }
 
-    private void  requestPermissionsIfNotGranted(){
-        boolean granted = ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        if (!granted){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+    private void requestLocationPermissionsIfNotGranted() {
+        boolean granted = hasUserGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                && hasUserGrantedPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (!granted) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+        }
+
+    }
+
+    private void requestReadWritePermissionsIfNotGranted() {
+        boolean granted = hasUserGrantedPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && hasUserGrantedPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (!granted) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                    LOCATION_REQUEST_CODE);
         }
     }
 
+    /**
+     * Check if the user grant permissions required to run the app
+     *
+     * @param permissionName
+     * @return return true if permission granted and false if not
+     */
+    private boolean hasUserGrantedPermission(String permissionName) {
+        boolean granted = ActivityCompat.checkSelfPermission(this, permissionName) == PackageManager.PERMISSION_GRANTED;
+        Log.d(TAG, "Permission " + permissionName + " : " + granted);
+        return granted;
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
-        switch(requestCode){
-            case REQUEST_CODE:{
-                if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED){
-                    Log.i(TAG, "ACCESS_FINE_LOCATION permission is not granted.");
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_REQUEST_CODE: {
+                if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Location Permissions are not granted.");
                 }
             }
             break;
+            case READ_WRITE_REQUEST_CODE: {
+                if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Read and Write Permission are not granted.");
+                }
+            }
             default:
                 throw new IllegalStateException("Unexpected value: " + requestCode);
         }
     }
 
     /**
+     * Set GPS if it's not enabled
+     */
+    private void setGpsEnabled() {
+        if (!isGpsEnabled) {
+            Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(settingsIntent);
+        }
+    }
+
+    /**
+     * Check GPS status
+     */
+    private void checkGpsStatus() {
+        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
      * On click of Start button, start capturing gps data
      */
-    public void onStartButtonClick(View view){
-        if(!isBound){
-            Log.i(TAG, "GpsDataCaptureService is not bound, could not start capture.");
+    public void onStartButtonClick(View view) {
+        if (!isBound) {
+            Log.e(TAG, "GpsDataCaptureService is not bound, could not start capture.");
             return;
         }
-        Log.i(TAG, "Start capture data.");
+        Log.d(TAG, "Start capture data.");
         gpsDataCaptureService.startCapture();
 
     }
@@ -103,11 +169,11 @@ public class GpsMainActivity extends WearableActivity {
     /**
      * On click of Stop button, stop capturing gps data
      */
-    public void onStopButtonClick(View view){
-        if(!isBound){
-            Log.i(TAG, "GpsDataCaptureService is not bound");
+    public void onStopButtonClick(View view) {
+        if (!isBound) {
+            Log.e(TAG, "GpsDataCaptureService is not bound");
         }
-        Log.i(TAG, "Stop capture data.");
+        Log.d(TAG, "Stop capture data.");
         gpsDataCaptureService.stopCapture();
     }
 
@@ -117,7 +183,7 @@ public class GpsMainActivity extends WearableActivity {
     private final ServiceConnection gpsServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG,"Connected to GpsDataCaptureService.");
+            Log.d(TAG, "Connected to GpsDataCaptureService.");
             GpsDataCaptureBinder binder = (GpsDataCaptureBinder) service;
             gpsDataCaptureService = binder.getService();
             isBound = true;
@@ -133,18 +199,18 @@ public class GpsMainActivity extends WearableActivity {
     /**
      * Bind the activity to GpsDataCaptureService
      */
-    private void startAndBindGpsDataCaptureService(){
+    private void startAndBindGpsDataCaptureService() {
         serviceIntent = new Intent(this, GpsDataCaptureService.class);
         //start GpsDataCaptureService
-        try{
+        try {
             startService(serviceIntent);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "Could not start gpsDataCaptureService", e);
         }
         //Bind to GpsDataCaptureService
         try {
             bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "Could not bind gpsDataCaptureService", e);
         }
     }
@@ -152,17 +218,17 @@ public class GpsMainActivity extends WearableActivity {
     /**
      * Unbind the activity from GpsDataCaptureService
      */
-    private void stopAndUnbindGpsDataCaptureService(){
+    private void stopAndUnbindGpsDataCaptureService() {
         //Unbind from GpsDataCaptureService
         try {
             unbindService(gpsServiceConnection);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
         }
 
-        try{
+        try {
             stopService(serviceIntent);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "Could not stop gpsDataCaptureService", e);
         }
     }

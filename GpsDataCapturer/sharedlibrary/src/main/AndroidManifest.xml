@@ -2,7 +2,8 @@
     package="com.google.sharedlibrary">
     <!-- GPS location service -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Writing log files to storage -->
+    <!-- Read and Write log files to storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 </manifest>

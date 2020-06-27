@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,63 +23,64 @@ public class GpxWriteHandler implements Runnable {
     private final String TAG = "GpxWriterHandler";
     private String formattedTime;
     private Location location;
-    private File gpxFile = null;
+    private File gpxFile;
+    private boolean append;
     private static final int SIZE = 20480;
-    public GpxWriteHandler(String formattedTime, File gpxFile, Location location){
+
+    public GpxWriteHandler(String formattedTime, File gpxFile, Location location, boolean append) {
         this.formattedTime = formattedTime;
         this.gpxFile = gpxFile;
         this.location = location;
+        this.append = append;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void run() {
-        synchronized (GpxFileWriter.lock){
+        synchronized (GpxFileWriter.lock) {
             Log.i(TAG, "Start writing to file");
-            try{
+            try {
                 FileWriter fileWriter = new FileWriter(gpxFile, true);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
 
                 bufferedWriter.write(getTrackPointXml(location, formattedTime));
                 bufferedWriter.flush();
                 bufferedWriter.close();
-
-                Log.i(TAG, getTrackPointXml(location,formattedTime));
-                Log.d(TAG, "Finished writing to GPX file");
-
+                fileWriter.close();
             } catch (Exception e) {
-                Log.e(TAG,"GpxFileWriter.write", e);
+                Log.e(TAG, "GpxFileWriter.write", e);
             }
         }
     }
 
     /**
-     * Generate the xml segment of the location
-     * @param loc the location captured by GPS
-     * @param formattedTime  time of on location changed in format
-     * @return a string of xml segment
+     * Generate the xml track point of the location
+     *
+     * @param location      the location captured by GPS
+     * @param formattedTime time of on location changed in format
+     * @return a string of xml track point
      */
-    private String getTrackPointXml(Location loc, String formattedTime) {
+    private String getTrackPointXml(Location location, String formattedTime) {
 
         StringBuilder trackPoint = new StringBuilder();
 
         trackPoint.append("<trkpt lat=\"")
-                .append(String.valueOf(loc.getLatitude()))
+                .append(location.getLatitude())
                 .append("\" lon=\"")
-                .append(String.valueOf(loc.getLongitude()))
+                .append(location.getLongitude())
                 .append("\">");
 
-        if (loc.hasAltitude()) {
-            trackPoint.append("<ele>").append(String.valueOf(loc.getAltitude())).append("</ele>");
+        if (location.hasAltitude()) {
+            trackPoint.append("<ele>").append(location.getAltitude()).append("</ele>");
         }
 
         trackPoint.append("<time>").append(formattedTime).append("</time>");
 
-        trackPoint.append("<speed>").append(loc.hasSpeed()? loc.getSpeed() : "0.0").append("</speed>");
+        trackPoint.append("<speed>").append(location.hasSpeed() ? location.getSpeed() : "0.0").append("</speed>");
 
-        trackPoint.append("<accuracy>").append(loc.hasAccuracy()? loc.getAccuracy() : "0.0").append("</accuracy>");
+        trackPoint.append("<accuracy>").append(location.hasAccuracy() ? location.getAccuracy() : "0.0").append("</accuracy>");
 
-        trackPoint.append("<src>").append(loc.getProvider()).append("</src>");
+        trackPoint.append("<src>").append(location.getProvider()).append("</src>");
 
         trackPoint.append("</trkpt>\n");
 
