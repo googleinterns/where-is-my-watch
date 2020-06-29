@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"><metadata><time>2020-06-26T13:39:35.384Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata><trk><trkpt lat="37.31036616" lon="-122.03026175"><ele>100.3671875</ele><time>2020-06-26T13:41:29.000Z</time><speed>0.0</speed><accuracy>16.08</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31038305" lon="-122.03023476"><ele>89.637451171875</ele><time>2020-06-26T13:41:30.000Z</time><speed>0.0</speed><accuracy>8.576</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31034196" lon="-122.03027688"><ele>73.34326171875</ele><time>2020-06-26T13:41:31.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31030622" lon="-122.03034928"><ele>64.2431640625</ele><time>2020-06-26T13:41:32.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31030755" lon="-122.03036374"><ele>68.40875244140625</ele><time>2020-06-26T13:41:33.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31030144" lon="-122.03038556"><ele>52.48199462890625</ele><time>2020-06-26T13:41:34.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31024361" lon="-122.03046722"><ele>20.75537109375</ele><time>2020-06-26T13:41:35.000Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31027521" lon="-122.03043923"><ele>31.20849609375</ele><time>2020-06-26T13:41:36.000Z</time><speed>0.0</speed><accuracy>8.576</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31028508" lon="-122.0304228"><ele>39.03173828125</ele><time>2020-06-26T13:41:37.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+</trk><time>2020-06-26T13:41:40.773Z</time></gpx>

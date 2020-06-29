@@ -56,7 +56,7 @@ public class GpxFileWriter {
      */
     public static String xmlHeader(String formattedTime) {
         StringBuilder header = new StringBuilder();
-        header.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        header.append("<?xml version='1.0' encoding='UTF-8' ?>");
         header.append("<gpx version=\"1.1\" creator=\"GpsDataCapturer " + BuildConfig.VERSION_CODE + "\" ");
         header.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
         header.append("xmlns=\"http://www.topografix.com/GPX/1/1\" ");
@@ -68,6 +68,7 @@ public class GpxFileWriter {
         header.append("<manufacturer>").append(Build.MANUFACTURER).append("</manufacturer>");
         header.append("<model>").append(Build.MODEL).append("</model></metadata>");
         header.append("<trk>");
+        header.append("<trkseg>");
         return header.toString();
     }
 }

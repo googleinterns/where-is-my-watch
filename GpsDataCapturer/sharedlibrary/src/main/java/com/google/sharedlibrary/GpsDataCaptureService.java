@@ -1,33 +1,29 @@
 package com.google.sharedlibrary;
 
-import android.Manifest;
+import static com.google.sharedlibrary.GpxFile.createGpsDataFolder;
+import static com.google.sharedlibrary.GpxFile.createGpxFile;
+import static com.google.sharedlibrary.GpxFile.getNewFileName;
+import static com.google.sharedlibrary.GpxFile.writeFileFooter;
+
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class GpsDataCaptureService extends Service {
     private static final String TAG = "GpsDataCaptureService";
@@ -39,7 +35,6 @@ public class GpsDataCaptureService extends Service {
 
     private static File gpxDataFolder;
     private static File gpxFile;
-    private String fileName;
 
     private LocationListener locationListener = new LocationListener() {
         @Override
@@ -109,15 +104,11 @@ public class GpsDataCaptureService extends Service {
      */
     public void startCapture() {
         if (gpxDataFolder == null) {
-            createGpsDataFolder();
-        }
-
-        if (fileName == null || fileName.equals("")) {
-            setCurrentFileName();
+            gpxDataFolder = createGpsDataFolder(this);
         }
 
         if (gpxFile == null) {
-            createGpxFile();
+            gpxFile = createGpxFile(gpxDataFolder, getNewFileName(this));
         }
 
         startLocationManager();
@@ -127,19 +118,10 @@ public class GpsDataCaptureService extends Service {
      * Stop capturing data
      */
     public void stopCapture() {
-        try {
-            FileWriter fileWriter = new FileWriter(gpxFile, true);
-            fileWriter.write("</trk><time>" + getFormattedCurrentTime() + "</time>");
-            fileWriter.write("</gpx>");
-            fileWriter.close();
-            Log.i(TAG, "Finished writing to GPX file");
-        } catch (IOException e) {
-            Log.e(TAG, "Could not write the xml footer.", e);
-        }
+        writeFileFooter(gpxFile,this);
 
         stopLocationManager();
-        resetFileName();
-        resetGpxFile();
+
         stopSelf();
     }
 
@@ -190,73 +172,5 @@ public class GpsDataCaptureService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "Could not write to file", e);
         }
-    }
-
-    /**
-     * Create GpsDataFolder if not exist.
-     */
-    private void createGpsDataFolder() {
-        try {
-            gpxDataFolder = this.getExternalFilesDir(Environment.getDataDirectory().getAbsolutePath());
-            assert gpxDataFolder != null;
-            if (!gpxDataFolder.exists()) {
-                gpxDataFolder.mkdir();
-            }
-            Log.i(TAG, "Create GpsDataFolder path" + gpxDataFolder.getPath());
-        } catch (Exception e) {
-            Log.e(TAG, "Could not create new folder.", e);
-        }
-    }
-
-    /**
-     * Create gpxFile if not exist
-     */
-    private void createGpxFile() {
-        try {
-            Log.i(TAG, "Create a new gpxFile " + fileName);
-            gpxFile = new File(gpxDataFolder.getPath(), fileName + " .xml");
-            boolean created = gpxFile.createNewFile();
-            if (created) {
-                FileWriter fileWriter = new FileWriter(gpxFile, true);
-                try {
-                    Log.d(TAG, "Writing the xml header");
-                    fileWriter.write(GpxFileWriter.xmlHeader(fileName));
-                    fileWriter.close();
-                } catch (Exception e) {
-                    Log.e(TAG, "Could not write xml header", e);
-                }
-            }
-        } catch (Exception ex) {
-            Log.e(TAG, "Could not create new file.", ex);
-        }
-    }
-
-    /**
-     * Set the current file name in date format
-     */
-    private void setCurrentFileName() {
-        fileName = getFormattedCurrentTime();
-    }
-
-    /**
-     * Get formatted time
-     */
-    private String getFormattedCurrentTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-        return sdf.format(System.currentTimeMillis());
-    }
-
-    /**
-     * Reset the file name to empty string
-     */
-    private void resetFileName() {
-        fileName = "";
-    }
-
-    /**
-     * Reset the file to null
-     */
-    private void resetGpxFile() {
-        gpxFile = null;
     }
 }

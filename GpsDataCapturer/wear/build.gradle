@@ -32,6 +32,7 @@ dependencies {
     compileOnly 'com.google.android.wearable:wearable:2.7.0'
     //maps api
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    //add sharedlibrary
     implementation project(":sharedlibrary")
     wearApp project(":wear")
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"><metadata><time>2020-06-26T10:45:20.087Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata><trk><trkpt lat="37.31033882" lon="-122.03039016"><ele>49.432373046875</ele><time>2020-06-26T10:45:21.748Z</time><speed>0.25</speed><accuracy>13.936001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31032262" lon="-122.03057123"><ele>74.5272216796875</ele><time>2020-06-26T10:45:22.748Z</time><speed>0.22</speed><accuracy>13.936001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31028727" lon="-122.03057348"><ele>65.376708984375</ele><time>2020-06-26T10:45:23.748Z</time><speed>0.26</speed><accuracy>13.936001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31022914" lon="-122.03056046"><ele>56.284423828125</ele><time>2020-06-26T10:45:24.748Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31022542" lon="-122.03040579"><ele>54.2769775390625</ele><time>2020-06-26T10:45:25.737Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31032194" lon="-122.03044607"><ele>38.90875244140625</ele><time>2020-06-26T10:45:26.000Z</time><speed>0.41</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31027997" lon="-122.03048074"><ele>41.89447021484375</ele><time>2020-06-26T10:45:28.000Z</time><speed>0.0</speed><accuracy>6.432</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31029507" lon="-122.03051462"><ele>43.68963623046875</ele><time>2020-06-26T10:45:29.000Z</time><speed>0.0</speed><accuracy>5.36</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31030024" lon="-122.03050905"><ele>46.822021484375</ele><time>2020-06-26T10:45:30.000Z</time><speed>0.0</speed><accuracy>4.288</accuracy><src>gps</src></trkpt>
+</trk><time>2020-06-26T17:45:34.056Z</time></gpx>

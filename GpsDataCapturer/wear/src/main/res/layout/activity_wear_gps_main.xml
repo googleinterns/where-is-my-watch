@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".GpsMainActivity"
+    tools:context=".WearGpsMainActivity"
     tools:deviceIds="wear">
 
     <RelativeLayout
@@ -18,8 +18,8 @@
             android:id="@+id/start_stop_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/wear_button_green"
             android:onClick="onStartButtonClick"
             android:text="@string/start_capture"
             android:textSize="@dimen/screen_percentage_05" />
