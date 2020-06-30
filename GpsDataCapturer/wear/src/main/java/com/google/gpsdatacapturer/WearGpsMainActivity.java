@@ -229,7 +229,7 @@ public class WearGpsMainActivity extends WearableActivity {
         } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
         }
-
+        //Stop GpsDataCaptureService
         try {
             stopService(serviceIntent);
         } catch (Exception e) {

@@ -47,6 +47,7 @@ public class GpxWriteHandler implements Runnable {
                 bufferedWriter.flush();
                 bufferedWriter.close();
                 fileWriter.close();
+                Log.d(TAG, getTrackPointXml(location, formattedTime));
             } catch (Exception e) {
                 Log.e(TAG, "GpxFileWriter.write", e);
             }
@@ -76,9 +77,11 @@ public class GpxWriteHandler implements Runnable {
 
         trackPoint.append("<time>").append(formattedTime).append("</time>");
 
-        trackPoint.append("<speed>").append(location.hasSpeed() ? location.getSpeed() : "0.0").append("</speed>");
+        trackPoint.append("<speed>").append(
+                location.hasSpeed() ? location.getSpeed() : "0.0").append("</speed>");
 
-        trackPoint.append("<accuracy>").append(location.hasAccuracy() ? location.getAccuracy() : "0.0").append("</accuracy>");
+        trackPoint.append("<accuracy>").append(
+                location.hasAccuracy() ? location.getAccuracy() : "0.0").append("</accuracy>");
 
         trackPoint.append("<src>").append(location.getProvider()).append("</src>");
 

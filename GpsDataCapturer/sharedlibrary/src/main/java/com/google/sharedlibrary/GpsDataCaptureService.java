@@ -3,60 +3,66 @@ package com.google.sharedlibrary;
 import static com.google.sharedlibrary.GpxFile.createGpsDataFolder;
 import static com.google.sharedlibrary.GpxFile.createGpxFile;
 import static com.google.sharedlibrary.GpxFile.getNewFileName;
+import static com.google.sharedlibrary.GpxFile.resetGpxFile;
 import static com.google.sharedlibrary.GpxFile.writeFileFooter;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class GpsDataCaptureService extends Service {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
-    private LocationManager locationManager;
-    private boolean isGpsEnabled = false;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationRequest locationRequest;
     private final int INTERVAL = 1000;
-    private final int DISTANCE = 0;
+    private final int FASTEST_INTERVAL = 1000;
 
     private static File gpxDataFolder;
     private static File gpxFile;
 
-    private LocationListener locationListener = new LocationListener() {
+    private LocationCallback locationCallback = new LocationCallback() {
         @Override
-        public void onLocationChanged(Location location) {
-            //Todo: send data to map
+        public void onLocationResult(LocationResult locationResult) {
+            if (locationResult == null) {
+                return;
+            }
+            for (Location location : locationResult.getLocations()) {
+                if (location != null) {
+                    //Todo show text view of lat/lon/speed
+//                    gpsDataTextView.setText(String.format(Locale.US, "%s -- %s", location
+//                    .getLatitude(), location.getLongitude()));
+                    //Todo draw data point on the map
 
-            //write data to file
-            writeToFile(location);
+                    //write data point to gpx file
+                    writeToFile(location);
+                }
+            }
         }
-
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
+        public void onLocationAvailability(LocationAvailability locationAvailability){
 
         }
     };
@@ -70,6 +76,7 @@ public class GpsDataCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     @Override
@@ -80,12 +87,13 @@ public class GpsDataCaptureService extends Service {
 
     @Override
     public void onDestroy() {
+        fusedLocationProviderClient = null;
         super.onDestroy();
     }
 
     /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
+     * Class used for the client Binder.  Because we know this service always runs in the same
+     * process as its clients, we don't need to deal with IPC.
      */
     public class GpsDataCaptureBinder extends Binder {
         public GpsDataCaptureService getService() {
@@ -95,7 +103,7 @@ public class GpsDataCaptureService extends Service {
 
     @Override
     public void onLowMemory() {
-        Log.e(TAG, "Watch is low on memory!");
+        Log.e(TAG, "The device is low on memory!");
         super.onLowMemory();
     }
 
@@ -107,68 +115,88 @@ public class GpsDataCaptureService extends Service {
             gpxDataFolder = createGpsDataFolder(this);
         }
 
-        if (gpxFile == null) {
-            gpxFile = createGpxFile(gpxDataFolder, getNewFileName(this));
-        }
+        gpxFile = createGpxFile(gpxDataFolder, getNewFileName(this));
 
-        startLocationManager();
+        startFusedLocationProviderClient();
     }
 
     /**
      * Stop capturing data
      */
     public void stopCapture() {
-        writeFileFooter(gpxFile,this);
+        writeFileFooter(gpxFile, this);
 
-        stopLocationManager();
+        resetGpxFile(gpxFile);
+
+        stopFusedLocationProviderClient();
 
         stopSelf();
     }
 
     /**
-     * Start the locationManager
+     * Start fusedLocationProviderClient
      */
     @SuppressLint("MissingPermission")
-    private void startLocationManager() {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //check if GPS Provider enabled
-        checkGpsStatus();
+    private void startFusedLocationProviderClient() {
+        createLocationRequest();
 
-        if (!isGpsEnabled) {
-            Log.e(TAG, "Please enable GPS Provider!");
-            //Todo: direct user to enable GPS
-        }
-        Log.i(TAG, "Requesting GPS location updates");
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, INTERVAL, DISTANCE, locationListener);
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
+                Looper.getMainLooper())
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "FusedLocationProviderClient could not be started.", e);
+            }
+        })
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "FusedLocationProviderClient request location update completed.");
+            }
+        });
     }
 
     /**
-     * Check GPS status
+     * Create location request
      */
-    private void checkGpsStatus() {
-        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    private void createLocationRequest(){
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(INTERVAL);
+        locationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
     /**
-     * Stop the locationManager
+     * Stop fusedLocationProviderClient
      */
-    private void stopLocationManager() {
-        if (locationListener != null) {
-            Log.i(TAG, "Removing GPS location updates");
-            locationManager.removeUpdates(locationListener);
+    private void stopFusedLocationProviderClient() {
+        if (fusedLocationProviderClient != null) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "FusedLocationProviderClient could not be removed.", e);
+                }
+            })
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.d(TAG, "FusedLocationProviderClient removed location updates completed.");
+                }
+            });
         }
     }
 
     /**
-     * Write data to file
+     * Write the data to file
      *
      * @param location the location captured from GPS
      */
     private void writeToFile(Location location) {
-        GpxFileWriter fileWriter = new GpxFileWriter(gpxFile, true);
+        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
         try {
-            Log.d(TAG, "Starting file writer");
-            fileWriter.write(getApplicationContext(), location);
+            Log.d(TAG, "Starting gpx file writer");
+            gpxFileWriter.write(getApplicationContext(), location);
         } catch (Exception e) {
             Log.e(TAG, "Could not write to file", e);
         }
