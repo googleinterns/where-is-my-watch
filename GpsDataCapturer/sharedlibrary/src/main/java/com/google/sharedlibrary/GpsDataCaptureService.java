@@ -1,71 +1,59 @@
 package com.google.sharedlibrary;
 
+import static com.google.sharedlibrary.FusedLocationProviderHelper.startFusedLocationProviderClient;
+import static com.google.sharedlibrary.FusedLocationProviderHelper.stopFusedLocationProviderClient;
 import static com.google.sharedlibrary.GpxFile.createGpsDataFolder;
 import static com.google.sharedlibrary.GpxFile.createGpxFile;
 import static com.google.sharedlibrary.GpxFile.getNewFileName;
 import static com.google.sharedlibrary.GpxFile.resetGpxFile;
 import static com.google.sharedlibrary.GpxFile.writeFileFooter;
+import static com.google.sharedlibrary.GpxFile.writeToFile;
+import static com.google.sharedlibrary.LocationManagerHelper.startLocationManager;
+import static com.google.sharedlibrary.LocationManagerHelper.stopLocationManager;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 
 import java.io.File;
 
+/**
+ * This class provides service for capturing gps data from devices and phones, writing collected gps
+ * data to file on local sd card and update gpsDataTextView/gpsStatusTextView on UI, and draw gps
+ * data points on the Map view.
+ *
+ * @author lynnzl
+ * @date 2020-06-30
+ */
 public class GpsDataCaptureService extends Service {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private LocationRequest locationRequest;
-    private final int INTERVAL = 1000;
-    private final int FASTEST_INTERVAL = 1000;
+    private LocationManager locationManager;
+    private LocationManagerListener locationManagerListener;
+    private FusedLocationProviderListener fusedLocationProviderListener;
 
     private static File gpxDataFolder;
     private static File gpxFile;
 
-    private LocationCallback locationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                return;
-            }
-            for (Location location : locationResult.getLocations()) {
-                if (location != null) {
-                    //Todo show text view of lat/lon/speed
-//                    gpsDataTextView.setText(String.format(Locale.US, "%s -- %s", location
-//                    .getLatitude(), location.getLongitude()));
-                    //Todo draw data point on the map
+    private static TextView gpsDataTextView;
+    private static TextView gpsStatusTextView;
+    private static String gpsStatus;
 
-                    //write data point to gpx file
-                    writeToFile(location);
-                }
-            }
-        }
-        @Override
-        public void onLocationAvailability(LocationAvailability locationAvailability){
-
-        }
-    };
+    public enum LocationApiVersion {FUSEDLOCATIONPROVIDERCLIENT, LOCATIONMANAGER}
 
     @Nullable
     @Override
@@ -76,7 +64,22 @@ public class GpsDataCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (fusedLocationProviderClient == null) {
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        }
+        if (fusedLocationProviderListener == null) {
+            fusedLocationProviderListener = new FusedLocationProviderListener(this);
+        }
+        if (locationManager == null) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+        if (locationManagerListener == null) {
+            locationManagerListener = new LocationManagerListener(this);
+        }
+        if (gpxDataFolder == null) {
+            gpxDataFolder = createGpsDataFolder(this);
+        }
     }
 
     @Override
@@ -89,6 +92,54 @@ public class GpsDataCaptureService extends Service {
     public void onDestroy() {
         fusedLocationProviderClient = null;
         super.onDestroy();
+    }
+
+    /**
+     * On location changed, update gps data on gpsDataTextView, draw gps data point on Map
+     * and write gps data to file
+     * @param location the locationed returned by LocationListener's callback function
+     */
+    @SuppressLint("MissingPermission")
+    public void onLocationChanged(Location location) {
+        //set gps data text on gpsDataTextView
+        StringBuilder gpsDataBuilder = new StringBuilder();
+        gpsDataBuilder.append("GPS DATA \n")
+                .append("Lat: ").append(location.getLatitude())
+                .append("\n")
+                .append("Lon: ").append(location.getLongitude())
+                .append("\n")
+                .append("Speed: ").append(location.getSpeed())
+                .append("\n");
+        gpsDataTextView.setText(gpsDataBuilder.toString());
+
+        //Todo draw gps data point on the map
+
+        //write gps data to file
+        writeToFile(gpxFile, this, location);
+    }
+
+    /**
+     * On Gps status changed, update the gpsStatus on text view
+     * @param event the event returned by GpsStatus Listener's callback function
+     */
+    public void onGpsStatusChanged(int event) {
+        //update gpsStatus
+        switch (event) {
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+                Log.d(TAG, "Gps got the first fix.");
+                gpsStatus = "Gps Status: GPS_EVENT_FIRST_FIX";
+                break;
+            case GpsStatus.GPS_EVENT_STARTED:
+                Log.d(TAG, "Gps started, waiting for fix.");
+                gpsStatus = "Gps Status: GPS_EVENT_STARTED";
+                break;
+            case GpsStatus.GPS_EVENT_STOPPED:
+                Log.d(TAG, "Gps paused.");
+                gpsStatus = "Gps Status: GPS_EVENT_STOPPED";
+                break;
+        }
+        //set gpsStatus text on gpsStatusTextView
+        gpsStatusTextView.setText(gpsStatus);
     }
 
     /**
@@ -108,97 +159,48 @@ public class GpsDataCaptureService extends Service {
     }
 
     /**
-     * Start capturing data
+     * Start capturing data from GPS via the chosen location api
+     *
+     * @param locationApiVersion the chosen location api
+     * @param gpsDataTextView the gps data text view in main activity
+     * @param gpsStatusTextView the gps status text view in main activity
      */
-    public void startCapture() {
-        if (gpxDataFolder == null) {
-            gpxDataFolder = createGpsDataFolder(this);
-        }
+    public void startCapture(LocationApiVersion locationApiVersion, TextView gpsDataTextView,
+            TextView gpsStatusTextView) {
+        GpsDataCaptureService.gpsDataTextView = gpsDataTextView;
+        GpsDataCaptureService.gpsStatusTextView = gpsStatusTextView;
 
         gpxFile = createGpxFile(gpxDataFolder, getNewFileName(this));
 
-        startFusedLocationProviderClient();
+        switch (locationApiVersion) {
+            case FUSEDLOCATIONPROVIDERCLIENT:
+                startFusedLocationProviderClient(fusedLocationProviderClient,
+                        fusedLocationProviderListener);
+                break;
+            case LOCATIONMANAGER:
+                startLocationManager(locationManager, locationManagerListener);
+        }
     }
 
     /**
-     * Stop capturing data
+     * Stop capturing data from GPS via the chosen location api
+     *
+     * @param locationApiVersion the chosen location api
      */
-    public void stopCapture() {
+    public void stopCapture(LocationApiVersion locationApiVersion) {
         writeFileFooter(gpxFile, this);
 
         resetGpxFile(gpxFile);
 
-        stopFusedLocationProviderClient();
+        switch (locationApiVersion) {
+            case FUSEDLOCATIONPROVIDERCLIENT:
+                stopFusedLocationProviderClient(fusedLocationProviderClient,
+                        fusedLocationProviderListener);
+                break;
+            case LOCATIONMANAGER:
+                stopLocationManager(locationManager, locationManagerListener);
+        }
 
         stopSelf();
-    }
-
-    /**
-     * Start fusedLocationProviderClient
-     */
-    @SuppressLint("MissingPermission")
-    private void startFusedLocationProviderClient() {
-        createLocationRequest();
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
-                Looper.getMainLooper())
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, "FusedLocationProviderClient could not be started.", e);
-            }
-        })
-        .addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "FusedLocationProviderClient request location update completed.");
-            }
-        });
-    }
-
-    /**
-     * Create location request
-     */
-    private void createLocationRequest(){
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(INTERVAL);
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);
-    }
-
-    /**
-     * Stop fusedLocationProviderClient
-     */
-    private void stopFusedLocationProviderClient() {
-        if (fusedLocationProviderClient != null) {
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "FusedLocationProviderClient could not be removed.", e);
-                }
-            })
-            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Log.d(TAG, "FusedLocationProviderClient removed location updates completed.");
-                }
-            });
-        }
-    }
-
-    /**
-     * Write the data to file
-     *
-     * @param location the location captured from GPS
-     */
-    private void writeToFile(Location location) {
-        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
-        try {
-            Log.d(TAG, "Starting gpx file writer");
-            gpxFileWriter.write(getApplicationContext(), location);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not write to file", e);
-        }
     }
 }

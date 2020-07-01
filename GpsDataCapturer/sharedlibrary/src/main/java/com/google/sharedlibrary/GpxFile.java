@@ -1,16 +1,20 @@
 package com.google.sharedlibrary;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+/**
+ * This class deals everything related to the file and file folder. It provides new folder creation,
+ * new file creation, and writing header/captured data/footer etc., functions.
+ */
 public class GpxFile {
     private static String TAG = "GpxFile";
 
@@ -22,7 +26,7 @@ public class GpxFile {
      */
     public static File createGpsDataFolder(Context context) {
         File gpxDataFolder = context.getExternalFilesDir(
-                Environment.getDataDirectory().getAbsolutePath());
+                Environment.getExternalStorageDirectory().getAbsolutePath());
         try {
             assert gpxDataFolder != null;
             if (!gpxDataFolder.exists()) {
@@ -48,11 +52,8 @@ public class GpxFile {
         try {
             gpxFile.createNewFile();
             FileWriter fileWriter = new FileWriter(gpxFile, true);
-//            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             Log.d(TAG, "Writing the xml header");
             fileWriter.write(writeFileHeader(fileName));
-//            bufferedWriter.flush();
-//            bufferedWriter.close();
             fileWriter.close();
 
         } catch (IOException e) {
@@ -132,9 +133,25 @@ public class GpxFile {
 
     /**
      * Reset the gpxFile to null
+     *
      * @param gpxFile the gpxFile
      */
     public static void resetGpxFile(File gpxFile) {
         gpxFile = null;
+    }
+
+    /**
+     * Write the data to file
+     *
+     * @param location the location captured from GPS
+     */
+    public static void writeToFile(File gpxFile, Context context, Location location) {
+        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
+        try {
+            Log.d(TAG, "Starting gpx file writer");
+            gpxFileWriter.write(context, location);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not write to file", e);
+        }
     }
 }

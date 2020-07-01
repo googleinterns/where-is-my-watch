@@ -5,4 +5,7 @@
     -->
     <string name="start_capture">START</string>
     <string name="stop_capture">STOP</string>
+    <string name="locationmanager_api">LocationManager API</string>
+    <string name="fusedlocationprovider_api">FusedLocationProvider API</string>
+    <string name="gps_data">GPS Data</string>
 </resources>

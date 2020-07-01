@@ -174,7 +174,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
             Log.e(TAG, "GpsDataCaptureService is not bound");
         }
         Log.d(TAG, "Stop capture data.");
-        gpsDataCaptureService.stopCapture();
+        gpsDataCaptureService.stopCapture(apiVersion);
     }
 
     /**

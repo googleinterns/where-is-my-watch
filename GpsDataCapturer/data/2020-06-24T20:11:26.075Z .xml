@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"><metadata><start time>2020-06-24T20:11:26.075Z</start time><device>generic_x86</device><ID>PWD1.180819.012</ID><manufacturer>unknown</manufacturer><model>sdk_gwear_sw_x86</model></metadata><trk><trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:48:58.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:00.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:01.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:02.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:03.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:04.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:05.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.421998333333335" lon="-122.08400000000002"><ele>5.0</ele><time>2020-06-26T06:49:06.000Z</time><speed>0.0</speed><accuracy>20.0</accuracy><src>gps</src></trkpt>
+<time>2020-06-24T20:11:33.800Z</time></trk></gpx>

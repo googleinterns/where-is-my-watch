@@ -6,26 +6,21 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.text.SimpleDateFormat;
-import java.util.logging.Logger;
 
+/**
+ * Helper class that handle data writing for the GpxFileWriter.
+ */
 public class GpxWriteHandler implements Runnable {
     private final String TAG = "GpxWriterHandler";
-    private String formattedTime;
-    private Location location;
-    private File gpxFile;
-    private boolean append;
+    private final String formattedTime;
+    private final Location location;
+    private final File gpxFile;
+    private final boolean append;
     private static final int SIZE = 20480;
+
 
     public GpxWriteHandler(String formattedTime, File gpxFile, Location location, boolean append) {
         this.formattedTime = formattedTime;
@@ -37,20 +32,17 @@ public class GpxWriteHandler implements Runnable {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void run() {
-        synchronized (GpxFileWriter.lock) {
-            Log.i(TAG, "Start writing to file");
-            try {
-                FileWriter fileWriter = new FileWriter(gpxFile, true);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
+        Log.i(TAG, "Start writing to file");
+        try (FileWriter fileWriter = new FileWriter(gpxFile, true)) {
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
 
-                bufferedWriter.write(getTrackPointXml(location, formattedTime));
-                bufferedWriter.flush();
-                bufferedWriter.close();
-                fileWriter.close();
-                Log.d(TAG, getTrackPointXml(location, formattedTime));
-            } catch (Exception e) {
-                Log.e(TAG, "GpxFileWriter.write", e);
-            }
+            bufferedWriter.write(getTrackPointXml(location, formattedTime));
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            fileWriter.close();
+            Log.d(TAG, getTrackPointXml(location, formattedTime));
+        } catch (Exception e) {
+            Log.e(TAG, "GpxFileWriter.write", e);
         }
     }
 
