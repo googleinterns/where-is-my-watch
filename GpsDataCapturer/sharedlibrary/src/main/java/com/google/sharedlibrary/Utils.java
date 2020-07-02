@@ -3,23 +3,22 @@ package com.google.sharedlibrary;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
+import java.text.SimpleDateFormat;
+
+/**
+ * This Utils class wraps all the utility functions
+ */
 public class Utils {
     private static final String TAG = "System";
     public static final int PERMISSION_REQUEST_CODE = 1;
-
     public enum ButtonState {START_CAPTURE, STOP_CAPTURE}
 
     /**
@@ -64,7 +63,7 @@ public class Utils {
      * @param permissions  an array of permission name
      * @param grantResults an array of grant results
      */
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+    private void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults, Context context) {
         switch (requestCode) {
             case PERMISSION_REQUEST_CODE: {
@@ -73,7 +72,7 @@ public class Utils {
                     Log.i(TAG, "Required Permissions are not granted.");
                     Toast.makeText(context,
                             "Function disabled, please grant permissions required to run the app",
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             }
             default:
@@ -83,8 +82,41 @@ public class Utils {
 
     /**
      * Check if gps enabled
+     *
+     * @param locationManager the location manager
+     * @return return true if gps provider enabled, false if not
      */
     public static boolean isGpsEnabled(LocationManager locationManager) {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
+     * Get formatted system time
+     *
+     * @param context the context
+     * @return return a string of formatted current time
+     */
+    public static String getFormattedCurrentTime(Context context) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                context.getResources().getConfiguration().locale);
+        return sdf.format(System.currentTimeMillis());
+    }
+
+    /**
+     * Get Gps data string
+     *
+     * @param location the update location from gps
+     * @return return a gps data string
+     */
+    public static String getGpsDataString(Location location) {
+        StringBuilder gpsDataBuilder = new StringBuilder();
+        gpsDataBuilder.append("GPS DATA \n")
+                .append("Lat: ").append(location.getLatitude())
+                .append("\n")
+                .append("Lon: ").append(location.getLongitude())
+                .append("\n")
+                .append("Speed: ").append(location.getSpeed())
+                .append("\n");
+        return gpsDataBuilder.toString();
     }
 }

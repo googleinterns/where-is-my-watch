@@ -1,14 +1,10 @@
 package com.google.gpsdatacapturer;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,8 +12,12 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.google.sharedlibrary.GpsDataCaptureService;
+import com.google.sharedlibrary.Utils;
+import com.google.sharedlibrary.Utils.ButtonState;
 
 public class MobileGpsMainActivity extends AppCompatActivity {
     private static final String TAG = "MobileGpsMainActivity";
@@ -25,10 +25,15 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private static Intent serviceIntent;
     private LocationManager locationManager;
     private static boolean isBound = false;
-    private static final int LOCATION_REQUEST_CODE = 1;
-    private static final int READ_WRITE_REQUEST_CODE = 2;
-    private static boolean isStart = true;
-    private boolean isGpsEnabled = false;
+
+    private ButtonState startAndStopButtonState = ButtonState.START_CAPTURE;
+    private GpsDataCaptureService.LocationApiVersion
+            locationApiVersion = GpsDataCaptureService.LocationApiVersion.LOCATIONMANAGER;
+
+    private RadioGroup apiRadioGroup;
+    private Button startAndStopButton;
+    private TextView gpsDataTextView;
+    private TextView gpsStatusTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,31 +41,50 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mobile_gps_main);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        apiRadioGroup = (RadioGroup) findViewById(R.id.m_raido_group_apiversion);
+        startAndStopButton = (Button) findViewById(R.id.m_start_stop_button);
+        gpsDataTextView = (TextView) findViewById(R.id.m_text_view_gps_data);
+        gpsStatusTextView = (TextView) findViewById(R.id.m_text_view_gps_status);
 
-        requestLocationPermissionsIfNotGranted();
-        requestReadWritePermissionsIfNotGranted();
+        //check and request for all necessary permissions
+        if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
+            Utils.requestNecessaryPermissions(this);
+        }
 
-        checkGpsStatus();
-        setGpsEnabled();
+        if (!Utils.isGpsEnabled(locationManager)) {
+            setGpsEnabled();
+        }
 
+        //Choose a location api, hide the radio group and show startAndStopButton
+        apiRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
+            locationApiVersion = checkedId == R.id.m_radio_button_FLP ?
+                    GpsDataCaptureService.LocationApiVersion.FUSEDLOCATIONPROVIDERCLIENT
+                    : GpsDataCaptureService.LocationApiVersion.LOCATIONMANAGER;
+        });
+
+        //start and bind the service
         startAndBindGpsDataCaptureService();
-        final Button startAndStopButton = (Button) findViewById(R.id.mobile_start_stop_button);
-        startAndStopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isStart) {
-                    onStartButtonClick(v);
-                    startAndStopButton.setText(R.string.stop_capture);
-                    isStart = false;
-                    startAndStopButton.setBackground(
-                            getResources().getDrawable(R.drawable.mobile_button_red));
-                } else {
-                    onStopButtonClick(v);
-                    startAndStopButton.setText(R.string.start_capture);
-                    isStart = true;
-                    startAndStopButton.setBackground(
-                            getResources().getDrawable(R.drawable.mobile_button_green));
-                }
+
+        //start capture data if the button state is START_CAPTURE, and stop if the state is
+        // STOP_CAPTURE
+        startAndStopButton.setOnClickListener((View v) -> {
+            if (startAndStopButtonState == Utils.ButtonState.START_CAPTURE) {
+                //hide radio group
+                apiRadioGroup.setVisibility(View.GONE);
+
+                showGpsDataAndStatusTextView();
+
+                startGpsCapture(locationApiVersion);
+
+                switchToStopButton();
+            } else {
+                stopGpsCapture(locationApiVersion);
+
+                hideGpsDataAndStatusTextView();
+
+                resetRadioGroup();
+
+                switchToStartButton();
             }
         });
     }
@@ -78,100 +102,54 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         isBound = false;
     }
 
-    private void requestLocationPermissionsIfNotGranted() {
-        boolean granted = hasUserGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                && hasUserGrantedPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (!granted) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_REQUEST_CODE);
-        }
-
-    }
-
-    private void requestReadWritePermissionsIfNotGranted() {
-        boolean granted = hasUserGrantedPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                && hasUserGrantedPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (!granted) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE},
-                    LOCATION_REQUEST_CODE);
-        }
-    }
-
-    /**
-     * Check if the user grant permissions required to run the app
-     *
-     * @param permissionName
-     * @return return true if permission granted and false if not
-     */
-    private boolean hasUserGrantedPermission(String permissionName) {
-        boolean granted = ActivityCompat.checkSelfPermission(this, permissionName)
-                == PackageManager.PERMISSION_GRANTED;
-        Log.d(TAG, "Permission " + permissionName + " : " + granted);
-        return granted;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startAndBindGpsDataCaptureService();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] grantResults) {
-        switch (requestCode) {
-            case LOCATION_REQUEST_CODE: {
-                if (grantResults.length <= 0
-                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "Location Permissions are not granted.");
-                }
-            }
-            break;
-            case READ_WRITE_REQUEST_CODE: {
-                if (grantResults.length <= 0
-                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "Read and Write Permission are not granted.");
-                }
-            }
-            default:
-                throw new IllegalStateException("Unexpected value: " + requestCode);
-        }
+    protected void onPause() {
+        super.onPause();
+        stopAndUnbindGpsDataCaptureService();
+        isBound = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**
      * Set GPS if it's not enabled
      */
     private void setGpsEnabled() {
-        if (!isGpsEnabled) {
-            Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(settingsIntent);
-        }
-    }
-
-    /**
-     * Check GPS status
-     */
-    private void checkGpsStatus() {
-        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        //Todo pop out a dialog to accept/deny enable setting??
+        Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(settingsIntent);
     }
 
     /**
      * On click of Start button, start capturing gps data
      */
-    public void onStartButtonClick(View view) {
+    public void startGpsCapture(GpsDataCaptureService.LocationApiVersion apiVersion) {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound, could not start capture.");
             return;
         }
         Log.d(TAG, "Start capture data.");
-        gpsDataCaptureService.startCapture();
-
+        gpsDataCaptureService.startCapture(apiVersion, gpsDataTextView, gpsStatusTextView);
     }
 
     /**
      * On click of Stop button, stop capturing gps data
      */
-    public void onStopButtonClick(View view) {
+    public void stopGpsCapture(GpsDataCaptureService.LocationApiVersion apiVersion) {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound");
+        }
+        if (!Utils.isGpsEnabled(locationManager)) {
+            Log.e(TAG, "GPS provider is not enabled");
         }
         Log.d(TAG, "Stop capture data.");
         gpsDataCaptureService.stopCapture(apiVersion);
@@ -210,7 +188,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         }
         //Bind to GpsDataCaptureService
         try {
-            bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
+            isBound = bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
             Log.e(TAG, "Could not bind gpsDataCaptureService", e);
         }
@@ -222,15 +200,61 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void stopAndUnbindGpsDataCaptureService() {
         //Unbind from GpsDataCaptureService
         try {
-            unbindService(gpsServiceConnection);
+            if (isBound) {
+                unbindService(gpsServiceConnection);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
         }
-
+        //Stop GpsDataCaptureService
         try {
             stopService(serviceIntent);
         } catch (Exception e) {
             Log.e(TAG, "Could not stop gpsDataCaptureService", e);
         }
+    }
+
+    /**
+     * Show gps data and status text view
+     */
+    private void showGpsDataAndStatusTextView() {
+        gpsDataTextView.setVisibility(View.VISIBLE);
+        gpsStatusTextView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Hide gps data and status text view
+     */
+    private void hideGpsDataAndStatusTextView() {
+        gpsDataTextView.setVisibility(View.GONE);
+        gpsStatusTextView.setVisibility(View.GONE);
+    }
+
+    /**
+     * Reset radio group to initial state
+     */
+    private void resetRadioGroup() {
+        apiRadioGroup.clearCheck();
+        apiRadioGroup.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Switch to stop button
+     */
+    private void switchToStopButton() {
+        startAndStopButton.setText(R.string.stop_capture);
+        startAndStopButtonState = ButtonState.STOP_CAPTURE;
+        startAndStopButton.setBackground(
+                getResources().getDrawable(R.drawable.mobile_button_red));
+    }
+
+    /**
+     * Switch to start button
+     */
+    private void switchToStartButton() {
+        startAndStopButton.setText(R.string.start_capture);
+        startAndStopButtonState = ButtonState.START_CAPTURE;
+        startAndStopButton.setBackground(
+                getResources().getDrawable(R.drawable.mobile_button_green));
     }
 }

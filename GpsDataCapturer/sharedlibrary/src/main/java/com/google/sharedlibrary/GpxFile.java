@@ -51,11 +51,6 @@ public class GpxFile {
         File gpxFile = new File(gpxDataFolder.getPath(), fileName + ".xml");
         try {
             gpxFile.createNewFile();
-            FileWriter fileWriter = new FileWriter(gpxFile, true);
-            Log.d(TAG, "Writing the xml header");
-            fileWriter.write(writeFileHeader(fileName));
-            fileWriter.close();
-
         } catch (IOException e) {
             Log.e(TAG, "Could not create new gpx file.", e);
         }
@@ -69,44 +64,23 @@ public class GpxFile {
      * @return return the name for new file
      */
     public static String getNewFileName(Context context) {
-        return getFormattedCurrentTime(context);
+        return Utils.getFormattedCurrentTime(context);
     }
 
     /**
-     * Get formatted system time
+     * Write the data to file
      *
-     * @param context the context
-     * @return return a string of formatted current time
+     * @param location the location captured from GPS
      */
-    public static String getFormattedCurrentTime(Context context) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                context.getResources().getConfiguration().locale);
-        return sdf.format(System.currentTimeMillis());
-    }
-
-    /**
-     * Create the xml header with version, creator and metadata
-     *
-     * @param formattedTime time of on location changed in format
-     * @return A header string
-     */
-    public static String writeFileHeader(String formattedTime) {
-        StringBuilder header = new StringBuilder();
-        header.append("<?xml version='1.0' encoding='UTF-8' ?>");
-        header.append("<gpx version=\"1.1\" creator=\"GpsDataCapturer " + BuildConfig.VERSION_CODE
-                + "\" ");
-        header.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
-        header.append("xmlns=\"http://www.topografix.com/GPX/1/1\" ");
-        header.append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 ");
-        header.append("http://www.topografix.com/GPX/1/1/gpx.xsd\">");
-        header.append("<metadata><time>").append(formattedTime).append("</time>");
-        header.append("<device>").append(Build.DEVICE).append("</device>");
-        header.append("<id>").append(Build.ID).append("</id>");
-        header.append("<manufacturer>").append(Build.MANUFACTURER).append("</manufacturer>");
-        header.append("<model>").append(Build.MODEL).append("</model></metadata>");
-        header.append("<trk>");
-        header.append("<trkseg>");
-        return header.toString();
+    public static void writeToFile(File gpxFile, Context context, Location location,
+            boolean isNewFile) {
+        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
+        try {
+            Log.d(TAG, "Starting gpx file writer");
+            gpxFileWriter.write(context, location, isNewFile);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not write to file", e);
+        }
     }
 
     /**
@@ -118,12 +92,9 @@ public class GpxFile {
     public static void writeFileFooter(File gpxFile, Context context) {
         try {
             FileWriter fileWriter = new FileWriter(gpxFile, true);
-//            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             Log.d(TAG, "Writing the xml footer.");
             fileWriter.write(
-                    "</trkseg></trk><time>" + getFormattedCurrentTime(context) + "</time></gpx>");
-//            bufferedWriter.flush();
-//            bufferedWriter.close();
+                    "</trkseg></trk><time>" + Utils.getFormattedCurrentTime(context) + "</time></gpx>");
             fileWriter.close();
             Log.i(TAG, "Finished writing to GPX file");
         } catch (IOException e) {
@@ -138,20 +109,5 @@ public class GpxFile {
      */
     public static void resetGpxFile(File gpxFile) {
         gpxFile = null;
-    }
-
-    /**
-     * Write the data to file
-     *
-     * @param location the location captured from GPS
-     */
-    public static void writeToFile(File gpxFile, Context context, Location location) {
-        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
-        try {
-            Log.d(TAG, "Starting gpx file writer");
-            gpxFileWriter.write(context, location);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not write to file", e);
-        }
     }
 }

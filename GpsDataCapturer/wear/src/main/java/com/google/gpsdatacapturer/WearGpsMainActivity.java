@@ -1,12 +1,10 @@
 package com.google.gpsdatacapturer;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,8 +16,6 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
 
 import com.google.sharedlibrary.GpsDataCaptureService;
 import com.google.sharedlibrary.GpsDataCaptureService.GpsDataCaptureBinder;
@@ -34,8 +30,7 @@ public class WearGpsMainActivity extends WearableActivity {
     private static Intent serviceIntent;
     private LocationManager locationManager;
     private static boolean isBound = false;
-    private static final int LOCATION_REQUEST_CODE = 1;
-    private static final int READ_WRITE_REQUEST_CODE = 2;
+    private static final int PERMISSION_REQUEST_CODE = 1;
     private boolean isGpsEnabled = false;
 
     private ButtonState startAndStopButtonState = ButtonState.START_CAPTURE;
@@ -57,11 +52,7 @@ public class WearGpsMainActivity extends WearableActivity {
         gpsDataTextView = (TextView) findViewById(R.id.text_view_gps_data);
         gpsStatusTextView = (TextView) findViewById(R.id.text_view_gps_status);
 
-        //check necessary permissions
-//        requestLocationPermissionsIfNotGranted();
-//        requestReadWritePermissionsIfNotGranted();
-//
-//        setGpsIfNotEnabled();
+        //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
             Utils.requestNecessaryPermissions(this);
         }
@@ -138,101 +129,6 @@ public class WearGpsMainActivity extends WearableActivity {
         super.onDestroy();
     }
 
-//    private void requestLocationPermissionsIfNotGranted() {
-//        boolean granted = hasUserGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-//                && hasUserGrantedPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-//        if (!granted) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-//                            Manifest.permission.ACCESS_COARSE_LOCATION},
-//                    LOCATION_REQUEST_CODE);
-//        }
-//
-//    }
-//
-//    private void requestReadWritePermissionsIfNotGranted() {
-//        boolean granted = hasUserGrantedPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                && hasUserGrantedPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-//        if (!granted) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                            Manifest.permission.READ_EXTERNAL_STORAGE},
-//                    LOCATION_REQUEST_CODE);
-//        }
-//    }
-//
-//    /**
-//     * Check if the user grant permissions required to run the app
-//     *
-//     * @param permissionName the permission name to check
-//     * @return return true if permission granted and false if not
-//     */
-//    private boolean hasUserGrantedPermission(String permissionName) {
-//        boolean granted = ActivityCompat.checkSelfPermission(this, permissionName)
-//                == PackageManager.PERMISSION_GRANTED;
-//        Log.d(TAG, "Permission " + permissionName + " : " + granted);
-//        return granted;
-//    }
-
-//    @Override
-//    /**
-//     * Toast message asking users to grant the permissions to start the function
-//     *
-//     * @param requestCode the permission request code
-//     * @param permissions an array of permisson name
-//     * @param grantResults an array of grant results
-//     */
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            int[] grantResults) {
-////            case LOCATION_REQUEST_CODE: {
-////                if (grantResults.length <= 0
-////                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-////                    Log.i(TAG, "Location Permissions are not granted.");
-////                    Toast.makeText(this,
-////                            "Function disabled, please grant the location permissions.",
-////                            Toast.LENGTH_LONG).show();
-////                }
-////            }
-////            break;
-////            case READ_WRITE_REQUEST_CODE: {
-////                if (grantResults.length <= 0
-////                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-////                    Log.i(TAG, "Read and Write Permission are not granted.");
-////                    Toast.makeText(this,
-////                            "Function disabled, please grant the read and write permissions.",
-////                            Toast.LENGTH_LONG).show();
-////                }
-////            }
-////            default:
-////                throw new IllegalStateException("Unexpected value: " + requestCode);
-//        }
-//    }
-
-    /**
-     * Toast message asking users to grant the permissions to start the function
-     *
-     * @param requestCode  the permission request code
-     * @param permissions  an array of permission name
-     * @param grantResults an array of grant results
-     */
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] grantResults) {
-        switch (requestCode) {
-            case Utils.PERMISSION_REQUEST_CODE: {
-                if (grantResults.length <= 0
-                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "Required Permissions are not granted.");
-                    Toast toast = Toast.makeText(this,
-                            "Function disabled, please grant permissions required to run the app",
-                            Toast.LENGTH_LONG);
-                    toast.show();
-                }
-            }
-            default:
-                throw new IllegalStateException("Unexpected value: " + requestCode);
-        }
-    }
-
     /**
      * Set GPS if it's not enabled
      */
@@ -261,7 +157,7 @@ public class WearGpsMainActivity extends WearableActivity {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound");
         }
-        if(!Utils.isGpsEnabled(locationManager)){
+        if (!Utils.isGpsEnabled(locationManager)) {
             Log.e(TAG, "GPS provider is not enabled");
         }
         Log.d(TAG, "Stop capture data.");

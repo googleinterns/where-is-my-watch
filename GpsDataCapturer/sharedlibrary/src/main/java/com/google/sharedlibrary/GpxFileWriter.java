@@ -5,7 +5,6 @@ import android.location.Location;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,15 +31,17 @@ public class GpxFileWriter {
         });
     }
 
-    public void write(Context context, Location location) throws Exception {
+    public void write(Context context, Location location, boolean isNewFile) throws Exception {
         long time = location.getTime();
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                context.getResources().getConfiguration().locale);
 
-        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location, append);
+        Runnable writeHandler = new GpxWriteHandler(context, sdf.format(time), gpxFile, location,
+                append, isNewFile);
         EXECUTOR.execute(writeHandler);
     }
 }

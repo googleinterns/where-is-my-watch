@@ -5,9 +5,6 @@ import static com.google.sharedlibrary.FusedLocationProviderHelper.stopFusedLoca
 import static com.google.sharedlibrary.GpxFile.createGpsDataFolder;
 import static com.google.sharedlibrary.GpxFile.createGpxFile;
 import static com.google.sharedlibrary.GpxFile.getNewFileName;
-import static com.google.sharedlibrary.GpxFile.resetGpxFile;
-import static com.google.sharedlibrary.GpxFile.writeFileFooter;
-import static com.google.sharedlibrary.GpxFile.writeToFile;
 import static com.google.sharedlibrary.LocationManagerHelper.startLocationManager;
 import static com.google.sharedlibrary.LocationManagerHelper.stopLocationManager;
 
@@ -46,12 +43,13 @@ public class GpsDataCaptureService extends Service {
     private LocationManagerListener locationManagerListener;
     private FusedLocationProviderListener fusedLocationProviderListener;
 
-    private static File gpxDataFolder;
+    private static File gpxFileFolder;
     private static File gpxFile;
 
     private static TextView gpsDataTextView;
     private static TextView gpsStatusTextView;
     private static String gpsStatus;
+    private static boolean isNewFile;
 
     public enum LocationApiVersion {FUSEDLOCATIONPROVIDERCLIENT, LOCATIONMANAGER}
 
@@ -77,8 +75,8 @@ public class GpsDataCaptureService extends Service {
         if (locationManagerListener == null) {
             locationManagerListener = new LocationManagerListener(this);
         }
-        if (gpxDataFolder == null) {
-            gpxDataFolder = createGpsDataFolder(this);
+        if (gpxFileFolder == null) {
+            gpxFileFolder = createGpsDataFolder(this);
         }
     }
 
@@ -95,31 +93,26 @@ public class GpsDataCaptureService extends Service {
     }
 
     /**
-     * On location changed, update gps data on gpsDataTextView, draw gps data point on Map
-     * and write gps data to file
+     * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
+     * gps data to file
+     *
      * @param location the locationed returned by LocationListener's callback function
      */
     @SuppressLint("MissingPermission")
     public void onLocationChanged(Location location) {
         //set gps data text on gpsDataTextView
-        StringBuilder gpsDataBuilder = new StringBuilder();
-        gpsDataBuilder.append("GPS DATA \n")
-                .append("Lat: ").append(location.getLatitude())
-                .append("\n")
-                .append("Lon: ").append(location.getLongitude())
-                .append("\n")
-                .append("Speed: ").append(location.getSpeed())
-                .append("\n");
-        gpsDataTextView.setText(gpsDataBuilder.toString());
+        gpsDataTextView.setText(Utils.getGpsDataString(location));
 
         //Todo draw gps data point on the map
 
         //write gps data to file
-        writeToFile(gpxFile, this, location);
+        GpxFile.writeToFile(gpxFile, this, location, isNewFile);
+        isNewFile = false;
     }
 
     /**
      * On Gps status changed, update the gpsStatus on text view
+     *
      * @param event the event returned by GpsStatus Listener's callback function
      */
     public void onGpsStatusChanged(int event) {
@@ -162,15 +155,16 @@ public class GpsDataCaptureService extends Service {
      * Start capturing data from GPS via the chosen location api
      *
      * @param locationApiVersion the chosen location api
-     * @param gpsDataTextView the gps data text view in main activity
-     * @param gpsStatusTextView the gps status text view in main activity
+     * @param gpsDataTextView    the gps data text view in main activity
+     * @param gpsStatusTextView  the gps status text view in main activity
      */
     public void startCapture(LocationApiVersion locationApiVersion, TextView gpsDataTextView,
             TextView gpsStatusTextView) {
         GpsDataCaptureService.gpsDataTextView = gpsDataTextView;
         GpsDataCaptureService.gpsStatusTextView = gpsStatusTextView;
 
-        gpxFile = createGpxFile(gpxDataFolder, getNewFileName(this));
+        gpxFile = createGpxFile(gpxFileFolder, getNewFileName(this));
+        isNewFile = true;
 
         switch (locationApiVersion) {
             case FUSEDLOCATIONPROVIDERCLIENT:
@@ -188,9 +182,9 @@ public class GpsDataCaptureService extends Service {
      * @param locationApiVersion the chosen location api
      */
     public void stopCapture(LocationApiVersion locationApiVersion) {
-        writeFileFooter(gpxFile, this);
+        GpxFile.writeFileFooter(gpxFile, this);
 
-        resetGpxFile(gpxFile);
+        GpxFile.resetGpxFile(gpxFile);
 
         switch (locationApiVersion) {
             case FUSEDLOCATIONPROVIDERCLIENT:
@@ -200,7 +194,6 @@ public class GpsDataCaptureService extends Service {
             case LOCATIONMANAGER:
                 stopLocationManager(locationManager, locationManagerListener);
         }
-
         stopSelf();
     }
 }
