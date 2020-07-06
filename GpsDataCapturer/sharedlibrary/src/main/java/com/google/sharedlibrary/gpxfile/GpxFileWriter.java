@@ -1,4 +1,4 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;

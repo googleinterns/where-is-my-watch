@@ -1,13 +1,13 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.service;
 
-import static com.google.sharedlibrary.FusedLocationProviderHelper.startFusedLocationProviderClient;
-import static com.google.sharedlibrary.FusedLocationProviderHelper.stopFusedLocationProviderClient;
-import static com.google.sharedlibrary.GpxFile.createGpsDataFolder;
-import static com.google.sharedlibrary.GpxFile.createGpxFile;
-import static com.google.sharedlibrary.GpxFile.getNewFileName;
-import static com.google.sharedlibrary.LocationManagerHelper.startLocationManager;
-import static com.google.sharedlibrary.LocationManagerHelper.stopLocationManager;
-import static com.google.sharedlibrary.Utils.LocationApiType;
+import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.startFusedLocationProviderClient;
+import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.stopFusedLocationProviderClient;
+import static com.google.sharedlibrary.gpxfile.GpxFile.createGpsDataFolder;
+import static com.google.sharedlibrary.gpxfile.GpxFile.createGpxFile;
+import static com.google.sharedlibrary.gpxfile.GpxFile.getNewFileName;
+import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.startLocationManager;
+import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.stopLocationManager;
+import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -24,6 +24,9 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.sharedlibrary.gpxfile.GpxFile;
+import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
+import com.google.sharedlibrary.locationhelper.LocationManagerListener;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 
 import java.io.File;

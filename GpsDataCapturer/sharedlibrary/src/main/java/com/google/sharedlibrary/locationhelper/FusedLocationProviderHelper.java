@@ -1,4 +1,4 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.locationhelper;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;

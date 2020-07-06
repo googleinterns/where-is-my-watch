@@ -1,4 +1,4 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.utils;
 
 import android.Manifest;
 import android.app.Activity;

@@ -1,6 +1,6 @@
 package com.google.gpsdatacapturer;
 
-import static com.google.sharedlibrary.Utils.isGpsEnabled;
+import static com.google.sharedlibrary.utils.Utils.isGpsEnabled;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -21,10 +21,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.gpsdatacapturer.databinding.ActivityMobileGpsMainBinding;
-import com.google.sharedlibrary.GpsDataCaptureService;
-import com.google.sharedlibrary.Utils;
-import com.google.sharedlibrary.Utils.ButtonState;
-import com.google.sharedlibrary.Utils.LocationApiType;
+import com.google.sharedlibrary.service.GpsDataCaptureService;
+import com.google.sharedlibrary.utils.Utils;
+import com.google.sharedlibrary.utils.Utils.ButtonState;
+import com.google.sharedlibrary.utils.Utils.LocationApiType;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
 

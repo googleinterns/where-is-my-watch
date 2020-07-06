@@ -1,15 +1,15 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
+
+import com.google.sharedlibrary.utils.Utils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 /**
  * This class deals everything related to the file and file folder. It provides new folder creation,

@@ -1,4 +1,4 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;
@@ -6,6 +6,10 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+
+import com.google.sharedlibrary.BuildConfig;
+import com.google.sharedlibrary.utils.Utils;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

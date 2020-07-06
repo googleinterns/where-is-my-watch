@@ -1,4 +1,4 @@
-package com.google.sharedlibrary;
+package com.google.sharedlibrary.locationhelper;
 
 import android.location.GpsStatus;
 import android.location.Location;
@@ -6,6 +6,7 @@ import android.location.Location;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
+import com.google.sharedlibrary.service.GpsDataCaptureService;
 
 /**
  * This class extends LocationCallback and implements GpsStatus.Listener and help handle location

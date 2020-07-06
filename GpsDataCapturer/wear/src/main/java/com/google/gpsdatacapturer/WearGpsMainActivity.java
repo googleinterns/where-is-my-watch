@@ -1,6 +1,6 @@
 package com.google.gpsdatacapturer;
 
-import static com.google.sharedlibrary.Utils.isGpsEnabled;
+import static com.google.sharedlibrary.utils.Utils.isGpsEnabled;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,16 +13,28 @@ import android.provider.Settings;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.sharedlibrary.GpsDataCaptureService;
-import com.google.sharedlibrary.GpsDataCaptureService.GpsDataCaptureBinder;
-import com.google.sharedlibrary.Utils;
-import com.google.sharedlibrary.Utils.ButtonState;
-import com.google.sharedlibrary.Utils.LocationApiType;
-public class WearGpsMainActivity extends WearableActivity {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.wear.ambient.AmbientModeSupport;
+
+import com.google.gpsdatacapturer.databinding.ActivityWearGpsMainBinding;
+import com.google.sharedlibrary.model.GpsInfoViewModel;
+import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
+import com.google.sharedlibrary.service.GpsDataCaptureService;
+import com.google.sharedlibrary.service.GpsDataCaptureService.GpsDataCaptureBinder;
+import com.google.sharedlibrary.utils.Utils;
+import com.google.sharedlibrary.utils.Utils.ButtonState;
+import com.google.sharedlibrary.utils.Utils.LocationApiType;
+
+public class WearGpsMainActivity extends AppCompatActivity implements
+        AmbientModeSupport.AmbientCallbackProvider {
     private static final String TAG = "WearGpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
     private static Intent serviceIntent;
@@ -36,12 +48,23 @@ public class WearGpsMainActivity extends WearableActivity {
     private Button startAndStopButton;
     private TextView gpsDataTextView;
     private TextView gpsStatusTextView;
+    private GpsInfoViewModel gpsInfoViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wear_gps_main);
 
+        //Hide the action bar
+        getSupportActionBar().hide();
+
+        //Binding the layout with view model
+        ActivityWearGpsMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_wear_gps_main);
+        gpsInfoViewModel = new ViewModelProvider(this,
+                new GpsInfoViewModelFactory()).get(GpsInfoViewModel.class);
+        binding.setGpsInfoViewModel(gpsInfoViewModel);
+        binding.setLifecycleOwner(this);
+
+        //Initialize all the necessary variables
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         apiRadioGroup = (RadioGroup) findViewById(R.id.radio_group_location_api);
         startAndStopButton = (Button) findViewById(R.id.button_start_stop);
@@ -89,9 +112,6 @@ public class WearGpsMainActivity extends WearableActivity {
                 switchToStartButton();
             }
         });
-
-        // Enables Always-on
-        setAmbientEnabled();
     }
 
     @Override
@@ -266,5 +286,34 @@ public class WearGpsMainActivity extends WearableActivity {
         startAndStopButtonState = ButtonState.START_CAPTURE;
         startAndStopButton.setBackground(
                 getResources().getDrawable(R.drawable.wear_button_green));
+    }
+
+    /**
+     * @return the {@link AmbientModeSupport.AmbientCallback} to be used by this class to communicate with the entity
+     * interested in ambient events.
+     */
+    @Override
+    public AmbientModeSupport.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
+        @Override
+        public void onEnterAmbient(Bundle ambientDetails) {
+            // Handle entering ambient mode
+            super.onEnterAmbient(ambientDetails);
+        }
+
+        @Override
+        public void onExitAmbient() {
+            // Handle exiting ambient mode
+            super.onExitAmbient();
+        }
+
+        @Override
+        public void onUpdateAmbient() {
+            // Update the content
+            super.onUpdateAmbient();
+        }
     }
 }

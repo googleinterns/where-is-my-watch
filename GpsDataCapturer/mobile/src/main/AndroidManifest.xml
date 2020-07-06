@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         <!--declare the service to be used-->
-        <service android:name="com.google.sharedlibrary.GpsDataCaptureService" />
+        <service android:name="com.google.sharedlibrary.service.GpsDataCaptureService" />
     </application>
 
 </manifest>
