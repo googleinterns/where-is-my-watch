@@ -17,7 +17,7 @@ public class FusedLocationProviderListener extends LocationCallback implements G
     public FusedLocationProviderListener(GpsDataCaptureService gpsDataCaptureService) {
         this.gpsDataCaptureService = gpsDataCaptureService;
     }
-
+    @Override
     public void onLocationResult(LocationResult locationResult) {
         if (locationResult == null) {
             return;
@@ -28,7 +28,7 @@ public class FusedLocationProviderListener extends LocationCallback implements G
             }
         }
     }
-
+    @Override
     public void onLocationAvailability(LocationAvailability var1) {
     }
 

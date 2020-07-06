@@ -44,7 +44,7 @@ public class GpxWriteHandler implements Runnable {
             //Write the header if isNewFile
             if (isNewFile) {
                 Log.d(TAG, "Writing new file header.");
-                bufferedWriter.write(fileHeader(Utils.getFormattedCurrentTime(context)));
+                bufferedWriter.write(createFileHeader(Utils.getFormattedCurrentTime(context)));
             }
 
             //write the captured gps data to file
@@ -64,7 +64,7 @@ public class GpxWriteHandler implements Runnable {
      * @param formattedStartTime time of on location changed in format
      * @return A header string
      */
-    public static String fileHeader(String formattedStartTime) {
+    public static String createFileHeader(String formattedStartTime) {
         StringBuilder header = new StringBuilder();
 
         header.append("<?xml version='1.0' encoding='UTF-8' ?>");
@@ -79,8 +79,8 @@ public class GpxWriteHandler implements Runnable {
         header.append("<id>").append(Build.ID).append("</id>");
         header.append("<manufacturer>").append(Build.MANUFACTURER).append("</manufacturer>");
         header.append("<model>").append(Build.MODEL).append("</model></metadata>\n");
-        header.append("<trk>");
-        header.append("<trkseg>");
+        header.append("<trk>\n");
+        header.append("<trkseg>\n");
         return header.toString();
     }
 

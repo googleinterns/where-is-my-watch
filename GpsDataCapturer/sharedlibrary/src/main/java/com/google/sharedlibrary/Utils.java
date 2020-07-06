@@ -17,9 +17,13 @@ import java.text.SimpleDateFormat;
  * This Utils class wraps all the utility functions
  */
 public class Utils {
-    private static final String TAG = "System";
+    private static final String TAG = "Utils";
     public static final int PERMISSION_REQUEST_CODE = 1;
+
     public enum ButtonState {START_CAPTURE, STOP_CAPTURE}
+
+    public enum LocationApiType {FUSEDLOCATIONPROVIDERCLIENT, LOCATIONMANAGER}
+
 
     /**
      * Request for all necessary permissions if not granted
@@ -100,23 +104,5 @@ public class Utils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 context.getResources().getConfiguration().locale);
         return sdf.format(System.currentTimeMillis());
-    }
-
-    /**
-     * Get Gps data string
-     *
-     * @param location the update location from gps
-     * @return return a gps data string
-     */
-    public static String getGpsDataString(Location location) {
-        StringBuilder gpsDataBuilder = new StringBuilder();
-        gpsDataBuilder.append("GPS DATA \n")
-                .append("Lat: ").append(location.getLatitude())
-                .append("\n")
-                .append("Lon: ").append(location.getLongitude())
-                .append("\n")
-                .append("Speed: ").append(location.getSpeed())
-                .append("\n");
-        return gpsDataBuilder.toString();
     }
 }

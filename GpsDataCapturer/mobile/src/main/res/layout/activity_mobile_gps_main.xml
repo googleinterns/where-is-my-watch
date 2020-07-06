@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MobileGpsMainActivity"
-    tools:ignore="MissingDefaultResource"
-    android:background="@color/darkGrey">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="gpsInfoViewModel"
+            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
+    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/darkGrey">
 
         <Button
             android:id="@+id/m_start_stop_button"
@@ -26,7 +28,8 @@
             android:id="@+id/m_raido_group_apiversion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true">
+            android:layout_centerInParent="true"
+            android:checkedButton="@+id/radio_button_LM">
 
             <RadioButton
                 android:id="@+id/m_radio_button_LM"
@@ -35,7 +38,7 @@
                 android:text="@string/locationmanager_api"
                 android:textColor="@color/primaryWhite"
                 android:buttonTint="@color/primaryWhite"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/m_radio_button_FLP"
@@ -44,7 +47,7 @@
                 android:text="@string/fusedlocationprovider_api"
                 android:textColor="@color/primaryWhite"
                 android:buttonTint="@color/primaryWhite"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
         </RadioGroup>
 
         <TextView
@@ -60,7 +63,8 @@
             android:scrollHorizontally="false"
             android:singleLine="false"
             android:textAlignment="center"
-            android:textSize="16dp"
+            android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString().toString()}"
+            android:textSize="16sp"
             android:textColor="@color/primaryWhite"
             android:visibility="gone"
             tools:hint="GPS DATA"
@@ -75,6 +79,7 @@
             android:layout_marginTop="64dp"
             android:singleLine="true"
             android:textAlignment="center"
+            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData()}"
             android:textSize="16dp"
             android:textColor="@color/primaryWhite"
             android:visibility="gone"
@@ -82,4 +87,4 @@
             tools:visibility="visible" />
     </RelativeLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

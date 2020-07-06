@@ -18,9 +18,9 @@ public class LocationManagerHelper {
     @SuppressLint("MissingPermission")
     public static void startLocationManager(LocationManager locationManager,
             LocationManagerListener locationListener) {
+        locationManager.addGpsStatusListener(locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, INTERVAL, DISTANCE,
                 locationListener);
-        locationManager.addGpsStatusListener(locationListener);
     }
 
     /**

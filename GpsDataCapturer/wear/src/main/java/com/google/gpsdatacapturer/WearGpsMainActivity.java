@@ -1,10 +1,11 @@
 package com.google.gpsdatacapturer;
 
+import static com.google.sharedlibrary.Utils.isGpsEnabled;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,26 +16,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.sharedlibrary.GpsDataCaptureService;
 import com.google.sharedlibrary.GpsDataCaptureService.GpsDataCaptureBinder;
-import com.google.sharedlibrary.GpsDataCaptureService.LocationApiVersion;
 import com.google.sharedlibrary.Utils;
-
+import com.google.sharedlibrary.Utils.ButtonState;
+import com.google.sharedlibrary.Utils.LocationApiType;
 public class WearGpsMainActivity extends WearableActivity {
-    public enum ButtonState {START_CAPTURE, STOP_CAPTURE}
-
     private static final String TAG = "WearGpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
     private static Intent serviceIntent;
     private LocationManager locationManager;
     private static boolean isBound = false;
-    private static final int PERMISSION_REQUEST_CODE = 1;
-    private boolean isGpsEnabled = false;
 
     private ButtonState startAndStopButtonState = ButtonState.START_CAPTURE;
-    private LocationApiVersion locationApiVersion = LocationApiVersion.LOCATIONMANAGER;
+    private LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
 
     private RadioGroup apiRadioGroup;
     private Button startAndStopButton;
@@ -63,9 +59,9 @@ public class WearGpsMainActivity extends WearableActivity {
 
         //Choose a location api, hide the radio group and show startAndStopButton
         apiRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
-            locationApiVersion = checkedId == R.id.radio_button_FPL ?
-                    LocationApiVersion.FUSEDLOCATIONPROVIDERCLIENT
-                    : LocationApiVersion.LOCATIONMANAGER;
+            locationApiType = checkedId == R.id.radio_button_FPL ?
+                    LocationApiType.FUSEDLOCATIONPROVIDERCLIENT
+                    : LocationApiType.LOCATIONMANAGER;
         });
 
         //start and bind the service
@@ -80,11 +76,11 @@ public class WearGpsMainActivity extends WearableActivity {
 
                 showGpsDataAndStatusTextView();
 
-                startGpsCapture(locationApiVersion);
+                startGpsCapture();
 
                 switchToStopButton();
             } else {
-                stopGpsCapture(locationApiVersion);
+                stopGpsCapture();
 
                 hideGpsDataAndStatusTextView();
 
@@ -114,14 +110,14 @@ public class WearGpsMainActivity extends WearableActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        startAndBindGpsDataCaptureService();
+//        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopAndUnbindGpsDataCaptureService();
-        isBound = false;
+//        stopAndUnbindGpsDataCaptureService();
+//        isBound = false;
     }
 
     @Override
@@ -141,19 +137,25 @@ public class WearGpsMainActivity extends WearableActivity {
     /**
      * On click of Start button, start capturing gps data
      */
-    public void startGpsCapture(LocationApiVersion apiVersion) {
+    public void startGpsCapture() {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound, could not start capture.");
             return;
         }
+
+        if(!isGpsEnabled(locationManager)){
+            Log.e(TAG, "GPS provider is not enabled, could not start capture.");
+            return;
+        }
+
         Log.d(TAG, "Start capture data.");
-        gpsDataCaptureService.startCapture(apiVersion, gpsDataTextView, gpsStatusTextView);
+        gpsDataCaptureService.startCapture(locationApiType);
     }
 
     /**
      * On click of Stop button, stop capturing gps data
      */
-    public void stopGpsCapture(LocationApiVersion apiVersion) {
+    public void stopGpsCapture() {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound");
         }
@@ -161,7 +163,7 @@ public class WearGpsMainActivity extends WearableActivity {
             Log.e(TAG, "GPS provider is not enabled");
         }
         Log.d(TAG, "Stop capture data.");
-        gpsDataCaptureService.stopCapture(apiVersion);
+        gpsDataCaptureService.stopCapture(locationApiType);
     }
 
     /**

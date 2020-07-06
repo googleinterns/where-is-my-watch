@@ -7,12 +7,12 @@ import static com.google.sharedlibrary.GpxFile.createGpxFile;
 import static com.google.sharedlibrary.GpxFile.getNewFileName;
 import static com.google.sharedlibrary.LocationManagerHelper.startLocationManager;
 import static com.google.sharedlibrary.LocationManagerHelper.stopLocationManager;
+import static com.google.sharedlibrary.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.sharedlibrary.model.GpsInfoViewModel;
 
 import java.io.File;
 
@@ -50,8 +51,6 @@ public class GpsDataCaptureService extends Service {
     private static TextView gpsStatusTextView;
     private static String gpsStatus;
     private static boolean isNewFile;
-
-    public enum LocationApiVersion {FUSEDLOCATIONPROVIDERCLIENT, LOCATIONMANAGER}
 
     @Nullable
     @Override
@@ -100,10 +99,8 @@ public class GpsDataCaptureService extends Service {
      */
     @SuppressLint("MissingPermission")
     public void onLocationChanged(Location location) {
-        //set gps data text on gpsDataTextView
-        gpsDataTextView.setText(Utils.getGpsDataString(location));
-
-        //Todo draw gps data point on the map
+        //set gps data in the view model
+        GpsInfoViewModel.setGpsDataMutableLiveData(location);
 
         //write gps data to file
         GpxFile.writeToFile(gpxFile, this, location, isNewFile);
@@ -116,23 +113,7 @@ public class GpsDataCaptureService extends Service {
      * @param event the event returned by GpsStatus Listener's callback function
      */
     public void onGpsStatusChanged(int event) {
-        //update gpsStatus
-        switch (event) {
-            case GpsStatus.GPS_EVENT_FIRST_FIX:
-                Log.d(TAG, "Gps got the first fix.");
-                gpsStatus = "Gps Status: GPS_EVENT_FIRST_FIX";
-                break;
-            case GpsStatus.GPS_EVENT_STARTED:
-                Log.d(TAG, "Gps started, waiting for fix.");
-                gpsStatus = "Gps Status: GPS_EVENT_STARTED";
-                break;
-            case GpsStatus.GPS_EVENT_STOPPED:
-                Log.d(TAG, "Gps paused.");
-                gpsStatus = "Gps Status: GPS_EVENT_STOPPED";
-                break;
-        }
-        //set gpsStatus text on gpsStatusTextView
-        gpsStatusTextView.setText(gpsStatus);
+        GpsInfoViewModel.setGpsStatusMutableLiveData(event);
     }
 
     /**
@@ -154,45 +135,35 @@ public class GpsDataCaptureService extends Service {
     /**
      * Start capturing data from GPS via the chosen location api
      *
-     * @param locationApiVersion the chosen location api
-     * @param gpsDataTextView    the gps data text view in main activity
-     * @param gpsStatusTextView  the gps status text view in main activity
+     * @param locationApiType the chosen location api
      */
-    public void startCapture(LocationApiVersion locationApiVersion, TextView gpsDataTextView,
-            TextView gpsStatusTextView) {
-        GpsDataCaptureService.gpsDataTextView = gpsDataTextView;
-        GpsDataCaptureService.gpsStatusTextView = gpsStatusTextView;
-
+    public void startCapture(LocationApiType locationApiType) {
         gpxFile = createGpxFile(gpxFileFolder, getNewFileName(this));
         isNewFile = true;
 
-        switch (locationApiVersion) {
-            case FUSEDLOCATIONPROVIDERCLIENT:
-                startFusedLocationProviderClient(fusedLocationProviderClient,
-                        fusedLocationProviderListener);
-                break;
-            case LOCATIONMANAGER:
-                startLocationManager(locationManager, locationManagerListener);
+        if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
+            startFusedLocationProviderClient(fusedLocationProviderClient,
+                    fusedLocationProviderListener);
+        } else {
+            startLocationManager(locationManager, locationManagerListener);
         }
     }
 
     /**
      * Stop capturing data from GPS via the chosen location api
      *
-     * @param locationApiVersion the chosen location api
+     * @param locationApiType the chosen location api
      */
-    public void stopCapture(LocationApiVersion locationApiVersion) {
+    public void stopCapture(LocationApiType locationApiType) {
         GpxFile.writeFileFooter(gpxFile, this);
 
         GpxFile.resetGpxFile(gpxFile);
 
-        switch (locationApiVersion) {
-            case FUSEDLOCATIONPROVIDERCLIENT:
-                stopFusedLocationProviderClient(fusedLocationProviderClient,
-                        fusedLocationProviderListener);
-                break;
-            case LOCATIONMANAGER:
-                stopLocationManager(locationManager, locationManagerListener);
+        if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
+            stopFusedLocationProviderClient(fusedLocationProviderClient,
+                    fusedLocationProviderListener);
+        } else {
+            stopLocationManager(locationManager, locationManagerListener);
         }
         stopSelf();
     }
