@@ -10,11 +10,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -58,7 +55,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         getSupportActionBar().hide();
 
         //Binding the layout with view model
-        ActivityWearGpsMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_wear_gps_main);
+        ActivityWearGpsMainBinding binding = DataBindingUtil.setContentView(this,
+                R.layout.activity_wear_gps_main);
         gpsInfoViewModel = new ViewModelProvider(this,
                 new GpsInfoViewModelFactory()).get(GpsInfoViewModel.class);
         binding.setGpsInfoViewModel(gpsInfoViewModel);
@@ -124,20 +122,16 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         stopAndUnbindGpsDataCaptureService();
-        isBound = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        stopAndUnbindGpsDataCaptureService();
-//        isBound = false;
     }
 
     @Override
@@ -163,7 +157,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
             return;
         }
 
-        if(!isGpsEnabled(locationManager)){
+        if (!isGpsEnabled(locationManager)) {
             Log.e(TAG, "GPS provider is not enabled, could not start capture.");
             return;
         }
@@ -179,9 +173,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound");
         }
-        if (!Utils.isGpsEnabled(locationManager)) {
-            Log.e(TAG, "GPS provider is not enabled");
-        }
+
         Log.d(TAG, "Stop capture data.");
         gpsDataCaptureService.stopCapture(locationApiType);
     }
@@ -193,15 +185,13 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
-            GpsDataCaptureBinder binder = (GpsDataCaptureBinder) service;
-            gpsDataCaptureService = binder.getService();
-            isBound = true;
+            gpsDataCaptureService = ((GpsDataCaptureBinder) service).getService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnected from GpsDataCaptureService");
-            isBound = false;
+            gpsDataCaptureService = null;
         }
     };
 
@@ -232,6 +222,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         try {
             if (isBound) {
                 unbindService(gpsServiceConnection);
+                isBound = false;
             }
         } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
@@ -289,8 +280,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     }
 
     /**
-     * @return the {@link AmbientModeSupport.AmbientCallback} to be used by this class to communicate with the entity
-     * interested in ambient events.
+     * @return the {@link AmbientModeSupport.AmbientCallback} to be used by this class to
+     * communicate with the entity interested in ambient events.
      */
     @Override
     public AmbientModeSupport.AmbientCallback getAmbientCallback() {

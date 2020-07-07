@@ -28,9 +28,9 @@ public class LocationManagerHelper {
      */
     public static void stopLocationManager(LocationManager locationManager,
             LocationManagerListener locationListener) {
-        if (locationListener != null) {
+//        if (locationListener != null) {
             Log.d(TAG, "LocationManager is removing location updates.");
             locationManager.removeUpdates(locationListener);
-        }
+//        }
     }
 }

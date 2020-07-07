@@ -2,9 +2,11 @@ package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import com.google.sharedlibrary.BuildConfig;
 import com.google.sharedlibrary.utils.Utils;
 
 import java.io.File;
@@ -17,27 +19,6 @@ import java.io.IOException;
  */
 public class GpxFile {
     private static String TAG = "GpxFile";
-
-    /**
-     * Create GpsDataFolder if not exist.
-     *
-     * @param context the context
-     * @return return the folder if not created
-     */
-    public static File createGpsDataFolder(Context context) {
-        File gpxDataFolder = context.getExternalFilesDir(
-                Environment.getExternalStorageDirectory().getAbsolutePath());
-        try {
-            assert gpxDataFolder != null;
-            if (!gpxDataFolder.exists()) {
-                gpxDataFolder.mkdir();
-            }
-            Log.i(TAG, "Create GpsDataFolder path" + gpxDataFolder.getPath());
-        } catch (Exception e) {
-            Log.e(TAG, "Could not create new folder.", e);
-        }
-        return gpxDataFolder;
-    }
 
     /**
      * Create a new gpxFile
@@ -94,7 +75,8 @@ public class GpxFile {
             FileWriter fileWriter = new FileWriter(gpxFile, true);
             Log.d(TAG, "Writing the xml footer.");
             fileWriter.write(
-                    "</trkseg></trk><time>" + Utils.getFormattedCurrentTime(context) + "</time></gpx>");
+                    "</trkseg></trk><time>" + Utils.getFormattedCurrentTime(context)
+                            + "</time></gpx>");
             fileWriter.close();
             Log.i(TAG, "Finished writing to GPX file");
         } catch (IOException e) {

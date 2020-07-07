@@ -52,11 +52,12 @@ public class GpxWriteHandler implements Runnable {
             }
 
             //write the captured gps data to file
-            bufferedWriter.write(getTrackPointXml(location, formattedTime));
+            String trackPointXml = getTrackPointXml(location,formattedTime);
+            bufferedWriter.write(trackPointXml);
             bufferedWriter.flush();
             bufferedWriter.close();
             fileWriter.close();
-            Log.d(TAG, getTrackPointXml(location, formattedTime));
+            Log.d(TAG, trackPointXml);
         } catch (Exception e) {
             Log.e(TAG, "GpxFileWriter.write", e);
         }

@@ -2,12 +2,13 @@ package com.google.sharedlibrary.service;
 
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.startFusedLocationProviderClient;
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.stopFusedLocationProviderClient;
-import static com.google.sharedlibrary.gpxfile.GpxFile.createGpsDataFolder;
 import static com.google.sharedlibrary.gpxfile.GpxFile.createGpxFile;
 import static com.google.sharedlibrary.gpxfile.GpxFile.getNewFileName;
 import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.startLocationManager;
 import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.stopLocationManager;
+import static com.google.sharedlibrary.storage.GpxFileFolder.createGpsDataFolder;
 import static com.google.sharedlibrary.utils.Utils.LocationApiType;
+import static com.google.sharedlibrary.utils.Utils.getFormattedCurrentTime;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -50,9 +51,6 @@ public class GpsDataCaptureService extends Service {
     private static File gpxFileFolder;
     private static File gpxFile;
 
-    private static TextView gpsDataTextView;
-    private static TextView gpsStatusTextView;
-    private static String gpsStatus;
     private static boolean isNewFile;
 
     @Nullable
@@ -90,8 +88,28 @@ public class GpsDataCaptureService extends Service {
 
     @Override
     public void onDestroy() {
-        fusedLocationProviderClient = null;
+//        fusedLocationProviderListener = null;
+//        fusedLocationProviderClient = null;
+//        locationManagerListener = null;
+//        locationManager = null;
+//        stopSelf();
         super.onDestroy();
+    }
+
+    /**
+     * Class used for the client Binder.  Because we know this service always runs in the same
+     * process as its clients, we don't need to deal with IPC.
+     */
+    public class GpsDataCaptureBinder extends Binder {
+        public GpsDataCaptureService getService() {
+            return GpsDataCaptureService.this;
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        Log.e(TAG, "The device is low on memory!");
+        super.onLowMemory();
     }
 
     /**
@@ -117,22 +135,6 @@ public class GpsDataCaptureService extends Service {
      */
     public void onGpsStatusChanged(int event) {
         GpsInfoViewModel.setGpsStatusMutableLiveData(event);
-    }
-
-    /**
-     * Class used for the client Binder.  Because we know this service always runs in the same
-     * process as its clients, we don't need to deal with IPC.
-     */
-    public class GpsDataCaptureBinder extends Binder {
-        public GpsDataCaptureService getService() {
-            return GpsDataCaptureService.this;
-        }
-    }
-
-    @Override
-    public void onLowMemory() {
-        Log.e(TAG, "The device is low on memory!");
-        super.onLowMemory();
     }
 
     /**
@@ -168,6 +170,6 @@ public class GpsDataCaptureService extends Service {
         } else {
             stopLocationManager(locationManager, locationManagerListener);
         }
-        stopSelf();
+//        stopSelf();
     }
 }

@@ -50,7 +50,8 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //Binding the layout with view model
-        ActivityMobileGpsMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_mobile_gps_main);
+        ActivityMobileGpsMainBinding binding = DataBindingUtil.setContentView(this,
+                R.layout.activity_mobile_gps_main);
         gpsInfoViewModel = new ViewModelProvider(this,
                 new GpsInfoViewModelFactory()).get(GpsInfoViewModel.class);
         binding.setGpsInfoViewModel(gpsInfoViewModel);
@@ -114,24 +115,22 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         stopAndUnbindGpsDataCaptureService();
-        isBound = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        stopAndUnbindGpsDataCaptureService();
-        isBound = false;
     }
 
     @Override
     protected void onDestroy() {
+//        stopGpsCapture();
+//        stopAndUnbindGpsDataCaptureService();
         super.onDestroy();
     }
 
@@ -152,10 +151,12 @@ public class MobileGpsMainActivity extends AppCompatActivity {
             Log.e(TAG, "GpsDataCaptureService is not bound, could not start capture.");
             return;
         }
-        if(!isGpsEnabled(locationManager)){
+
+        if (!isGpsEnabled(locationManager)) {
             Log.e(TAG, "GPS provider is not enabled, could not start capture.");
             return;
         }
+
         Log.d(TAG, "Start capture data.");
         gpsDataCaptureService.startCapture(locationApiType);
     }
@@ -167,9 +168,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         if (!isBound) {
             Log.e(TAG, "GpsDataCaptureService is not bound");
         }
-        if (!isGpsEnabled(locationManager)) {
-            Log.e(TAG, "GPS provider is not enabled");
-        }
+
         Log.d(TAG, "Stop capture data.");
         gpsDataCaptureService.stopCapture(locationApiType);
     }
@@ -181,16 +180,14 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
-            GpsDataCaptureService.GpsDataCaptureBinder
-                    binder = (GpsDataCaptureService.GpsDataCaptureBinder) service;
-            gpsDataCaptureService = binder.getService();
-            isBound = true;
+            gpsDataCaptureService =
+                    ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnected from GpsDataCaptureService");
-            isBound = false;
+            gpsDataCaptureService = null;
         }
     };
 
@@ -201,13 +198,16 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         serviceIntent = new Intent(this, GpsDataCaptureService.class);
         //start GpsDataCaptureService
         try {
+            Log.d(TAG, "Start service");
             startService(serviceIntent);
         } catch (Exception e) {
             Log.e(TAG, "Could not start gpsDataCaptureService", e);
         }
         //Bind to GpsDataCaptureService
         try {
+            Log.d(TAG, "Bind service");
             isBound = bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
+            Log.d(TAG, "IsBound: " + isBound);
         } catch (Exception e) {
             Log.e(TAG, "Could not bind gpsDataCaptureService", e);
         }
@@ -221,6 +221,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         try {
             if (isBound) {
                 unbindService(gpsServiceConnection);
+                isBound = false;
             }
         } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
