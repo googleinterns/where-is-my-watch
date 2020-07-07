@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -62,6 +63,9 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         binding.setGpsInfoViewModel(gpsInfoViewModel);
         binding.setLifecycleOwner(this);
 
+        //Keep the device awake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         //Initialize all the necessary variables
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         apiRadioGroup = (RadioGroup) findViewById(R.id.radio_group_location_api);
@@ -85,11 +89,9 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     : LocationApiType.LOCATIONMANAGER;
         });
 
-        //start and bind the service
-        startAndBindGpsDataCaptureService();
-
-        //start capture data if the button state is START_CAPTURE, and stop if the state is
-        // STOP_CAPTURE
+        //start and bind service on start button clicked and start capture once the service is
+        // connected
+        //stop capture data, then stop and unbind service on stop button clicked
         startAndStopButton.setOnClickListener((View v) -> {
             if (startAndStopButtonState == ButtonState.START_CAPTURE) {
                 //hide radio group
@@ -97,11 +99,13 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
                 showGpsDataAndStatusTextView();
 
-                startGpsCapture();
+                startAndBindGpsDataCaptureService();
 
                 switchToStopButton();
             } else {
                 stopGpsCapture();
+
+                stopAndUnbindGpsDataCaptureService();
 
                 hideGpsDataAndStatusTextView();
 
@@ -115,13 +119,11 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopAndUnbindGpsDataCaptureService();
     }
 
     @Override
@@ -136,6 +138,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
+        stopGpsCapture();
+        stopAndUnbindGpsDataCaptureService();
         super.onDestroy();
     }
 
@@ -185,7 +189,12 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
-            gpsDataCaptureService = ((GpsDataCaptureBinder) service).getService();
+            //get the gpsDataCaptureService
+            gpsDataCaptureService =
+                    ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
+
+            //start GPS capture
+            startGpsCapture();
         }
 
         @Override
@@ -255,7 +264,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
      * Reset radio group to initial state
      */
     private void resetRadioGroup() {
-        apiRadioGroup.clearCheck();
+        apiRadioGroup.check(R.id.radio_button_LM);
         apiRadioGroup.setVisibility(View.VISIBLE);
     }
 

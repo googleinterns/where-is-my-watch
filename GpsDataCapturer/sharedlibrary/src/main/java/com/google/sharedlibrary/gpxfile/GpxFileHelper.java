@@ -2,22 +2,18 @@ package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
-import com.google.sharedlibrary.BuildConfig;
 import com.google.sharedlibrary.utils.Utils;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 /**
  * This class deals everything related to the file and file folder. It provides new folder creation,
  * new file creation, and writing header/captured data/footer etc., functions.
  */
-public class GpxFile {
+public class GpxFileHelper {
     private static String TAG = "GpxFile";
 
     /**
@@ -46,42 +42,6 @@ public class GpxFile {
      */
     public static String getNewFileName(Context context) {
         return Utils.getFormattedCurrentTime(context);
-    }
-
-    /**
-     * Write the data to file
-     *
-     * @param location the location captured from GPS
-     */
-    public static void writeToFile(File gpxFile, Context context, Location location,
-            boolean isNewFile) {
-        GpxFileWriter gpxFileWriter = new GpxFileWriter(gpxFile, true);
-        try {
-            Log.d(TAG, "Starting gpx file writer");
-            gpxFileWriter.write(context, location, isNewFile);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not write to file", e);
-        }
-    }
-
-    /**
-     * Write the gpx file footer in xml format
-     *
-     * @param gpxFile the gpxFile
-     * @param context the context
-     */
-    public static void writeFileFooter(File gpxFile, Context context) {
-        try {
-            FileWriter fileWriter = new FileWriter(gpxFile, true);
-            Log.d(TAG, "Writing the xml footer.");
-            fileWriter.write(
-                    "</trkseg></trk><time>" + Utils.getFormattedCurrentTime(context)
-                            + "</time></gpx>");
-            fileWriter.close();
-            Log.i(TAG, "Finished writing to GPX file");
-        } catch (IOException e) {
-            Log.e(TAG, "Could not write the xml footer.", e);
-        }
     }
 
     /**

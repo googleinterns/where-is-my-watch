@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -57,6 +58,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         binding.setGpsInfoViewModel(gpsInfoViewModel);
         binding.setLifecycleOwner(this);
 
+        //Keep the phone awake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         //Initialize all the necessary variables
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         apiRadioGroup = (RadioGroup) findViewById(R.id.m_raido_group_apiversion);
@@ -79,10 +83,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
                     : LocationApiType.LOCATIONMANAGER;
         });
 
-        //start and bind the service
-        startAndBindGpsDataCaptureService();
-
-        //start/stop capture data according to the button state
+        //start and bind service on start button clicked and start capture once the service is
+        // connected
+        //stop capture data, then stop and unbind service on stop button clicked
         startAndStopButton.setOnClickListener((View v) -> {
             if (startAndStopButtonState == Utils.ButtonState.START_CAPTURE) {
                 //hide radio group
@@ -90,11 +93,13 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
                 showGpsDataAndStatusTextView();
 
-                startGpsCapture();
+                startAndBindGpsDataCaptureService();
 
                 switchToStopButton();
             } else {
                 stopGpsCapture();
+
+                stopAndUnbindGpsDataCaptureService();
 
                 hideGpsDataAndStatusTextView();
 
@@ -108,13 +113,11 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        startAndBindGpsDataCaptureService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopAndUnbindGpsDataCaptureService();
     }
 
     @Override
@@ -129,8 +132,8 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-//        stopGpsCapture();
-//        stopAndUnbindGpsDataCaptureService();
+        stopGpsCapture();
+        stopAndUnbindGpsDataCaptureService();
         super.onDestroy();
     }
 
@@ -180,8 +183,12 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
+            //get the gpsDataCaptureService
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
+
+            //start GPS capture
+            startGpsCapture();
         }
 
         @Override
@@ -207,7 +214,6 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         try {
             Log.d(TAG, "Bind service");
             isBound = bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
-            Log.d(TAG, "IsBound: " + isBound);
         } catch (Exception e) {
             Log.e(TAG, "Could not bind gpsDataCaptureService", e);
         }
@@ -254,7 +260,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
      * Reset radio group to initial state
      */
     private void resetRadioGroup() {
-        apiRadioGroup.clearCheck();
+        apiRadioGroup.check(R.id.m_radio_button_LM);
         apiRadioGroup.setVisibility(View.VISIBLE);
     }
 

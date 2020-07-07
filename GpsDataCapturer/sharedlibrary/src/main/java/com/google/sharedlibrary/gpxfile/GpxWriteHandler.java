@@ -59,7 +59,7 @@ public class GpxWriteHandler implements Runnable {
             fileWriter.close();
             Log.d(TAG, trackPointXml);
         } catch (Exception e) {
-            Log.e(TAG, "GpxFileWriter.write", e);
+            Log.e(TAG, "GpxFileWriter.writeGpsData", e);
         }
     }
 

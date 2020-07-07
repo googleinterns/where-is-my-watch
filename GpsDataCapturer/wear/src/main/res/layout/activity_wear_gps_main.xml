@@ -2,12 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="gpsInfoViewModel"
-            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
-    </data>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,7 +16,7 @@
             android:layout_marginBottom="@dimen/screen_percentage_05"
             android:background="@drawable/wear_button_green"
             android:text="@string/start_capture"
-            android:textSize="@dimen/screen_percentage_05" />
+            android:textSize="@dimen/complicationDrawable_titleSize" />
 
         <RadioGroup
             android:id="@+id/radio_group_location_api"
@@ -36,15 +30,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/locationmanager_api"
-                android:textSize="@dimen/screen_percentage_05" />
+                android:textSize="@dimen/complicationDrawable_textSize" />
 
             <RadioButton
                 android:id="@+id/radio_button_FPL"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/screen_percentage_15"
                 android:text="@string/fusedlocationprovider_api"
-                android:textSize="@dimen/screen_percentage_05"
-                android:layout_marginBottom="@dimen/screen_percentage_15"/>
+                android:textSize="@dimen/complicationDrawable_textSize" />
         </RadioGroup>
 
         <TextView
@@ -59,9 +53,9 @@
             android:minLines="2"
             android:scrollHorizontally="false"
             android:singleLine="false"
-            android:textAlignment="center"
             android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString()}"
-            android:textSize="@dimen/screen_percentage_05"
+            android:textAlignment="center"
+            android:textSize="@dimen/complicationDrawable_textSize"
             android:visibility="gone"
             tools:hint="GPS DATA"
             tools:visibility="visible" />
@@ -74,11 +68,18 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/screen_percentage_15"
             android:singleLine="true"
-            android:textAlignment="center"
             android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()}"
-            android:textSize="@dimen/screen_percentage_05"
+            android:textAlignment="center"
+            android:textSize="@dimen/complicationDrawable_textSize"
             android:visibility="gone"
             tools:hint="GPS Status"
             tools:visibility="visible" />
     </RelativeLayout>
+
+    <data>
+
+        <variable
+            name="gpsInfoViewModel"
+            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
+    </data>
 </layout>

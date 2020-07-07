@@ -26,7 +26,7 @@ public class LocationManagerListener implements LocationListener, GpsStatus.List
 
     @Override
     public void onLocationChanged(Location location) {
-        if(location != null) {
+        if (location != null) {
             gpsDataCaptureservice.onLocationChanged(location);
         }
     }
