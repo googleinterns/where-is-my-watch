@@ -26,7 +26,7 @@
             android:background="@drawable/mobile_button_green"/>
 
         <RadioGroup
-            android:id="@+id/m_raido_group_apiversion"
+            android:id="@+id/m_raido_group_api"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -42,7 +42,7 @@
                 android:textSize="20sp" />
 
             <RadioButton
-                android:id="@+id/m_radio_button_FLP"
+                android:id="@+id/m_radio_button_FPL"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fusedlocationprovider_api"

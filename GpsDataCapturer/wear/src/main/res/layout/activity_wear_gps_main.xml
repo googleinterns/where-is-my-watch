@@ -33,7 +33,7 @@
                 android:textSize="@dimen/complicationDrawable_textSize" />
 
             <RadioButton
-                android:id="@+id/radio_button_FPL"
+                android:id="@+id/radio_button_FLP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/screen_percentage_15"

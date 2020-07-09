@@ -1,6 +1,5 @@
 package com.google.gpsdatacapturer;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -18,8 +17,8 @@ import com.google.sharedlibrary.service.GpsDataCaptureService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.Robolectric;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -27,8 +26,9 @@ import org.robolectric.shadows.ShadowActivity;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
-public class WearGpsMainActivityUnitTest {
-    private WearGpsMainActivity wearGpsMainActivity;
+public class MobileGpsMainActivityUnitTest {
+
+    private MobileGpsMainActivity mobileGpsMainActivity;
     private Button startAndStopButton;
     private RadioGroup apiRadioGroup;
     private RadioButton lmRadioButton;
@@ -38,19 +38,19 @@ public class WearGpsMainActivityUnitTest {
 
     @Before
     public void setUp() {
-        wearGpsMainActivity = Robolectric.buildActivity(WearGpsMainActivity.class).create().get();
-        startAndStopButton = wearGpsMainActivity.findViewById(R.id.button_start_stop);
-        apiRadioGroup = wearGpsMainActivity.findViewById(R.id.radio_group_location_api);
-        lmRadioButton = wearGpsMainActivity.findViewById(R.id.radio_button_LM);
-        flpRadioButton = wearGpsMainActivity.findViewById(R.id.radio_button_FLP);
-        gpsDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_data);
-        gpsStatusTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_status);
+        mobileGpsMainActivity = Robolectric.buildActivity(MobileGpsMainActivity.class).create().get();
+        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
+        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
+        lmRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_LM);
+        flpRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_FPL);
+        gpsDataTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_data);
+        gpsStatusTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_status);
 
     }
 
     @Test
     public void testWearGpsMainActivityNotNull() {
-        assertNotNull(wearGpsMainActivity);
+        assertNotNull(mobileGpsMainActivity);
     }
 
     @Test
@@ -75,13 +75,13 @@ public class WearGpsMainActivityUnitTest {
     @Test
     public void testLmRadioButtonChecked() {
         lmRadioButton.performClick();
-        assertEquals(R.id.radio_button_LM, apiRadioGroup.getCheckedRadioButtonId());
+        assertEquals(R.id.m_radio_button_LM, apiRadioGroup.getCheckedRadioButtonId());
     }
 
     @Test
     public void testFlpRadioButtonChecked() {
         flpRadioButton.performClick();
-        assertEquals(R.id.radio_button_FLP, apiRadioGroup.getCheckedRadioButtonId());
+        assertEquals(R.id.m_radio_button_FPL, apiRadioGroup.getCheckedRadioButtonId());
     }
 
     @Test
@@ -102,8 +102,8 @@ public class WearGpsMainActivityUnitTest {
         lmRadioButton.performClick();
         startAndStopButton.performClick();
 
-        Intent expectedIntent = new Intent(wearGpsMainActivity, GpsDataCaptureService.class);
-        ShadowActivity shadowActivity = Shadows.shadowOf(wearGpsMainActivity);
+        Intent expectedIntent = new Intent(mobileGpsMainActivity, GpsDataCaptureService.class);
+        ShadowActivity shadowActivity = Shadows.shadowOf(mobileGpsMainActivity);
         Intent shadowIntent = shadowActivity.getNextStartedService();
 
         assertTrue(shadowIntent.filterEquals(expectedIntent));

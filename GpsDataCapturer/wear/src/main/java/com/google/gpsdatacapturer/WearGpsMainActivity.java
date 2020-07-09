@@ -85,7 +85,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
         //Choose a location api, hide the radio group and show startAndStopButton
         apiRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
-            locationApiType = checkedId == R.id.radio_button_FPL ?
+            locationApiType = checkedId == R.id.radio_button_FLP ?
                     LocationApiType.FUSEDLOCATIONPROVIDERCLIENT
                     : LocationApiType.LOCATIONMANAGER;
         });

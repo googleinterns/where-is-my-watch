@@ -63,7 +63,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //Initialize all the necessary variables
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        apiRadioGroup = (RadioGroup) findViewById(R.id.m_raido_group_apiversion);
+        apiRadioGroup = (RadioGroup) findViewById(R.id.m_raido_group_api);
         startAndStopButton = (Button) findViewById(R.id.m_start_stop_button);
         gpsDataTextView = (TextView) findViewById(R.id.m_text_view_gps_data);
         gpsStatusTextView = (TextView) findViewById(R.id.m_text_view_gps_status);
@@ -78,7 +78,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //Choose a location api, hide the radio group and show startAndStopButton
         apiRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
-            locationApiType = checkedId == R.id.m_radio_button_FLP ?
+            locationApiType = checkedId == R.id.m_radio_button_FPL ?
                     LocationApiType.FUSEDLOCATIONPROVIDERCLIENT
                     : LocationApiType.LOCATIONMANAGER;
         });
