@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-07T15:21:29.615Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31022766" lon="-122.03050415"><ele>77.695556640625</ele><time>2020-07-07T15:21:29.000Z</time><speed>0.0</speed><accuracy>21.44</accuracy><src>gps</src></trkpt>
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-07T15:21:30.585Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31025608" lon="-122.03051827"><ele>73.20501708984375</ele><time>2020-07-07T15:21:30.000Z</time><speed>0.0</speed><accuracy>12.864</accuracy><src>gps</src></trkpt>
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-07T15:21:31.601Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31025493" lon="-122.03051532"><ele>71.59283447265625</ele><time>2020-07-07T15:21:31.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-07T15:21:32.590Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31025466" lon="-122.03052082"><ele>70.843505859375</ele><time>2020-07-07T15:21:32.000Z</time><speed>0.0</speed><accuracy>6.432</accuracy><src>gps</src></trkpt>
+</trkseg>
+</trk>
+<time>2020-07-07T15:21:33.419Z</time>
+</gpx>

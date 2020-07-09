@@ -26,6 +26,11 @@ android {
     dataBinding{
         enabled = true
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -44,4 +49,7 @@ dependencies {
     //add sharedlibrary
     implementation project(":sharedlibrary")
     wearApp project(":wear")
+    //unit test
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.3'
 }

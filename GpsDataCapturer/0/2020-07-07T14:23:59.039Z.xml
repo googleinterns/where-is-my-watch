@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-07T14:24:10.603Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31048606" lon="-122.03036572"><ele>-25.944854736328125</ele><time>2020-07-07T14:24:10.000Z</time><speed>0.0</speed><accuracy>27.872002</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31041348" lon="-122.03040154"><ele>3.55938720703125</ele><time>2020-07-07T14:24:11.000Z</time><speed>0.0</speed><accuracy>26.800001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31047315" lon="-122.03039247"><ele>-4.2080078125</ele><time>2020-07-07T14:24:12.000Z</time><speed>0.0</speed><accuracy>18.224</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31056133" lon="-122.03034675"><ele>-12.8499755859375</ele><time>2020-07-07T14:24:13.000Z</time><speed>0.0</speed><accuracy>17.152</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31056008" lon="-122.03035002"><ele>-16.6678466796875</ele><time>2020-07-07T14:24:14.000Z</time><speed>0.0</speed><accuracy>15.008</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31057248" lon="-122.03035041"><ele>-19.037353515625</ele><time>2020-07-07T14:24:15.000Z</time><speed>0.0</speed><accuracy>12.864</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31055768" lon="-122.03038107"><ele>-13.49920654296875</ele><time>2020-07-07T14:24:16.000Z</time><speed>0.0</speed><accuracy>13.936001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31064178" lon="-122.0303477"><ele>-34.056884765625</ele><time>2020-07-07T14:24:17.000Z</time><speed>0.0</speed><accuracy>11.792</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31061118" lon="-122.03034625"><ele>-26.262969970703125</ele><time>2020-07-07T14:24:18.000Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3105853" lon="-122.03035554"><ele>-19.3699951171875</ele><time>2020-07-07T14:24:19.000Z</time><speed>0.0</speed><accuracy>11.792</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31056962" lon="-122.03036416"><ele>-15.24267578125</ele><time>2020-07-07T14:24:20.000Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31056064" lon="-122.03036786"><ele>-12.727935791015625</ele><time>2020-07-07T14:24:21.000Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31055093" lon="-122.03037212"><ele>-10.661346435546875</ele><time>2020-07-07T14:24:22.000Z</time><speed>0.0</speed><accuracy>10.72</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31054067" lon="-122.03037573"><ele>-8.1522216796875</ele><time>2020-07-07T14:24:23.000Z</time><speed>0.0</speed><accuracy>12.864</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31052513" lon="-122.03038185"><ele>-4.608367919921875</ele><time>2020-07-07T14:24:24.000Z</time><speed>0.0</speed><accuracy>11.792</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3104947" lon="-122.03039206"><ele>2.44390869140625</ele><time>2020-07-07T14:24:25.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31048761" lon="-122.03039358"><ele>4.11883544921875</ele><time>2020-07-07T14:24:26.000Z</time><speed>0.0</speed><accuracy>8.576</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3104828" lon="-122.03039514"><ele>5.252777099609375</ele><time>2020-07-07T14:24:27.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31048142" lon="-122.03039587"><ele>5.5716552734375</ele><time>2020-07-07T14:24:28.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31048084" lon="-122.03039626"><ele>5.680511474609375</ele><time>2020-07-07T14:24:29.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31047986" lon="-122.03039675"><ele>5.900421142578125</ele><time>2020-07-07T14:24:30.000Z</time><speed>0.0</speed><accuracy>6.432</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31047977" lon="-122.03039657"><ele>5.982452392578125</ele><time>2020-07-07T14:24:31.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+</trkseg>
+</trk>
+<time>2020-07-07T14:24:31.931Z</time>
+</gpx>

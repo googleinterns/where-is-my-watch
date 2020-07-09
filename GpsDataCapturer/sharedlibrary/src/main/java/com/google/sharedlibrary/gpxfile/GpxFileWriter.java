@@ -2,13 +2,8 @@ package com.google.sharedlibrary.gpxfile;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
-
-import com.google.sharedlibrary.utils.Utils;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -40,11 +35,11 @@ public class GpxFileWriter {
 
     /**
      * Write the gpx data into file with header if it's new file
+     *
      * @param location the updated location
-     * @param isNewFile if it's new file
      * @throws Exception
      */
-    public void writeGpsData(Location location, boolean isNewFile) throws Exception {
+    public void writeGpsData(Location location) throws Exception {
         long time = location.getTime();
         if (time <= 0) {
             time = System.currentTimeMillis();
@@ -54,15 +49,15 @@ public class GpxFileWriter {
                 context.getResources().getConfiguration().locale);
 
         Runnable writeHandler = new GpxWriteHandler(context, sdf.format(time), gpxFile, location,
-                append, isNewFile);
+                append);
         EXECUTOR.execute(writeHandler);
     }
 
     /**
      * Write the gpx file footer in xml format
      */
-    public void writeFileFooter() {
-        Runnable footerHandler = new GpxFooterHandler(context, gpxFile, append);
+    public void writeFileAnnotation(boolean isHeader) {
+        Runnable footerHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
         EXECUTOR.execute(footerHandler);
     }
 }

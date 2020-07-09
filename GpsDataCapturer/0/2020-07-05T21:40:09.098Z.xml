@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-05T21:40:12.999Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk><trkseg><trkpt lat="37.31024423" lon="-122.03039579"><ele>47.39019775390625</ele><time>2020-07-05T21:40:12.869Z</time><speed>0.51</speed><accuracy>16.08</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31022425" lon="-122.03038298"><ele>34.38690185546875</ele><time>2020-07-05T21:40:13.868Z</time><speed>0.38</speed><accuracy>5.36</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31023839" lon="-122.0303941"><ele>46.924072265625</ele><time>2020-07-05T21:40:14.859Z</time><speed>0.0</speed><accuracy>5.36</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.30988856" lon="-122.0305762"><ele>-127.35858154296875</ele><time>2020-07-05T21:40:15.000Z</time><speed>0.0</speed><accuracy>18.224</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31021039" lon="-122.03042762"><ele>33.2352294921875</ele><time>2020-07-05T21:40:17.000Z</time><speed>0.0</speed><accuracy>17.152</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3102005" lon="-122.03043754"><ele>24.79296875</ele><time>2020-07-05T21:40:18.000Z</time><speed>0.0</speed><accuracy>6.432</accuracy><src>gps</src></trkpt>
+</trkseg></trk><time>2020-07-05T21:40:18.970Z</time></gpx>

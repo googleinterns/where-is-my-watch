@@ -49,8 +49,7 @@ public class GpsDataCaptureService extends Service {
 
     private static File gpxFileFolder;
     private static File gpxFile;
-    private static boolean isNewFile;
-    private static GpxFileWriter gpxFileWriter;
+    private GpxFileWriter gpxFileWriter;
 
     @Nullable
     @Override
@@ -114,12 +113,14 @@ public class GpsDataCaptureService extends Service {
     public void startCapture(LocationApiType locationApiType) {
         //create a new file
         gpxFile = createGpxFile(gpxFileFolder, getNewFileName(this));
-        isNewFile = true;
 
         //instantiate the gpxFileWriter if it's null
         if (gpxFileWriter == null) {
             gpxFileWriter = new GpxFileWriter(this, gpxFile, true);
         }
+
+        //write the file header
+        gpxFileWriter.writeFileAnnotation(true);
 
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             startFusedLocationProviderClient(fusedLocationProviderClient,
@@ -127,6 +128,35 @@ public class GpsDataCaptureService extends Service {
         } else {
             startLocationManager(locationManager, locationManagerListener);
         }
+    }
+
+    /**
+     * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
+     * gps data to file
+     *
+     * @param location the locationed returned by LocationListener's callback function
+     */
+    @SuppressLint("MissingPermission")
+    public void onLocationChanged(Location location) {
+        //set gps data in the view model
+        GpsInfoViewModel.setGpsDataMutableLiveData(location);
+
+        //write gps data to file
+        try {
+            gpxFileWriter.writeGpsData(location);
+        } catch (Exception e) {
+            Log.e(TAG, "GpxFileWriter could not write data.", e);
+        }
+    }
+
+    /**
+     * On Gps status changed, update the gpsStatus on text view
+     *
+     * @param event the event returned by GpsStatus Listener's callback function
+     */
+    public void onGpsStatusChanged(int event) {
+        //set gps status in the view model
+        GpsInfoViewModel.setGpsStatusMutableLiveData(event);
     }
 
     /**
@@ -142,41 +172,11 @@ public class GpsDataCaptureService extends Service {
         } else {
             stopLocationManager(locationManager, locationManagerListener);
         }
-
-        gpxFileWriter.writeFileFooter();
+        //write the file footer
+        gpxFileWriter.writeFileAnnotation(false);
 
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;
         GpxFileHelper.resetGpxFile(gpxFile);
-    }
-
-
-    /**
-     * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
-     * gps data to file
-     *
-     * @param location the locationed returned by LocationListener's callback function
-     */
-    @SuppressLint("MissingPermission")
-    public void onLocationChanged(Location location) {
-        //set gps data in the view model
-        GpsInfoViewModel.setGpsDataMutableLiveData(location);
-
-        //write gps data to file
-        try {
-            gpxFileWriter.writeGpsData(location, isNewFile);
-            isNewFile = false;
-        } catch (Exception e) {
-            Log.e(TAG, "GpxFileWriter could not write data.", e);
-        }
-    }
-
-    /**
-     * On Gps status changed, update the gpsStatus on text view
-     *
-     * @param event the event returned by GpsStatus Listener's callback function
-     */
-    public void onGpsStatusChanged(int event) {
-        GpsInfoViewModel.setGpsStatusMutableLiveData(event);
     }
 }

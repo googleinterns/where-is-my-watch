@@ -24,18 +24,16 @@ public class GpxWriteHandler implements Runnable {
     private final File gpxFile;
     private final Context context;
     private final boolean append;
-    private boolean isNewFile;
     private static final int SIZE = 20480;
 
 
     public GpxWriteHandler(Context context, String formattedTime, File gpxFile,
-            Location location, boolean append, boolean isNewFile) {
+            Location location, boolean append) {
         this.context = context;
         this.formattedTime = formattedTime;
         this.gpxFile = gpxFile;
         this.location = location;
         this.append = append;
-        this.isNewFile = isNewFile;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -45,14 +43,8 @@ public class GpxWriteHandler implements Runnable {
         try (FileWriter fileWriter = new FileWriter(gpxFile, true)) {
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
 
-            //Write the header if isNewFile
-            if (isNewFile) {
-                Log.d(TAG, "Writing new file header.");
-                bufferedWriter.write(createFileHeader(Utils.getFormattedCurrentTime(context)));
-            }
-
             //write the captured gps data to file
-            String trackPointXml = getTrackPointXml(location,formattedTime);
+            String trackPointXml = getTrackPointXml(location, formattedTime);
             bufferedWriter.write(trackPointXml);
             bufferedWriter.flush();
             bufferedWriter.close();
@@ -63,31 +55,6 @@ public class GpxWriteHandler implements Runnable {
         }
     }
 
-    /**
-     * Create the xml header with version, creator and metadata
-     *
-     * @param formattedStartTime time of on location changed in format
-     * @return A header string
-     */
-    public static String createFileHeader(String formattedStartTime) {
-        StringBuilder header = new StringBuilder();
-
-        header.append("<?xml version='1.0' encoding='UTF-8' ?>");
-        header.append("<gpx version=\"1.1\" creator=\"GpsDataCapturer " + BuildConfig.VERSION_CODE
-                + "\" ");
-        header.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
-        header.append("xmlns=\"http://www.topografix.com/GPX/1/1\" ");
-        header.append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 ");
-        header.append("http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
-        header.append("<metadata><time>").append(formattedStartTime).append("</time>");
-        header.append("<device>").append(Build.DEVICE).append("</device>");
-        header.append("<id>").append(Build.ID).append("</id>");
-        header.append("<manufacturer>").append(Build.MANUFACTURER).append("</manufacturer>");
-        header.append("<model>").append(Build.MODEL).append("</model></metadata>\n");
-        header.append("<trk>\n");
-        header.append("<trkseg>\n");
-        return header.toString();
-    }
 
     /**
      * Generate the xml track point of the location

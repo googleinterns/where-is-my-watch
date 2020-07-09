@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' ?><gpx version="1.1" creator="GpsDataCapturer 1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata><time>2020-07-08T11:26:33.665Z</time><device>salmon</device><id>PXDB.200528.004</id><manufacturer>Compal</manufacturer><model>Suunto 7</model></metadata>
+<trk>
+<trkseg>
+<trkpt lat="37.31033337" lon="-122.03047438"><ele>47.53167724609375</ele><time>2020-07-08T11:26:32.413Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033329" lon="-122.03047432"><ele>47.531494140625</ele><time>2020-07-08T11:26:34.000Z</time><speed>0.0</speed><accuracy>9.648001</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3103333" lon="-122.03047421"><ele>47.5399169921875</ele><time>2020-07-08T11:26:35.000Z</time><speed>0.0</speed><accuracy>8.576</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033312" lon="-122.03047395"><ele>47.54736328125</ele><time>2020-07-08T11:26:36.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033305" lon="-122.0304737"><ele>47.56085205078125</ele><time>2020-07-08T11:26:37.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033283" lon="-122.03047364"><ele>47.56494140625</ele><time>2020-07-08T11:26:38.000Z</time><speed>0.0</speed><accuracy>7.504</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.3103327" lon="-122.03047342"><ele>47.56646728515625</ele><time>2020-07-08T11:26:39.000Z</time><speed>0.0</speed><accuracy>5.36</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033251" lon="-122.03047319"><ele>47.57147216796875</ele><time>2020-07-08T11:26:41.000Z</time><speed>0.0</speed><accuracy>4.288</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033251" lon="-122.03047319"><ele>47.57147216796875</ele><time>2020-07-08T11:26:41.953Z</time><speed>0.0</speed><accuracy>4.288</accuracy><src>gps</src></trkpt>
+<trkpt lat="37.31033246" lon="-122.03047294"><ele>47.57684326171875</ele><time>2020-07-08T11:26:44.000Z</time><speed>0.0</speed><accuracy>4.288</accuracy><src>gps</src></trkpt>
+</trkseg>
+</trk>
+<time>2020-07-08T11:26:45.515Z</time>
+</gpx>

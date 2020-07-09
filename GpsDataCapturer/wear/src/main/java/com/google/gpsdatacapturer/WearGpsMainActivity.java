@@ -22,6 +22,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.wear.ambient.AmbientModeSupport;
 
+import com.google.gpsdatacapturer.R;
 import com.google.gpsdatacapturer.databinding.ActivityWearGpsMainBinding;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
