@@ -5,6 +5,7 @@ import android.location.Location;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -18,7 +19,7 @@ public class GpxFileWriter {
     private Context context;
     protected File gpxFile;
     private boolean append;
-    private static ThreadPoolExecutor EXECUTOR;
+    private ThreadPoolExecutor EXECUTOR;
 
     public GpxFileWriter(Context context, File gpxFile, boolean append) {
         this.context = context;
@@ -47,6 +48,7 @@ public class GpxFileWriter {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 context.getResources().getConfiguration().locale);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         Runnable writeHandler = new GpxWriteHandler(context, sdf.format(time), gpxFile, location,
                 append);

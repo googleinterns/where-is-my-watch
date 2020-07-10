@@ -64,6 +64,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         binding.setGpsInfoViewModel(gpsInfoViewModel);
         binding.setLifecycleOwner(this);
 
+
         //Keep the device awake
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -168,6 +169,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         }
 
         Log.d(TAG, "Start capture data.");
+        gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
         gpsDataCaptureService.startCapture(locationApiType);
     }
 
@@ -186,7 +188,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     /**
      * Provides connection to GpsDataCaptureService
      */
-    private final ServiceConnection gpsServiceConnection = new ServiceConnection() {
+     final ServiceConnection gpsServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");

@@ -47,9 +47,10 @@ public class GpsDataCaptureService extends Service {
     private LocationManagerListener locationManagerListener;
     private FusedLocationProviderListener fusedLocationProviderListener;
 
-    private static File gpxFileFolder;
-    private static File gpxFile;
+    private File gpxFileFolder;
+    private File gpxFile;
     private GpxFileWriter gpxFileWriter;
+    private GpsInfoViewModel gpsInfoViewModel;
 
     @Nullable
     @Override
@@ -130,6 +131,10 @@ public class GpsDataCaptureService extends Service {
         }
     }
 
+    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel){
+        this.gpsInfoViewModel = gpsInfoViewModel;
+    }
+
     /**
      * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
      * gps data to file
@@ -139,7 +144,7 @@ public class GpsDataCaptureService extends Service {
     @SuppressLint("MissingPermission")
     public void onLocationChanged(Location location) {
         //set gps data in the view model
-        GpsInfoViewModel.setGpsDataMutableLiveData(location);
+        gpsInfoViewModel.setGpsDataMutableLiveData(location);
 
         //write gps data to file
         try {
@@ -156,7 +161,7 @@ public class GpsDataCaptureService extends Service {
      */
     public void onGpsStatusChanged(int event) {
         //set gps status in the view model
-        GpsInfoViewModel.setGpsStatusMutableLiveData(event);
+        gpsInfoViewModel.setGpsStatusMutableLiveData(event);
     }
 
     /**

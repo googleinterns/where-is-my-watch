@@ -13,8 +13,8 @@ import androidx.lifecycle.ViewModel;
 
 public class GpsInfoViewModel extends ViewModel {
     private static final String TAG = "GpsInfoViewModel";
-    private static MutableLiveData<GpsData> gpsDataMutableLiveData;
-    private static MutableLiveData<String> gpsStatusMutableLiveData;
+    private MutableLiveData<GpsData> gpsDataMutableLiveData;
+    private MutableLiveData<String> gpsStatusMutableLiveData;
 
     public GpsInfoViewModel(){
         Log.d("ViewModel", "Create GpsInfoViewModel");
@@ -25,7 +25,7 @@ public class GpsInfoViewModel extends ViewModel {
     /**
      * @param location location passed from location listener
      */
-    public static void setGpsDataMutableLiveData(Location location){
+    public void setGpsDataMutableLiveData(Location location){
         Log.d(TAG, "setGpsDataMutableLiveData");
         gpsDataMutableLiveData.setValue(new GpsData(location));
     }
@@ -33,7 +33,7 @@ public class GpsInfoViewModel extends ViewModel {
     /**
      * @param event event passed from gps status listener
      */
-    public static void setGpsStatusMutableLiveData(int event){
+    public void setGpsStatusMutableLiveData(int event){
         Log.d(TAG, "setGpsStatusMutableLiveData");
         switch (event) {
             case GpsStatus.GPS_EVENT_FIRST_FIX:

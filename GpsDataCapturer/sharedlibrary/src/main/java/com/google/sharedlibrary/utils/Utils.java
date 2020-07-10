@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * This Utils class wraps all the utility functions
@@ -103,6 +104,7 @@ public class Utils {
     public static String getFormattedCurrentTime(Context context) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 context.getResources().getConfiguration().locale);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(System.currentTimeMillis());
     }
 }

@@ -78,7 +78,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //Choose a location api, hide the radio group and show startAndStopButton
         apiRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
-            locationApiType = checkedId == R.id.m_radio_button_FPL ?
+            locationApiType = checkedId == R.id.m_radio_button_FLP ?
                     LocationApiType.FUSEDLOCATIONPROVIDERCLIENT
                     : LocationApiType.LOCATIONMANAGER;
         });
@@ -161,6 +161,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "Start capture data.");
+        gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
         gpsDataCaptureService.startCapture(locationApiType);
     }
 

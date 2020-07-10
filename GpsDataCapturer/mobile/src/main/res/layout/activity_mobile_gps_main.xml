@@ -42,7 +42,7 @@
                 android:textSize="20sp" />
 
             <RadioButton
-                android:id="@+id/m_radio_button_FPL"
+                android:id="@+id/m_radio_button_FLP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fusedlocationprovider_api"
