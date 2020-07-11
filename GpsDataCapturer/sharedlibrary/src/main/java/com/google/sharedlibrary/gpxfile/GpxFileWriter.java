@@ -59,7 +59,7 @@ public class GpxFileWriter {
      * Write the gpx file footer in xml format
      */
     public void writeFileAnnotation(boolean isHeader) {
-        Runnable footerHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
-        EXECUTOR.execute(footerHandler);
+        Runnable gpxAnnotationHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
+        EXECUTOR.execute(gpxAnnotationHandler);
     }
 }

@@ -3,15 +3,17 @@ package com.google.gpsdatacapturer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
-import android.provider.Settings;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -19,7 +21,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
@@ -29,7 +30,6 @@ import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.service.GpsDataCaptureService;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,47 +37,54 @@ import org.mockito.Mock;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
+import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowService;
-import org.robolectric.shadows.ShadowSettings;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowLocationManager;
+import org.robolectric.shadows.ShadowLog;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class MobileGpsMainActivityUnitTest {
-
     private MobileGpsMainActivity mobileGpsMainActivity;
-    private Button startAndStopButton;
-    private RadioGroup apiRadioGroup;
-    private RadioButton lmRadioButton;
-    private RadioButton flpRadioButton;
-    private TextView gpsDataTextView;
-    private TextView gpsStatusTextView;
 
+    @Mock
+    private GpsDataCaptureService gpsDataCaptureService;
     @Mock
     private GpsInfoViewModel gpsInfoViewModel;
 
-    @Mock
-    private LiveData<GpsData> gpsDataLiveData;
-
-    @Mock
-    private LiveData<String> gpsStatusLiveData;
-
-    @Mock
-    private Observer<GpsData> gpsDataObserver;
-
-    @Mock
-    private Observer<String> gpsStatusObserver;
+    private Button startAndStopButton;
+    private RadioGroup apiRadioGroup;
+    private TextView gpsDataTextView;
+    private TextView gpsStatusTextView;
 
     @Before
     public void setUp() {
-        mobileGpsMainActivity = Robolectric.buildActivity(MobileGpsMainActivity.class).create().get();
-        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
-        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
-        lmRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_LM);
-        flpRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_FLP);
-        gpsDataTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_data);
-        gpsStatusTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_status);
+        ShadowLog.stream = System.out;
+        ActivityController<MobileGpsMainActivity> activityController = Robolectric.buildActivity(
+                MobileGpsMainActivity.class);
+        mobileGpsMainActivity = activityController.get();
+
+        //Set up the service and binder
+        ShadowApplication application = ShadowApplication.getInstance();
+
+        gpsDataCaptureService = mock(GpsDataCaptureService.class);
+        GpsDataCaptureService.GpsDataCaptureBinder binder = mock(
+                GpsDataCaptureService.GpsDataCaptureBinder.class);
+
+        when(binder.getService()).thenReturn(gpsDataCaptureService);
+
+        application.setComponentNameAndServiceForBindService(
+                new ComponentName(mobileGpsMainActivity, GpsDataCaptureService.class), binder);
+
+        //Enable GPS Provider
+        LocationManager locationManager = (LocationManager) mobileGpsMainActivity.getSystemService(
+                Context.LOCATION_SERVICE);
+        ShadowLocationManager shadowLocationManager = Shadows.shadowOf(locationManager);
+        shadowLocationManager.setProviderEnabled(LocationManager.GPS_PROVIDER, true);
+
+        activityController.create();
     }
 
     @Test
@@ -85,24 +92,19 @@ public class MobileGpsMainActivityUnitTest {
         assertNotNull(mobileGpsMainActivity);
     }
 
-    //The following test testing UI behaves as expected
+    //The following tests testing UI behaves as expected
     @Test
-    public void testUIComponentsNotNull() {
-        assertNotNull(startAndStopButton);
+    public void testInitialUIShowingAsExpected() {
+        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
+        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
+        gpsDataTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_data);
+        gpsStatusTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_status);
+
         assertNotNull(apiRadioGroup);
-        assertNotNull(lmRadioButton);
-        assertNotNull(flpRadioButton);
+        assertNotNull(startAndStopButton);
         assertNotNull(gpsDataTextView);
         assertNotNull(gpsStatusTextView);
 
-        View layout = LayoutInflater.from(mobileGpsMainActivity).inflate(
-                R.layout.activity_mobile_gps_main,
-                null);
-        assertNotNull(layout);
-    }
-
-    @Test
-    public void testInitialUIShowingCorrect() {
         assertEquals(View.VISIBLE, apiRadioGroup.getVisibility());
         assertEquals(View.VISIBLE, startAndStopButton.getVisibility());
         assertEquals("START", startAndStopButton.getText());
@@ -112,34 +114,35 @@ public class MobileGpsMainActivityUnitTest {
 
     @Test
     public void testLmRadioButtonChecked() {
+        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
+        RadioButton lmRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_LM);
+        assertNotNull(lmRadioButton);
         lmRadioButton.performClick();
         assertEquals(R.id.m_radio_button_LM, apiRadioGroup.getCheckedRadioButtonId());
     }
 
     @Test
     public void testFlpRadioButtonChecked() {
+        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
+        RadioButton flpRadioButton = mobileGpsMainActivity.findViewById(R.id.m_radio_button_FLP);
+        assertNotNull(flpRadioButton);
         flpRadioButton.performClick();
         assertEquals(R.id.m_radio_button_FLP, apiRadioGroup.getCheckedRadioButtonId());
     }
 
     @Test
-    public void testApiRadioGroupHideOnStartButtonClicked() {
-        startAndStopButton.performClick();
-        assertEquals(View.GONE, apiRadioGroup.getVisibility());
-    }
+    public void testStartButtonClickedUIChangedAsExpected() {
+        apiRadioGroup = mobileGpsMainActivity.findViewById(R.id.m_raido_group_api);
+        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
+        gpsDataTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_data);
+        gpsStatusTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_status);
 
-    @Test
-    public void testTextViewsVisibleOnStartButtonClicked() {
         startAndStopButton.performClick();
+
+        assertEquals(View.GONE, apiRadioGroup.getVisibility());
+        assertEquals("STOP", startAndStopButton.getText());
         assertEquals(View.VISIBLE, gpsDataTextView.getVisibility());
         assertEquals(View.VISIBLE, gpsStatusTextView.getVisibility());
-    }
-
-    @Test
-    public void testStartAndStopButtonShowCorrectText() {
-        assertEquals("START", startAndStopButton.getText());
-        startAndStopButton.performClick();
-        assertEquals("STOP", startAndStopButton.getText());
     }
 
     //The following test testing data binding successfully
@@ -148,57 +151,102 @@ public class MobileGpsMainActivityUnitTest {
         ActivityMobileGpsMainBinding binding =
                 DataBindingUtil.setContentView(mobileGpsMainActivity,
                         R.layout.activity_mobile_gps_main);
+
         binding.setGpsInfoViewModel(gpsInfoViewModel);
         binding.setLifecycleOwner(mobileGpsMainActivity);
         assertNotNull(binding);
-        assertEquals(binding.getGpsInfoViewModel(), gpsInfoViewModel);
-        assertEquals(binding.getLifecycleOwner(), mobileGpsMainActivity);
+        assertEquals(gpsInfoViewModel, binding.getGpsInfoViewModel());
+        assertEquals(mobileGpsMainActivity, binding.getLifecycleOwner());
     }
 
-    //The following test testing gpsDataCapture service start and stop as expected
+    //The following tests testing gpsDataCapture service start as expected
     @Test
-    public void testStartButtonClickShouldStartService() {
-        lmRadioButton.performClick();
-        startAndStopButton.performClick();
-
+    public void testGpsDataCaptureServiceStarted() {
+        ShadowLog.stream = System.out;
         Intent expectedIntent = new Intent(mobileGpsMainActivity, GpsDataCaptureService.class);
         ShadowActivity shadowActivity = Shadows.shadowOf(mobileGpsMainActivity);
+
         Intent shadowIntent = shadowActivity.getNextStartedService();
 
         assertTrue(shadowIntent.filterEquals(expectedIntent));
     }
 
     @Test
-    public void testStopButtonClickShouldStopService() {
-        ServiceConnection coon = mock(ServiceConnection.class);
-        GpsDataCaptureService service = Robolectric.buildService(GpsDataCaptureService.class).create().get();
-        service.bindService(new Intent(mobileGpsMainActivity, GpsDataCaptureService.class), coon, Context.BIND_AUTO_CREATE);
-
+    public void testStartGpsCaptureOnStartButtonClicked() {
+        ShadowLog.stream = System.out;
+        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
         startAndStopButton.performClick();
-        service.unbindService(coon);
-        service.stopSelf();
 
-        ShadowService shadowService = Shadows.shadowOf(service);
-
-        //THEN, check if service stops itself
-        assertTrue(shadowService.isStoppedBySelf());
+        verify(gpsDataCaptureService).startCapture(any());
     }
 
-    //The following tests testing gpsInfoViewModel behave as expected
+
     @Test
-    public void testGpsInfoViewModelNotNull() {
+    public void testStopGpsCaptureOnStopButtonClicked() {
+        ShadowLog.stream = System.out;
+        startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
+        startAndStopButton.performClick();
+        startAndStopButton.performClick();
+
+        verify(gpsDataCaptureService).stopCapture(any());
+    }
+
+    @Test
+    public void testGpsDataTextViewUpdateAsExpected() {
+        //Given
+        Location loc = mock(Location.class);
+
         gpsInfoViewModel = mock(GpsInfoViewModel.class);
-        gpsDataLiveData = new MutableLiveData<>();
-        gpsStatusLiveData = new MutableLiveData<>();
+        gpsInfoViewModel.setGpsDataMutableLiveData(loc);
+
+        MutableLiveData<GpsData> gpsDataLiveData = new MutableLiveData<>();
+        gpsDataLiveData.setValue(new GpsData(loc));
+
+        //When
         when(gpsInfoViewModel.getGpsDataMutableLiveData()).thenReturn(gpsDataLiveData);
-        when(gpsInfoViewModel.getGpsStatusMutableLiveData()).thenReturn(gpsStatusLiveData);
+        gpsDataTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_data);
+        Observer<GpsData> gpsDataObserver = new Observer<GpsData>() {
+            @Override
+            public void onChanged(GpsData gpsData) {
+                gpsDataTextView.setText(gpsData.getGpsDataString());
+            }
+        };
         gpsInfoViewModel.getGpsDataMutableLiveData().observeForever(
                 gpsDataObserver);
-        gpsInfoViewModel.getGpsStatusMutableLiveData().observeForever(gpsStatusObserver);
 
-        assertNotNull(gpsInfoViewModel.getGpsDataMutableLiveData());
-        assertNotNull(gpsInfoViewModel.getGpsStatusMutableLiveData());
-        assertTrue(gpsInfoViewModel.getGpsStatusMutableLiveData().hasObservers());
-        assertTrue(gpsInfoViewModel.getGpsDataMutableLiveData().hasObservers());
+        //Then
+        String data = gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getGpsDataString();
+        assertEquals(data, gpsDataTextView.getText().toString());
+    }
+
+    @Test
+    public void testGpsStatusTextViewUpdateAsExpected() {
+        //Given
+        String gpsStatus = "Gps Status: GPS_EVENT_STARTED";
+        gpsInfoViewModel = mock(GpsInfoViewModel.class);
+        gpsInfoViewModel.setGpsStatusMutableLiveData(1);
+        MutableLiveData<String> gpsStatusLiveData = new MutableLiveData<>();
+        gpsStatusLiveData.setValue(gpsStatus);
+
+        //When
+        when(gpsInfoViewModel.getGpsStatusMutableLiveData()).thenReturn(gpsStatusLiveData);
+        gpsStatusTextView = mobileGpsMainActivity.findViewById(R.id.m_text_view_gps_status);
+        Observer<String> gpsStatusObserver = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                gpsStatusTextView.setText(s);
+            }
+        };
+        gpsInfoViewModel.getGpsStatusMutableLiveData().observeForever(
+                gpsStatusObserver);
+
+        //Then
+        String status = gpsInfoViewModel.getGpsStatusMutableLiveData().getValue();
+        assertEquals(status, gpsStatusTextView.getText().toString());
+    }
+
+    @After
+    public void tearDown() {
+        mobileGpsMainActivity.onDestroy();
     }
 }

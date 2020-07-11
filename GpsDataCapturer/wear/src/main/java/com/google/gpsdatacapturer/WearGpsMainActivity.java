@@ -22,12 +22,10 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.wear.ambient.AmbientModeSupport;
 
-import com.google.gpsdatacapturer.R;
 import com.google.gpsdatacapturer.databinding.ActivityWearGpsMainBinding;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
 import com.google.sharedlibrary.service.GpsDataCaptureService;
-import com.google.sharedlibrary.service.GpsDataCaptureService.GpsDataCaptureBinder;
 import com.google.sharedlibrary.utils.Utils;
 import com.google.sharedlibrary.utils.Utils.ButtonState;
 import com.google.sharedlibrary.utils.Utils.LocationApiType;
@@ -48,6 +46,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private TextView gpsDataTextView;
     private TextView gpsStatusTextView;
     private GpsInfoViewModel gpsInfoViewModel;
+    private boolean gpsCaptureStopped;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +90,9 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     : LocationApiType.LOCATIONMANAGER;
         });
 
+        //Start the service
+        startAndBindGpsDataCaptureService();
+
         //start and bind service on start button clicked and start capture once the service is
         // connected
         //stop capture data, then stop and unbind service on stop button clicked
@@ -101,13 +103,11 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
                 showGpsDataAndStatusTextView();
 
-                startAndBindGpsDataCaptureService();
+                startGpsCapture();
 
                 switchToStopButton();
             } else {
                 stopGpsCapture();
-
-                stopAndUnbindGpsDataCaptureService();
 
                 hideGpsDataAndStatusTextView();
 
@@ -140,8 +140,10 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        stopGpsCapture();
-        stopAndUnbindGpsDataCaptureService();
+        if(!gpsCaptureStopped) {
+            stopGpsCapture();
+        }
+        unbindGpsDataCaptureService();
         super.onDestroy();
     }
 
@@ -183,21 +185,19 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
         Log.d(TAG, "Stop capture data.");
         gpsDataCaptureService.stopCapture(locationApiType);
+        gpsCaptureStopped = true;
     }
 
     /**
      * Provides connection to GpsDataCaptureService
      */
-     final ServiceConnection gpsServiceConnection = new ServiceConnection() {
+     public final ServiceConnection gpsServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
             //get the gpsDataCaptureService
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
-
-            //start GPS capture
-            startGpsCapture();
         }
 
         @Override
@@ -214,12 +214,14 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         serviceIntent = new Intent(this, GpsDataCaptureService.class);
         //start GpsDataCaptureService
         try {
+            Log.d(TAG, "Start Service");
             startService(serviceIntent);
         } catch (Exception e) {
             Log.e(TAG, "Could not start gpsDataCaptureService", e);
         }
         //Bind to GpsDataCaptureService
         try {
+            Log.d(TAG, "Bind Service");
             isBound = bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
             Log.e(TAG, "Could not bind gpsDataCaptureService", e);
@@ -229,7 +231,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     /**
      * Unbind the activity from GpsDataCaptureService
      */
-    private void stopAndUnbindGpsDataCaptureService() {
+    private void unbindGpsDataCaptureService() {
         //Unbind from GpsDataCaptureService
         try {
             if (isBound) {
@@ -238,12 +240,6 @@ public class WearGpsMainActivity extends AppCompatActivity implements
             }
         } catch (Exception e) {
             Log.e(TAG, "Could not unbind gpsDataCaptureService", e);
-        }
-        //Stop GpsDataCaptureService
-        try {
-            stopService(serviceIntent);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not stop gpsDataCaptureService", e);
         }
     }
 
