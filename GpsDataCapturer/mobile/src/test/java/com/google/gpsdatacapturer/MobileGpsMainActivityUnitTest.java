@@ -177,6 +177,7 @@ public class MobileGpsMainActivityUnitTest {
         startAndStopButton = mobileGpsMainActivity.findViewById(R.id.m_start_stop_button);
         startAndStopButton.performClick();
 
+        verify(gpsDataCaptureService).setGpsInfoViewModel(any());
         verify(gpsDataCaptureService).startCapture(any());
     }
 

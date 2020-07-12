@@ -17,10 +17,13 @@ public class LocationManagerHelper {
      */
     @SuppressLint("MissingPermission")
     public static void startLocationManager(LocationManager locationManager,
-            LocationManagerListener locationListener) {
-        locationManager.addGpsStatusListener(locationListener);
+            LocationManagerListener locationManagerListener) {
+        Log.d(TAG, "Add GpsStatusListener");
+        locationManager.addGpsStatusListener(locationManagerListener);
+
+        Log.d(TAG, "RequestLocationUpdates");
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, INTERVAL, DISTANCE,
-                locationListener);
+                locationManagerListener);
     }
 
     /**
@@ -31,6 +34,7 @@ public class LocationManagerHelper {
         if (locationListener != null) {
             Log.d(TAG, "LocationManager is removing location updates.");
             locationManager.removeUpdates(locationListener);
+            locationManager.removeGpsStatusListener(locationListener);
         }
     }
 }

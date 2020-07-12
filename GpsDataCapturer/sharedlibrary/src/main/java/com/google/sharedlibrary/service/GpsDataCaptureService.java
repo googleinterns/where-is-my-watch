@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -48,8 +49,11 @@ public class GpsDataCaptureService extends Service {
     private FusedLocationProviderListener fusedLocationProviderListener;
 
     private File gpxFileFolder;
-    private File gpxFile;
+
+    protected File gpxFile;
+
     private GpxFileWriter gpxFileWriter;
+
     private GpsInfoViewModel gpsInfoViewModel;
 
     @Nullable

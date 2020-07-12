@@ -19,7 +19,8 @@ public class GpxFileWriter {
     private Context context;
     protected File gpxFile;
     private boolean append;
-    private ThreadPoolExecutor EXECUTOR;
+    protected ThreadPoolExecutor EXECUTOR;
+    private Runnable gpxAnnotationHandler;
 
     public GpxFileWriter(Context context, File gpxFile, boolean append) {
         this.context = context;
@@ -59,7 +60,7 @@ public class GpxFileWriter {
      * Write the gpx file footer in xml format
      */
     public void writeFileAnnotation(boolean isHeader) {
-        Runnable gpxAnnotationHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
+        gpxAnnotationHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
         EXECUTOR.execute(gpxAnnotationHandler);
     }
 }

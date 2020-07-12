@@ -6,10 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.shadows.ShadowLooper.getShadowMainLooper;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,10 +15,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Looper;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -28,7 +22,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
@@ -36,13 +29,11 @@ import com.google.gpsdatacapturer.databinding.ActivityWearGpsMainBinding;
 import com.google.sharedlibrary.model.GpsData;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.service.GpsDataCaptureService;
-import com.google.sharedlibrary.utils.Utils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -53,9 +44,6 @@ import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLocationManager;
 import org.robolectric.shadows.ShadowLog;
-import org.robolectric.shadows.ShadowLooper;
-
-import java.util.concurrent.ThreadPoolExecutor;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
@@ -190,6 +178,7 @@ public class WearGpsMainActivityUnitTest {
         startAndStopButton = wearGpsMainActivity.findViewById(R.id.button_start_stop);
         startAndStopButton.performClick();
 
+        verify(gpsDataCaptureService).setGpsInfoViewModel(any());
         verify(gpsDataCaptureService).startCapture(any());
     }
 

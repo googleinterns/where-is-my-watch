@@ -14,7 +14,7 @@ import java.io.IOException;
  * new file creation, and writing header/captured data/footer etc., functions.
  */
 public class GpxFileHelper {
-    private static String TAG = "GpxFile";
+    private static final String TAG = "GpxFile";
 
     /**
      * Create a new gpxFile

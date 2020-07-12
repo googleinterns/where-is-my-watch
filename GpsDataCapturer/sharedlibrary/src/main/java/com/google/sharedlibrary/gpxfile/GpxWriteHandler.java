@@ -63,7 +63,7 @@ public class GpxWriteHandler implements Runnable {
      * @param formattedTime time of on location changed in format
      * @return a string of xml track point
      */
-    String getTrackPointXml(Location location, String formattedTime) {
+    private String getTrackPointXml(Location location, String formattedTime) {
         StringBuilder trackPoint = new StringBuilder();
 
         trackPoint.append("<trkpt lat=\"")
