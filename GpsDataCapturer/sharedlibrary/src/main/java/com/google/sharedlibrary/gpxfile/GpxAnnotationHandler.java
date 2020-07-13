@@ -12,16 +12,17 @@ import com.google.sharedlibrary.utils.Utils;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 
 public class GpxAnnotationHandler implements Runnable {
     private static final String TAG = "GpxAnnotationHandler";
+    private SimpleDateFormat sdf;
     private final File gpxFile;
-    private final Context context;
     private final boolean append;
     private final boolean isHeader;
 
-    public GpxAnnotationHandler(Context context, File gpxFile, boolean append, boolean isHeader) {
-        this.context = context;
+    public GpxAnnotationHandler(SimpleDateFormat sdf, File gpxFile, boolean append, boolean isHeader) {
+        this.sdf = sdf;
         this.gpxFile = gpxFile;
         this.append = append;
         this.isHeader = isHeader;
@@ -34,7 +35,7 @@ public class GpxAnnotationHandler implements Runnable {
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             if (isHeader) {
                 Log.d(TAG, "Writing new file header.");
-                bufferedWriter.write(createFileHeader(Utils.getFormattedCurrentTime(context)));
+                bufferedWriter.write(createFileHeader(sdf.format(System.currentTimeMillis())));
             } else {
                 Log.d(TAG, "Writing the xml footer.");
                 bufferedWriter.write(createFileFooter());
@@ -81,7 +82,7 @@ public class GpxAnnotationHandler implements Runnable {
     private String createFileFooter() {
         StringBuilder footer = new StringBuilder();
         footer.append("</trkseg>\n</trk>\n<time>")
-                .append(Utils.getFormattedCurrentTime(context))
+                .append(sdf.format(System.currentTimeMillis()))
                 .append("</time>\n</gpx>");
 
         return footer.toString();

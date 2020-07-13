@@ -25,7 +25,6 @@ public class Utils {
 
     public enum LocationApiType {FUSEDLOCATIONPROVIDERCLIENT, LOCATIONMANAGER}
 
-
     /**
      * Request for all necessary permissions if not granted
      */
@@ -93,18 +92,5 @@ public class Utils {
      */
     public static boolean isGpsEnabled(LocationManager locationManager) {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    /**
-     * Get formatted system time
-     *
-     * @param context the context
-     * @return return a string of formatted current time
-     */
-    public static String getFormattedCurrentTime(Context context) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                context.getResources().getConfiguration().locale);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.format(System.currentTimeMillis());
     }
 }

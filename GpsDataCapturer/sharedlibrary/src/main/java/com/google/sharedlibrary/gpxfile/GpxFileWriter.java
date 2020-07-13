@@ -16,14 +16,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class GpxFileWriter {
     private final static String TAG = "GpxFileWriter";
-    private Context context;
+    private SimpleDateFormat sdf;
     protected File gpxFile;
     private boolean append;
     protected ThreadPoolExecutor EXECUTOR;
-    private Runnable gpxAnnotationHandler;
 
-    public GpxFileWriter(Context context, File gpxFile, boolean append) {
-        this.context = context;
+    public GpxFileWriter(SimpleDateFormat sdf, File gpxFile, boolean append) {
+        this.sdf = sdf;
         this.gpxFile = gpxFile;
         this.append = append;
         EXECUTOR = new ThreadPoolExecutor(1, 1, 60,
@@ -47,11 +46,7 @@ public class GpxFileWriter {
             time = System.currentTimeMillis();
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                context.getResources().getConfiguration().locale);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        Runnable writeHandler = new GpxWriteHandler(context, sdf.format(time), gpxFile, location,
+        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location,
                 append);
         EXECUTOR.execute(writeHandler);
     }
@@ -60,7 +55,7 @@ public class GpxFileWriter {
      * Write the gpx file footer in xml format
      */
     public void writeFileAnnotation(boolean isHeader) {
-        gpxAnnotationHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
+        Runnable gpxAnnotationHandler = new GpxAnnotationHandler(sdf, gpxFile, append, isHeader);
         EXECUTOR.execute(gpxAnnotationHandler);
     }
 }

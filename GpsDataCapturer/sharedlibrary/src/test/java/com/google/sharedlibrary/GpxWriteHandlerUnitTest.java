@@ -21,13 +21,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 import java.io.File;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class GpxWriteHandlerUnitTest {
     private GpxWriteHandler gpxWriteHandler;
@@ -45,6 +47,7 @@ public class GpxWriteHandlerUnitTest {
 
     @Before
     public void setUp(){
+        ShadowLog.stream = System.out;
         context = mock(Context.class);
         gpxFile = mock(File.class);
         location = mock(Location.class);

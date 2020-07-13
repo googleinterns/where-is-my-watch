@@ -16,8 +16,8 @@ public class GpsInfoViewModel extends ViewModel {
     private MutableLiveData<GpsData> gpsDataMutableLiveData;
     private MutableLiveData<String> gpsStatusMutableLiveData;
 
-    public GpsInfoViewModel(){
-        Log.d("ViewModel", "Create GpsInfoViewModel");
+    public GpsInfoViewModel() {
+        Log.i("ViewModel", "Create GpsInfoViewModel");
         gpsDataMutableLiveData = new MutableLiveData<>();
         gpsStatusMutableLiveData = new MutableLiveData<>();
     }
@@ -25,7 +25,7 @@ public class GpsInfoViewModel extends ViewModel {
     /**
      * @param location location passed from location listener
      */
-    public void setGpsDataMutableLiveData(Location location){
+    public void setGpsDataMutableLiveData(Location location) {
         Log.d(TAG, "setGpsDataMutableLiveData");
         gpsDataMutableLiveData.setValue(new GpsData(location));
     }
@@ -33,7 +33,7 @@ public class GpsInfoViewModel extends ViewModel {
     /**
      * @param event event passed from gps status listener
      */
-    public void setGpsStatusMutableLiveData(int event){
+    public void setGpsStatusMutableLiveData(int event) {
         Log.d(TAG, "setGpsStatusMutableLiveData");
         switch (event) {
             case GpsStatus.GPS_EVENT_FIRST_FIX:
@@ -52,7 +52,7 @@ public class GpsInfoViewModel extends ViewModel {
      * @return gpsDataMutableLiveData
      */
     @NonNull
-    public LiveData<GpsData> getGpsDataMutableLiveData(){
+    public LiveData<GpsData> getGpsDataMutableLiveData() {
         Log.d(TAG, "getGpsDataMutableLiveData");
         return gpsDataMutableLiveData;
     }
@@ -61,13 +61,13 @@ public class GpsInfoViewModel extends ViewModel {
      * @return gpsStatusMutableLiveData
      */
     @NonNull
-    public LiveData<String> getGpsStatusMutableLiveData(){
+    public LiveData<String> getGpsStatusMutableLiveData() {
         Log.d(TAG, "getGpsStatusMutableLiveData");
         return gpsStatusMutableLiveData;
     }
 
     @Override
-    protected void onCleared(){
+    protected void onCleared() {
         super.onCleared();
     }
 }

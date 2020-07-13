@@ -71,9 +71,11 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
+            Log.d(TAG, "Permissions required to run this app. Start to request necessary permissions.");
             Utils.requestNecessaryPermissions(this);
         }
         if (!isGpsEnabled(locationManager)) {
+            Log.d(TAG, "Gps is not enabled, start to enable.");
             setGpsEnabled();
         }
 
@@ -125,6 +127,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "On Resume Gps enabled: " + isGpsEnabled(locationManager));
         super.onResume();
     }
 

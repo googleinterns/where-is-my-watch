@@ -3,7 +3,6 @@ package com.google.sharedlibrary.service;
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.startFusedLocationProviderClient;
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.stopFusedLocationProviderClient;
 import static com.google.sharedlibrary.gpxfile.GpxFileHelper.createGpxFile;
-import static com.google.sharedlibrary.gpxfile.GpxFileHelper.getNewFileName;
 import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.startLocationManager;
 import static com.google.sharedlibrary.locationhelper.LocationManagerHelper.stopLocationManager;
 import static com.google.sharedlibrary.storage.GpxFileFolder.createGpsDataFolder;
@@ -31,6 +30,8 @@ import com.google.sharedlibrary.locationhelper.LocationManagerListener;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * This class provides service for capturing gps data from devices and phones, writing collected gps
@@ -55,6 +56,8 @@ public class GpsDataCaptureService extends Service {
     private GpxFileWriter gpxFileWriter;
 
     private GpsInfoViewModel gpsInfoViewModel;
+
+    private SimpleDateFormat sdf;
 
     @Nullable
     @Override
@@ -81,6 +84,10 @@ public class GpsDataCaptureService extends Service {
         if (gpxFileFolder == null) {
             gpxFileFolder = createGpsDataFolder(this);
         }
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                this.getResources().getConfiguration().locale);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
@@ -117,11 +124,11 @@ public class GpsDataCaptureService extends Service {
      */
     public void startCapture(LocationApiType locationApiType) {
         //create a new file
-        gpxFile = createGpxFile(gpxFileFolder, getNewFileName(this));
+        gpxFile = createGpxFile(gpxFileFolder, sdf.format(System.currentTimeMillis()));
 
         //instantiate the gpxFileWriter if it's null
         if (gpxFileWriter == null) {
-            gpxFileWriter = new GpxFileWriter(this, gpxFile, true);
+            gpxFileWriter = new GpxFileWriter(sdf, gpxFile, true);
         }
 
         //write the file header
@@ -186,6 +193,6 @@ public class GpsDataCaptureService extends Service {
 
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;
-        GpxFileHelper.resetGpxFile(gpxFile);
+        gpxFile = null;
     }
 }

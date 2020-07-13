@@ -22,14 +22,12 @@ public class GpxWriteHandler implements Runnable {
     private final String formattedTime;
     private final Location location;
     private final File gpxFile;
-    private final Context context;
     private final boolean append;
     private static final int SIZE = 20480;
 
 
-    public GpxWriteHandler(Context context, String formattedTime, File gpxFile,
+    public GpxWriteHandler(String formattedTime, File gpxFile,
             Location location, boolean append) {
-        this.context = context;
         this.formattedTime = formattedTime;
         this.gpxFile = gpxFile;
         this.location = location;

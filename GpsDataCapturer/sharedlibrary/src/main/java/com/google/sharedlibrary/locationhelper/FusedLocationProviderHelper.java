@@ -33,11 +33,8 @@ public class FusedLocationProviderHelper {
 
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
                 Looper.getMainLooper())
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "FusedLocationProviderClient could not be started.", e);
-                    }
+                .addOnFailureListener((e) ->{
+                    Log.e(TAG, "FusedLocationProviderClient could not be started.", e);
                 })
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -46,6 +43,7 @@ public class FusedLocationProviderHelper {
                                 "FusedLocationProviderClient request location update completed.");
                     }
                 });
+
     }
 
     /**
@@ -66,11 +64,8 @@ public class FusedLocationProviderHelper {
             LocationCallback locationCallback) {
         if (fusedLocationProviderClient != null) {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "FusedLocationProviderClient could not be removed.", e);
-                        }
+                    .addOnFailureListener((e)->{
+                        Log.e(TAG, "FusedLocationProviderClient could not be removed.", e);
                     })
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

@@ -2,6 +2,7 @@ package com.google.sharedlibrary.model;
 
 
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 
 public class GpsData {
@@ -9,14 +10,14 @@ public class GpsData {
     private String longtitude;
     private String speed;
 
-    public GpsData(Location location){
+    public GpsData(Location location) {
         latitude = String.valueOf(location.getLatitude());
         longtitude = String.valueOf(location.getLongitude());
-        speed = String.valueOf(location.getSpeed());
+        speed = String.valueOf(location.hasSpeed() ? location.getSpeed() : "0.0");
     }
 
     @NonNull
-    public String getGpsDataString(){
+    public String getGpsDataString() {
         StringBuilder gpsDataBuilder = new StringBuilder();
         gpsDataBuilder.append("GPS DATA \n")
                 .append("Lat: ").append(latitude)
