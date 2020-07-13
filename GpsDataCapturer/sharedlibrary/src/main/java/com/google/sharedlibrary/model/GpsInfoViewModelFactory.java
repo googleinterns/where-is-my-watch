@@ -6,6 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+/**
+ * The view model factory class creates the instance of {@link }GpsInfoViewModel}
+ */
 public class GpsInfoViewModelFactory implements ViewModelProvider.Factory {
     /**
      * Creates a new instance of the given {@code Class}.

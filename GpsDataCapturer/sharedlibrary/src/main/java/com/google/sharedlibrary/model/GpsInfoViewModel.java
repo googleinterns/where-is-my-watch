@@ -10,7 +10,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-
+/**
+ * The GpsInfoViewModel class will fetch Gps data and status from the GpsDataCaptureService and pass them to the UI
+ */
 public class GpsInfoViewModel extends ViewModel {
     private static final String TAG = "GpsInfoViewModel";
     private MutableLiveData<GpsData> gpsDataMutableLiveData;
@@ -23,6 +25,7 @@ public class GpsInfoViewModel extends ViewModel {
     }
 
     /**
+     * Set the GpsDataMutableLiveData value with the updated location
      * @param location location passed from location listener
      */
     public void setGpsDataMutableLiveData(Location location) {
@@ -31,6 +34,7 @@ public class GpsInfoViewModel extends ViewModel {
     }
 
     /**
+     * Set the GpsStatusMutableLiveData value according to the event
      * @param event event passed from gps status listener
      */
     public void setGpsStatusMutableLiveData(int event) {
