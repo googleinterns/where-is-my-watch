@@ -4,4 +4,5 @@
     <string name="stop_capture" translatable="false">STOP</string>
     <string name="locationmanager_api" translatable="false">LocationManager API</string>
     <string name="fusedlocationprovider_api" translatable="false">FusedLocationProvider API</string>
+    <string name="waiting_gps_data" translatable="false">Waiting for GPS Data...</string>
 </resources>

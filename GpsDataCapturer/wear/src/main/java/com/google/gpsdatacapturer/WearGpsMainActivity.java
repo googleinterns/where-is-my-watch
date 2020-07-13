@@ -130,6 +130,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "On Resume Gps enabled: " + isGpsEnabled(locationManager));
         super.onResume();
     }
 
