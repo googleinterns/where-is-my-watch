@@ -10,8 +10,10 @@ import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -19,11 +21,10 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.sharedlibrary.gpxfile.GpxFileHelper;
+import com.google.sharedlibrary.ServiceBroadcastReceiver;
 import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
@@ -59,6 +60,9 @@ public class GpsDataCaptureService extends Service {
 
     private SimpleDateFormat sdf;
 
+    private BroadcastReceiver serviceBroadcastReceiver;
+    private IntentFilter intentFilter;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -68,6 +72,15 @@ public class GpsDataCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Log.d(TAG, "Create service broadcast receiver");
+        serviceBroadcastReceiver = new ServiceBroadcastReceiver();
+        Log.d(TAG, "Add intent filter");
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE");
+        intentFilter.addAction("com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE");
+
+        registerReceiver(serviceBroadcastReceiver, intentFilter);
 
         if (fusedLocationProviderClient == null) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -93,11 +106,13 @@ public class GpsDataCaptureService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+//        registerReceiver(serviceBroadcastReceiver, intentFilter);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(serviceBroadcastReceiver);
         super.onDestroy();
     }
 
@@ -142,7 +157,7 @@ public class GpsDataCaptureService extends Service {
         }
     }
 
-    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel){
+    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel) {
         this.gpsInfoViewModel = gpsInfoViewModel;
     }
 
