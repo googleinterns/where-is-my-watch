@@ -1,0 +1,4 @@
+include ':sharedlibrary'
+include ':wear'
+include ':mobile'
+rootProject.name = "GpsDataCapturer"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="m_text_view_gps_data" type="id" />
+    <item name="m_text_view_gps_status" type="id" />
+    <item name="m_raido_group_api" type="id" />
+    <item name="m_radio_button_LM" type="id" />
+    <item name="m_radio_button_FLP" type="id" />
+    <item name="m_start_stop_button" type="id" />
+</resources>

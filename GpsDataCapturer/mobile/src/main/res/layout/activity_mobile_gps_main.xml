@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="gpsInfoViewModel"
+            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/darkGrey">
+
+        <Button
+            android:id="@+id/m_start_stop_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="120dp"
+            android:text="@string/start_capture"
+            android:textSize="18sp"
+            android:textColor="@color/primaryWhite"
+            android:background="@drawable/mobile_button_green"/>
+
+        <RadioGroup
+            android:id="@+id/m_raido_group_api"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:checkedButton="@+id/m_radio_button_LM">
+
+            <RadioButton
+                android:id="@+id/m_radio_button_LM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/locationmanager_api"
+                android:textColor="@color/primaryWhite"
+                android:buttonTint="@color/primaryWhite"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/m_radio_button_FLP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fusedlocationprovider_api"
+                android:textColor="@color/primaryWhite"
+                android:buttonTint="@color/primaryWhite"
+                android:textSize="20sp" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/m_text_view_gps_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="64dp"
+            android:lines="4"
+            android:maxLines="5"
+            android:minLines="2"
+            android:scrollHorizontally="false"
+            android:singleLine="false"
+            android:textAlignment="center"
+            android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString()?? @string/waiting_gps_data}"
+            android:textSize="20sp"
+            android:textColor="@color/primaryWhite"
+            android:visibility="gone"
+            tools:hint="GPS DATA"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/m_text_view_gps_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/m_text_view_gps_data"
+            android:layout_centerHorizontal="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()}"
+            android:textSize="20sp"
+            android:textColor="@color/primaryWhite"
+            android:visibility="gone"
+            tools:hint="GPS Status"
+            tools:visibility="visible" />
+    </RelativeLayout>
+
+</layout>
