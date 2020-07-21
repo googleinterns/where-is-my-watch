@@ -60,8 +60,9 @@ class FileParserTest(unittest.TestCase):
 
     def test_parse_csv_file_success(self):
         #Todo
-        pass
-    
+        self.csv_fileparser = FileParser('testfile2.xml')
+        self.csv_fileparser.parse_csv()
+
     def tearDown(self):
         self.xml_fileparser = None  
         self.invalid_fileparser = None
