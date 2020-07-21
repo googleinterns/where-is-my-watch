@@ -9,6 +9,7 @@ import static com.google.sharedlibrary.storage.GpxFileFolder.createGpsDataFolder
 import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
+import android.app.IntentService;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -24,7 +26,6 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.sharedlibrary.ServiceBroadcastReceiver;
 import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
@@ -42,7 +43,7 @@ import java.util.TimeZone;
  * @author lynnzl
  * @date 2020-06-30
  */
-public class GpsDataCaptureService extends Service {
+public class GpsDataCaptureService extends IntentService {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -63,24 +64,73 @@ public class GpsDataCaptureService extends Service {
     private BroadcastReceiver serviceBroadcastReceiver;
     private IntentFilter intentFilter;
 
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     * <p>
+     * //     * @param name Used to name the worker thread, important only for debugging.
+     */
+    public GpsDataCaptureService() {
+        super(TAG);
+        Log.d(TAG, "Creates the GpsDataCapture IntentService");
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "Return the binder");
         return binder;
+    }
+
+    /**
+     * This method is invoked on the worker thread with a request to process. Only one Intent is
+     * processed at a time, but the processing happens on a worker thread that runs independently
+     * from other application logic. So, if this code takes a long time, it will hold up other
+     * requests to the same IntentService, but it will not hold up anything else. When all requests
+     * have been handled, the IntentService stops itself, so you should not call {@link #stopSelf}.
+     *
+     * @param intent The value passed to {@link Context#startService(Intent)}. This may be null if
+     *               the service is being restarted after its process has gone away; see {@link
+     *               Service#onStartCommand} for details.
+     */
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent != null) {
+            Log.d(TAG, "On handle intent");
+
+            //Extra the location api type
+            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
+            LocationApiType type = LocationApiType.LOCATIONMANAGER;
+            if (type_from_intent) {
+                type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+            }
+
+            if (intent.getAction() != null) {
+                if (intent.getAction().equals(
+                        "com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE")) {
+                    Handler mHandler = new Handler(getMainLooper());
+                    LocationApiType finalType = type;
+                    mHandler.post(() -> {
+                        Log.d(TAG, "Starting capture via intent");
+                        startCapture(finalType);
+                    });
+                }
+                if (intent.getAction().equals(
+                        "com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE")) {
+                    Handler mHandler = new Handler(getMainLooper());
+                    LocationApiType finalType = type;
+                    mHandler.post(() -> {
+                        stopCapture(finalType);
+                        Log.d(TAG, "Stopped capture via intent");
+                    });
+                }
+            }
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Log.d(TAG, "Create service broadcast receiver");
-        serviceBroadcastReceiver = new ServiceBroadcastReceiver();
-        Log.d(TAG, "Add intent filter");
-        intentFilter = new IntentFilter();
-        intentFilter.addAction("com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE");
-        intentFilter.addAction("com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE");
-
-        registerReceiver(serviceBroadcastReceiver, intentFilter);
 
         if (fusedLocationProviderClient == null) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -104,15 +154,7 @@ public class GpsDataCaptureService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-//        registerReceiver(serviceBroadcastReceiver, intentFilter);
-        return START_STICKY;
-    }
-
-    @Override
     public void onDestroy() {
-        unregisterReceiver(serviceBroadcastReceiver);
         super.onDestroy();
     }
 
@@ -170,7 +212,9 @@ public class GpsDataCaptureService extends Service {
     @SuppressLint("MissingPermission")
     public void onLocationChanged(Location location) {
         //set gps data in the view model
-        gpsInfoViewModel.setGpsDataMutableLiveData(location);
+        if (gpsInfoViewModel != null) {
+            gpsInfoViewModel.setGpsDataMutableLiveData(location);
+        }
 
         //write gps data to file
         try {
@@ -187,7 +231,9 @@ public class GpsDataCaptureService extends Service {
      */
     public void onGpsStatusChanged(int event) {
         //set gps status in the view model
-        gpsInfoViewModel.setGpsStatusMutableLiveData(event);
+        if (gpsInfoViewModel != null) {
+            gpsInfoViewModel.setGpsStatusMutableLiveData(event);
+        }
     }
 
     /**
@@ -200,11 +246,16 @@ public class GpsDataCaptureService extends Service {
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             stopFusedLocationProviderClient(fusedLocationProviderClient,
                     fusedLocationProviderListener);
+            Log.d(TAG, "Stopped fused location provider successfully!");
         } else {
             stopLocationManager(locationManager, locationManagerListener);
+            Log.d(TAG, "Stopped location manager successfully!");
         }
         //write the file footer
-        gpxFileWriter.writeFileAnnotation(false);
+        if (gpxFileWriter != null) {
+            gpxFileWriter.writeFileAnnotation(false);
+            Log.d(TAG, "Write file footer successfully!");
+        }
 
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;

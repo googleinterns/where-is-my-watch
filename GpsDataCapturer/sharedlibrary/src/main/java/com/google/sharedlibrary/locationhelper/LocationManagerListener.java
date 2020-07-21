@@ -4,6 +4,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.sharedlibrary.service.GpsDataCaptureService;
 
@@ -16,17 +17,20 @@ public class LocationManagerListener implements LocationListener, GpsStatus.List
     private GpsDataCaptureService gpsDataCaptureservice;
 
     public LocationManagerListener(GpsDataCaptureService service) {
+        Log.d(TAG, "Create LocationManagerListener!");
         this.gpsDataCaptureservice = service;
     }
 
     @Override
     public void onGpsStatusChanged(int event) {
+        Log.d(TAG, "onGpsStatusChanged");
         gpsDataCaptureservice.onGpsStatusChanged(event);
     }
 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
+            Log.d(TAG, "onLocationChanged!");
             gpsDataCaptureservice.onLocationChanged(location);
         }
     }
