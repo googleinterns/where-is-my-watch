@@ -125,7 +125,7 @@ class FileParser:
         
         return xml_gpsdataset
 
-    def parse_csv(self) -> GpsDataSet:
+    def parse_csv(self, filename) -> GpsDataSet:
         """
         Reads simulation metadata and data in from csv file and parses it.
 
@@ -137,7 +137,7 @@ class FileParser:
         """
         # reading in data
         # TODO(ameles) replace with variable file path
-        with open("/home/ameles/Desktop/GPS-simulator/geobeam-dev/simulation_logs/GPSSIM-2020-07-21_15:54:46", 'r') as csvfile:
+        with open(filename, 'r') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=",")
             simulation_list = []
             next_line = next(csvreader)
@@ -181,11 +181,11 @@ class FileParser:
         return gps_data_sets
 
     def get_static_simulation_data(self, simulation):
-        latitude = simulation["metadata"]["latitude"]
-        longitude = simulation["metadata"]["longitude"]
-        altitude = 0
+        latitude = float(simulation["metadata"]["latitude"])
+        longitude = float(simulation["metadata"]["longitude"])
+        altitude = 0.0
         time_stamp = self.string_to_datetime(simulation["metadata"]["start_time"])
-        speed = 0
+        speed = 0.0
         new_point = GpsData(latitude, longitude, altitude, speed, time_stamp)
         return [new_point]
 
@@ -196,16 +196,16 @@ class FileParser:
             x, y, z = float(data_point["x"]), float(data_point["y"]), float(data_point["z"])
             time_from_zero = float(data_point["time_from_zero"])
             lat, lon, alt = utils.cartesian_to_geodetic(x, y, z)
-            time_stamp = start_time + datetime.timedelta(seconds=time_from_zero)
+            time_stamp = start_time + timedelta(seconds=time_from_zero)
             if gps_data_list:
                 previous_point = gps_data_list[-1]
                 time_elapsed = (time_stamp-previous_point.time).total_seconds()
                 distance = utils.calculate_distance((lat, lon), (previous_point.latitude, previous_point.longitude))
                 speed = distance/time_elapsed
-            else: speed = 0
+            else: speed = 0.0
             gps_data_list.append(GpsData(lat, lon, alt, speed, time_stamp))
         return gps_data_list
 
     def string_to_datetime(self, date_string):
-        return datetime.datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%f')
+        return datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%f')
 

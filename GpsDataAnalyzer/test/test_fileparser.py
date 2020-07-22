@@ -1,6 +1,6 @@
 """Unit test for FileParser Class"""
 import unittest
-
+from unittest.mock import patch
 from datetime import datetime
 
 from GpsDataAnalyzer.fileparser.fileparser import FileParser
@@ -17,32 +17,69 @@ class FileParserTest(unittest.TestCase):
                                                        model='Suunto 7',
                                                        startime=datetime.strptime('2020-07-07T18:45:47.005', "%Y-%m-%dT%H:%M:%S.%f"),
                                                        endtime=datetime.strptime('2020-07-07T19:08:01.318', "%Y-%m-%dT%H:%M:%S.%f")),
-                               gpsdatalist=[GpsData(latitude= 37.31013773,
-                                                    longitude= -122.0314044,
-                                                    altitude= 44.6412353515625,
-                                                    speed= 0.0,
-                                                    time=datetime.strptime('2020-07-07T18:46:36.000', "%Y-%m-%dT%H:%M:%S.%f")),
-                                            GpsData(latitude= 37.31013774,
-                                                    longitude= -122.03140539,
-                                                    altitude= 44.76190185546875,
-                                                    speed= 0.16,
-                                                    time=datetime.strptime('2020-07-07T18:46:37.000', "%Y-%m-%dT%H:%M:%S.%f")),
-                                            GpsData(latitude= 37.31013822,
-                                                    longitude= -122.0314067,
-                                                    altitude= 44.80401611328125,
-                                                    speed= 0.0,
-                                                    time=datetime.strptime('2020-07-07T18:46:38.000', "%Y-%m-%dT%H:%M:%S.%f")),
-                                            GpsData(latitude= 37.31013763,
-                                                    longitude= -122.03140506,
-                                                    altitude= 44.564208984375,
-                                                    speed= 0.44,
-                                                    time=datetime.strptime('2020-07-07T18:46:39.000', "%Y-%m-%dT%H:%M:%S.%f")),
-                                            GpsData(latitude= 37.31013728,
-                                                    longitude= -122.03140187,
-                                                    altitude= 44.97833251953125,
-                                                    speed= 0.21,
-                                                    time=datetime.strptime('2020-07-07T18:46:40.000', "%Y-%m-%dT%H:%M:%S.%f"))])
-
+                                        gpsdatalist=[GpsData(latitude= 37.31013773,
+                                                            longitude= -122.0314044,
+                                                            altitude= 44.6412353515625,
+                                                            speed= 0.0,
+                                                            time=datetime.strptime('2020-07-07T18:46:36.000', "%Y-%m-%dT%H:%M:%S.%f")),
+                                                    GpsData(latitude= 37.31013774,
+                                                            longitude= -122.03140539,
+                                                            altitude= 44.76190185546875,
+                                                            speed= 0.16,
+                                                            time=datetime.strptime('2020-07-07T18:46:37.000', "%Y-%m-%dT%H:%M:%S.%f")),
+                                                    GpsData(latitude= 37.31013822,
+                                                            longitude= -122.0314067,
+                                                            altitude= 44.80401611328125,
+                                                            speed= 0.0,
+                                                            time=datetime.strptime('2020-07-07T18:46:38.000', "%Y-%m-%dT%H:%M:%S.%f")),
+                                                    GpsData(latitude= 37.31013763,
+                                                            longitude= -122.03140506,
+                                                            altitude= 44.564208984375,
+                                                            speed= 0.44,
+                                                            time=datetime.strptime('2020-07-07T18:46:39.000', "%Y-%m-%dT%H:%M:%S.%f")),
+                                                    GpsData(latitude= 37.31013728,
+                                                            longitude= -122.03140187,
+                                                            altitude= 44.97833251953125,
+                                                            speed= 0.21,
+                                                            time=datetime.strptime('2020-07-07T18:46:40.000', "%Y-%m-%dT%H:%M:%S.%f"))])
+        self.csv_gpsdataset1 = GpsDataSet(gpsmetadata=GpsMetaData(device='DynamicSimulation',
+                                                       identifier=None,
+                                                       manufacturer=None,
+                                                       model=None,
+                                                       startime=datetime(2020, 7, 22, 15, 49, 1, 626803),
+                                                       endtime=datetime(2020, 7, 22, 15, 49, 20, 144408)),
+                                        gpsdatalist=[GpsData(latitude= 37.31013773,
+                                                            longitude= -122.0314044,
+                                                            altitude= 44.6412353515625,
+                                                            speed= 0.0,
+                                                            time=datetime(2020, 7, 22, 15, 49, 1, 626803)),
+                                                    GpsData(latitude= 37.31013774,
+                                                            longitude= -122.03140539,
+                                                            altitude= 44.76190185546875,
+                                                            speed= 0.16,
+                                                            time=datetime(2020, 7, 22, 15, 49, 1, 726803))])
+        self.csv_gpsdataset2 = GpsDataSet(gpsmetadata=GpsMetaData(device='DynamicSimulation',
+                                                       identifier=None,
+                                                       manufacturer=None,
+                                                       model=None,
+                                                       startime=datetime(2020, 7, 22, 15, 49, 21, 247269),
+                                                       endtime=datetime(2020, 7, 22, 15, 49, 32, 954147)),
+                                        gpsdatalist=[GpsData(latitude= 37.31013773,
+                                                            longitude= -122.0314044,
+                                                            altitude= 44.6412353515625,
+                                                            speed= 0.0,
+                                                            time=datetime(2020, 7, 22, 15, 49, 21, 247269))])
+        self.csv_gpsdataset3 = GpsDataSet(gpsmetadata=GpsMetaData(device='StaticSimulation',
+                                                       identifier=None,
+                                                       manufacturer=None,
+                                                       model=None,
+                                                       startime=datetime(2020, 7, 22, 15, 49, 34, 60437),
+                                                       endtime=datetime(2020, 7, 22, 15, 49, 47, 631769)),
+                                        gpsdatalist=[GpsData(latitude= 27.417747,
+                                                            longitude= -112.086086,
+                                                            altitude= 0.0,
+                                                            speed= 0.0,
+                                                            time=datetime(2020, 7, 22, 15, 49, 34, 60437))])
     def test_get_file_type(self):
         xml_file_type = self.fileparser.get_file_type('testfile2.xml')
         self.assertEqual("xml", xml_file_type)
@@ -59,11 +96,21 @@ class FileParserTest(unittest.TestCase):
         none_gpsdataset = self.fileparser.parse_file('wrongfilename.')
         self.assertIsNone(none_gpsdataset)
 
-    def test_parse_csv_file_success(self):
-        #Todo
-        self.csv_fileparser = FileParser('testfile2.xml')
-        self.csv_fileparser.parse_csv()
-    
+    @patch('GpsDataAnalyzer.fileparser.utils.calculate_distance')
+    @patch('GpsDataAnalyzer.fileparser.utils.cartesian_to_geodetic')
+    def test_parse_csv_file_success(self, mock_cartesian_to_geodetic, mock_calculate_distance):
+        test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
+                          (37.31013774, -122.03140539, 44.76190185546875),
+                          (37.31013773, -122.0314044, 44.6412353515625)]
+        test_distances = [.016,]
+        mock_cartesian_to_geodetic.side_effect = test_locations
+        mock_calculate_distance.side_effect = test_distances
+        expected = [self.csv_gpsdataset1, self.csv_gpsdataset2, self.csv_gpsdataset3]
+        csv_data_set = self.fileparser.parse_csv('GpsDataAnalyzer/fileparser/test_csv.csv')
+        print(csv_data_set[0])
+        print(expected[0])
+        self.assertEqual(csv_data_set, expected)
+
     def tearDown(self):
         self.xml_fileparser = None  
         self.invalid_fileparser = None
