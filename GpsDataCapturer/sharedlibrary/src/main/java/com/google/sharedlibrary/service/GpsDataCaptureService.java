@@ -249,12 +249,10 @@ public class GpsDataCaptureService extends IntentService {
             Log.d(TAG, "Stopped fused location provider successfully!");
         } else {
             stopLocationManager(locationManager, locationManagerListener);
-            Log.d(TAG, "Stopped location manager successfully!");
         }
         //write the file footer
         if (gpxFileWriter != null) {
             gpxFileWriter.writeFileAnnotation(false);
-            Log.d(TAG, "Write file footer successfully!");
         }
 
         //reset gpxFileWriter and gpxFile
