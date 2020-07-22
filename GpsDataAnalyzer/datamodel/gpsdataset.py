@@ -9,6 +9,7 @@ class GpsData:
 	altitude: float
 	speed: float
 	time: datetime
+	isOutlier: bool=False
 
 
 @dataclass
