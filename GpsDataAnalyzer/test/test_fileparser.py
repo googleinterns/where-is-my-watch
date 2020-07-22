@@ -58,13 +58,16 @@ class FileParserTest(unittest.TestCase):
         none_gpsdataset = self.fileparser.parse_file('wrongfilename.')
         self.assertIsNone(none_gpsdataset)
 
+        txt_gpsdataset = self.fileparser.parse_file('test.txt')
+        self.assertIsNone(txt_gpsdataset)
+
     def test_parse_csv_file_success(self):
         #Todo
         pass
     
     def tearDown(self):
-        self.xml_fileparser = None  
-        self.invalid_fileparser = None
+        self.fileparser = None
+        self.xml_gpsdataset = None
 
 
 if __name__ == "__main__":
