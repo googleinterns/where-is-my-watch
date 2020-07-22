@@ -1,34 +1,26 @@
 package com.google.sharedlibrary;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import android.content.Context;
-import android.location.Location;
 import android.os.Build;
-import android.os.Environment;
 
 import com.google.sharedlibrary.gpxfile.GpxAnnotationHandler;
-import com.google.sharedlibrary.gpxfile.GpxFileWriter;
-import com.google.sharedlibrary.gpxfile.GpxWriteHandler;
-import com.google.sharedlibrary.storage.GpxFileFolder;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @RunWith(RobolectricTestRunner.class)
@@ -36,8 +28,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class GpxAnnotationHandlerUnitTest {
     private GpxAnnotationHandler gpxAnnotationHandler;
 
-    @Mock
-    private Context context;
     @Mock
     private File gpxFile;
 
@@ -48,9 +38,12 @@ public class GpxAnnotationHandlerUnitTest {
     @Before
     public void setUp(){
         ShadowLog.stream = System.out;
-        context = mock(Context.class);
+        Locale locale = new Locale("en", "US");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                 locale);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         gpxFile = mock(File.class);
-        gpxAnnotationHandler = new GpxAnnotationHandler(context, gpxFile, append, isHeader);
+        gpxAnnotationHandler = new GpxAnnotationHandler(sdf, gpxFile, append, isHeader);
     }
 
     @Test
@@ -62,7 +55,6 @@ public class GpxAnnotationHandlerUnitTest {
 
     @After
     public void tearDown(){
-        context = null;
         gpxFile = null;
         gpxAnnotationHandler = null;
     }

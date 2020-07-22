@@ -18,7 +18,7 @@ public class GpxFileFolder {
         File gpxDataFolder = context.getExternalFilesDir(
                 Environment.getExternalStorageDirectory().getAbsolutePath());
         try {
-//            assert gpxDataFolder != null;
+            assert gpxDataFolder != null;
             if (!gpxDataFolder.exists()) {
                 gpxDataFolder.mkdir();
             }
