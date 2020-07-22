@@ -35,8 +35,6 @@ public class GpxWriteHandlerUnitTest {
     private GpxWriteHandler gpxWriteHandler;
 
     @Mock
-    private Context context;
-    @Mock
     private File gpxFile;
     @Mock
     private Location location;
@@ -48,10 +46,9 @@ public class GpxWriteHandlerUnitTest {
     @Before
     public void setUp(){
         ShadowLog.stream = System.out;
-        context = mock(Context.class);
         gpxFile = mock(File.class);
         location = mock(Location.class);
-        gpxWriteHandler = new GpxWriteHandler(context, formattedTime, gpxFile, location, append);
+        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, append);
     }
 
     @Test
@@ -63,7 +60,6 @@ public class GpxWriteHandlerUnitTest {
 
     @After
     public void tearDown(){
-        context = null;
         gpxFile = null;
         location = null;
         gpxWriteHandler = null;
