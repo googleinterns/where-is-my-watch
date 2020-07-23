@@ -9,6 +9,7 @@ class GpsData:
 	altitude: float
 	speed: float
 	time: datetime
+	distance: float=0.0
 	isOutlier: bool=False
 
 
