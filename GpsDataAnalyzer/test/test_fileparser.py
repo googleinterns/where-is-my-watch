@@ -106,10 +106,19 @@ class FileParserTest(unittest.TestCase):
         mock_cartesian_to_geodetic.side_effect = test_locations
         mock_calculate_distance.side_effect = test_distances
         expected = [self.csv_gpsdataset1, self.csv_gpsdataset2, self.csv_gpsdataset3]
-        csv_data_set = self.fileparser.parse_csv('GpsDataAnalyzer/fileparser/test_csv.csv')
-        print(csv_data_set[0])
-        print(expected[0])
+        csv_data_set = self.fileparser.parse_csv('GpsDataAnalyzer/test/test_csv.csv')
         self.assertEqual(csv_data_set, expected)
+
+    @patch('GpsDataAnalyzer.fileparser.utils.calculate_distance')
+    @patch('GpsDataAnalyzer.fileparser.utils.cartesian_to_geodetic')
+    def test_parse_csv_file_success(self, mock_cartesian_to_geodetic, mock_calculate_distance):
+        test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
+                          (37.31013774, -122.03140539, 44.76190185546875)]
+        test_distances = [.016,]
+        mock_cartesian_to_geodetic.side_effect = test_locations
+        mock_calculate_distance.side_effect = test_distances
+        csv_data_set = self.fileparser.parse_csv('GpsDataAnalyzer/test/test_csv _one_sim.csv')
+        self.assertEqual(csv_data_set, self.csv_gpsdataset1)
 
     def tearDown(self):
         self.xml_fileparser = None  

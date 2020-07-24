@@ -8,10 +8,10 @@ import csv
 from datetime import datetime, timedelta
 from datetime import timezone
 
-from GpsDataAnalyzer.fileparser import utils
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
+from fileparser import utils
+from datamodel.gpsdataset import GpsData
+from datamodel.gpsdataset import GpsMetaData
+from datamodel.gpsdataset import GpsDataSet
 
 import sys
 for path in sys.path:
@@ -75,7 +75,7 @@ class FileParser:
         starttimestr = metadata.find('{http://www.topografix.com/GPX/1/1}time').text
         starttimestr = starttimestr.replace('Z', '', 1)
         starttime = datetime.strptime(starttimestr, "%Y-%m-%dT%H:%M:%S.%f")
-        print(starttime)
+        #print(starttime)
 
         device = metadata.find('{http://www.topografix.com/GPX/1/1}device').text
         identifier = metadata.find('{http://www.topografix.com/GPX/1/1}id').text
@@ -106,7 +106,7 @@ class FileParser:
                 time = datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S.%f")
                 # time -= delta
                 time.replace(tzinfo=timezone.utc)
-                print(time)
+                #print(time)
 
                 dataPoint = GpsData(lat, lon, ele, speed, time)
                 xml_gpsdatalist.append(dataPoint)
@@ -115,7 +115,7 @@ class FileParser:
         endtimestr = root.find('{http://www.topografix.com/GPX/1/1}time').text
         endtimestr = endtimestr.replace('Z', '', 1)
         endtime = datetime.strptime(endtimestr, "%Y-%m-%dT%H:%M:%S.%f")
-        print(endtime)
+        #print(endtime)
         
         # Create the GpsMetaData
         xml_gpsmetadata = GpsMetaData(device, identifier, manufacturer, model, starttime, endtime)
@@ -150,6 +150,7 @@ class FileParser:
                     current_simulation["metadata"] = dict(zip(metadata_headers,metadata_values))
                     next_line = next(csvreader)  
                     # start of data for dynamic or end of simulation info for static 
+                    data_dicts = None
                     if next_line:
                         data_headers = next_line
                         data_dicts = []
@@ -161,6 +162,8 @@ class FileParser:
                         current_simulation["data"] = data_dicts
                     simulation_list.append(current_simulation)
                 except StopIteration:
+                    if data_dicts:
+                        current_simulation["data"] = data_dicts
                     simulation_list.append(current_simulation)
                     break
         gps_data_sets = []
@@ -181,6 +184,7 @@ class FileParser:
         return gps_data_sets
 
     def get_static_simulation_data(self, simulation):
+        print(simulation)
         latitude = float(simulation["metadata"]["latitude"])
         longitude = float(simulation["metadata"]["longitude"])
         altitude = 0.0
