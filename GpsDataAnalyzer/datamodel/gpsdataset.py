@@ -26,8 +26,6 @@ class GpsMetaData:
 
 @dataclass
 class GpsDataSet:
-    """A GPS Data Set class includes gpsMeataData and list of GpsData"""
-    gps_meta_data: GpsMetaData
-    gps_data_list: []
-
-
+  """A GPS Data Set class includes gpsMeataData and list of GpsData"""
+  gps_meta_data: GpsMetaData
+  gps_data_list: []
