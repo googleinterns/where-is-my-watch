@@ -12,11 +12,6 @@ _WGS84_ECCENTRICITY = 0.0818191908426
 def calculate_distance(location1, location2):
   """Calculate geodesic distance between two coordinates with ellipsoidal earth model.
 
-  Produces a geodetic coordinate (lat, lon, alt) from a
-  earth-centered, earth-fixed (ECEF) cartesian coordinates from and was adapted
-  from c code in bladeGPS:
-  https://github.com/osqzss/bladeGPS/blob/master/gpssim.c
-
   Args:
     location1: tuple of (latitude, longitude) as floats in Decimal Degrees
     location2: tuple of (latitude, longitude) as floats in Decimal Degrees

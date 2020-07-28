@@ -83,11 +83,13 @@ def find_lineup(set1, set2):
   print(optimal_offset)
   if optimal_offset is None:
     print("no optimal line-up for these two data sets; check if correct files are being used")
-    return (set1_start_time, set2_start_time)
+    return (None, None)
 
   if primary_set_index == 0:
+    print("Optimal offset: set 2 is %s seconds from set 1" % optimal_offset)
     return (later_start_time, later_start_time + timedelta(seconds=optimal_offset))
   else:
+    print("Optimal offset: set 1 is %s seconds from set 2" % optimal_offset)
     return (later_start_time + timedelta(seconds=optimal_offset), later_start_time)
 
 def find_lineup_no_optimization(set1, set2):
@@ -127,10 +129,12 @@ def find_lineup_no_optimization(set1, set2):
   print(optimal_offset)
   if optimal_offset is None:
     print("no optimal line-up for these two data sets; check if correct files are being used")
-    return (set1_start_time, set2_start_time)
+    return (None, None)
   if primary_set_index == 0:
+    print("Optimal offset: set 2 is %s seconds from set 1" % optimal_offset)
     return (later_start_time, later_start_time + timedelta(seconds=optimal_offset))
   else:
+    print("Optimal offset: set 1 is %s seconds from set 2" % optimal_offset)
     return (later_start_time + timedelta(seconds=optimal_offset), later_start_time)
 
 def find_lineup_naive(set1, set2):

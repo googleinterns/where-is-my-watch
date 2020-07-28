@@ -75,7 +75,9 @@ class DataSetDeviationCalculator:
     print("start time 2: " + str(self.starting_time_2))
     print("\n")
 
-    if self.data_set_1.gps_data_list[0].time > self.data_set_2.gps_data_list[0].time:
+    if not self.starting_time_1 and not self.starting_time_2:
+      self.offset_time_point_mapping = self.create_time_to_point_mapping(0, 0)
+    elif self.data_set_1.gps_data_list[0].time > self.data_set_2.gps_data_list[0].time:
       offset = (self.starting_time_1-self.starting_time_2).total_seconds()
       self.offset_time_point_mapping = self.create_time_to_point_mapping(0, offset)
     else:
