@@ -10,7 +10,7 @@ from datetime import timezone
 from geopy.distance import geodesic
 import math
 
-from fileparser import utils
+import utils
 from datamodel.gpsdataset import GpsData
 from datamodel.gpsdataset import GpsMetaData
 from datamodel.gpsdataset import GpsDataSet

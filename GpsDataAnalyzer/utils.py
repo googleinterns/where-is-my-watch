@@ -1,8 +1,7 @@
 """
-Usage: xmlparser.py
-
-Parse the xml or csv file and generate a GpsDataSet
+Utils for comparisons/conversions of locations and times
 """
+from datetime import timedelta
 from geopy import distance
 import math
 
@@ -70,3 +69,18 @@ def cartesian_to_geodetic(x, y, z):
   altitude = nh - n
 
   return (latitude, longitude, altitude)
+
+def round_time(time):
+  """
+  Round time to nearest second.
+
+  Args:
+    time: Datetime object
+
+  Returns:
+    roundedD atetime object
+  """
+  if time.microsecond >= 500000:
+    time = time + timedelta(seconds=1)
+  time = time.replace(microsecond=0)
+  return time

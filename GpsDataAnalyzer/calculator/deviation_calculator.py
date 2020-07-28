@@ -30,9 +30,9 @@ import time
 import numpy as np
 import pandas as pd
 
-from fileparser import utils
+import utils
 from fileparser.fileparser import FileParser
-import alignment_algorithms
+from calculator import alignment_algorithms
 
 
 class DataSetDeviationCalculator:
@@ -54,7 +54,7 @@ class DataSetDeviationCalculator:
     self.offset_time_point_mapping = {}
     self.deviations_dataframe = None
 
-    # comparing both algorithms for deciding offset
+    # comparing both algorithms for deciding offset, will delete this one post-testing
     start = time.perf_counter()
     print("Unoptimized lineup implementation:")
     self.starting_time_1, self.starting_time_2 = alignment_algorithms.find_lineup_no_optimization(self.data_set_1,
@@ -76,13 +76,21 @@ class DataSetDeviationCalculator:
     print("\n")
 
     if self.data_set_1.gps_data_list[0].time > self.data_set_2.gps_data_list[0].time:
-      offset = (self.starting_time_2-self.starting_time_1).total_seconds()
-      self.offset_time_point_mapping = self.create_time_to_point_mapping(self.data_set_1, self.data_set_2, offset, 0)
-    else:
       offset = (self.starting_time_1-self.starting_time_2).total_seconds()
-      self.offset_time_point_mapping = self.create_time_to_point_mapping(self.data_set_1, self.data_set_2, 0, offset)
+      self.offset_time_point_mapping = self.create_time_to_point_mapping(0, offset)
+    else:
+      offset = (self.starting_time_2-self.starting_time_1).total_seconds()
+      self.offset_time_point_mapping = self.create_time_to_point_mapping(offset, 0)
 
   def get_deviation_dataframe(self):
+    """
+    Extracts and returns deviation for each valid timestamp & other information.
+
+    Returns:
+      A pandas dataframe including the shared timestamp with the offset included,
+      the deviations of lat/lon, the difference in speed, the difference in
+      altitude, and the original timestamps for each set
+    """
     if self.deviations_dataframe: 
       return self.deviations_dataframe
     else:
@@ -115,26 +123,32 @@ class DataSetDeviationCalculator:
       return self.deviations_dataframe
 
 
-  def create_time_to_point_mapping(self, set1, set2, offset1, offset2):
+  def create_time_to_point_mapping(self, offset1, offset2):
+    """
+    Map common timestamp to points from both sets.
+
+    Args:
+      offset1: int, offset in seconds to apply to points from first set
+      offset2: int, offset in seconds to apply to points from second set
+
+    Returns:
+      Dictionary that maps datetime timestamps to the points that fall at that
+      time (offset included) in the following format:
+      {DateTime: {"set1": GpsData, "set2": GpsData}, ...}
+    """
     time_point_mapping = {}
-    for point in set1.gps_data_list:
-      rounded_time = round_time(point.time) + timedelta(seconds=offset1)
+    for point in self.data_set_1.gps_data_list:
+      rounded_time = utils.round_time(point.time) + timedelta(seconds=offset1)
       try:
         time_point_mapping[rounded_time]["set1"] = point
       except KeyError:
         time_point_mapping[rounded_time] = {"set1":point}
-    for point in set2.gps_data_list:
-      rounded_time = round_time(point.time) + timedelta(seconds=offset2)
+    for point in self.data_set_2.gps_data_list:
+      rounded_time = utils.round_time(point.time) + timedelta(seconds=offset2)
       try:
         time_point_mapping[rounded_time]["set2"] = point
       except KeyError:
         time_point_mapping[rounded_time] = {"set2":point}
     return time_point_mapping
-
-def round_time(time):
-  if time.microsecond >= 500000:
-    time = time + timedelta(seconds=1)
-  time = time.replace(microsecond=0)
-  return time
 
 

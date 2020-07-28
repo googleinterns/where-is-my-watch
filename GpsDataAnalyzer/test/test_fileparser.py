@@ -108,8 +108,8 @@ class FileParserTest(unittest.TestCase):
         none_gpsdataset = self.fileparser.parse_file('wrongfilename.')
         self.assertIsNone(none_gpsdataset)
 
-    @patch('fileparser.utils.calculate_distance')
-    @patch('fileparser.utils.cartesian_to_geodetic')
+    @patch('utils.calculate_distance')
+    @patch('utils.cartesian_to_geodetic')
     def test_parse_csv_file_multiple_simulations(self, mock_cartesian_to_geodetic, mock_calculate_distance):
         test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
                           (37.31013774, -122.03140539, 44.76190185546875),
@@ -124,8 +124,8 @@ class FileParserTest(unittest.TestCase):
 
         self.assertEqual(csv_data_set, expected)
 
-    @patch('fileparser.utils.calculate_distance')
-    @patch('fileparser.utils.cartesian_to_geodetic')
+    @patch('utils.calculate_distance')
+    @patch('utils.cartesian_to_geodetic')
     def test_parse_csv_file_one_simulation(self, mock_cartesian_to_geodetic, mock_calculate_distance):
         test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
                           (37.31013774, -122.03140539, 44.76190185546875)]

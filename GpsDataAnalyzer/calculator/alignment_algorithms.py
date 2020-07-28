@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 import numpy as np
 import time
 import pprint
-from fileparser import utils
+
+import utils
 
 def find_lineup(set1, set2):
   """
@@ -30,18 +31,18 @@ def find_lineup(set1, set2):
   set1_end_time = set1.gps_data_list[-1].time
   set2_end_time = set2.gps_data_list[-1].time 
   if set1_start_time > set2_start_time:
-    later_start_time = round_time(set1_start_time)
+    later_start_time = utils.round_time(set1_start_time)
     primary_set_index = 0
   else:
-    later_start_time = round_time(set2_start_time)
+    later_start_time = utils.round_time(set2_start_time)
     primary_set_index = 1
 
   # create dict that maps rounded times to points
   time_point_mapping = create_time_to_point_mapping(set1, set2)
 
   span_length = 50
-  range_start = round_time(min(set1_start_time, set2_start_time))
-  range_end = round_time(min(set1_end_time, set2_end_time)) + timedelta(seconds=span_length)
+  range_start = utils.round_time(min(set1_start_time, set2_start_time))
+  range_end = utils.round_time(min(set1_end_time, set2_end_time)) + timedelta(seconds=span_length)
   total_seconds = int((range_end-range_start).total_seconds())
 
   best_range_start = range_start
@@ -111,10 +112,10 @@ def find_lineup_no_optimization(set1, set2):
   set1_start_time = set1.gps_data_list[0].time
   set2_start_time = set2.gps_data_list[0].time
   if set1_start_time > set2_start_time:
-    later_start_time = round_time(set1_start_time)
+    later_start_time = utils.round_time(set1_start_time)
     primary_set_index = 0
   else:
-    later_start_time = round_time(set2_start_time)
+    later_start_time = utils.round_time(set2_start_time)
     primary_set_index = 1
 
   # create dict that maps rounded times to points
@@ -188,21 +189,6 @@ def find_lineup_naive(set1, set2):
   starting_indexes[secondary_set_index] = best_index
   return starting_indexes
 
-def round_time(time):
-  """
-  Round time to nearest second.
-
-  Args:
-    time: Datetime object
-
-  Returns:
-    roundedD atetime object
-  """
-  if time.microsecond >= 500000:
-    time = time + timedelta(seconds=1)
-  time = time.replace(microsecond=0)
-  return time
-
 def create_time_to_point_mapping(set1, set2):
   """
   Map common timestamp to points from both sets.
@@ -218,13 +204,13 @@ def create_time_to_point_mapping(set1, set2):
   """
   time_point_mapping = {}
   for point in set1.gps_data_list:
-    rounded_time = round_time(point.time)
+    rounded_time = utils.round_time(point.time)
     try:
       time_point_mapping[rounded_time]["set1"] = point
     except KeyError:
       time_point_mapping[rounded_time] = {"set1":point}
   for point in set2.gps_data_list:
-    rounded_time = round_time(point.time)
+    rounded_time = utils.round_time(point.time)
     try:
       time_point_mapping[rounded_time]["set2"] = point
     except KeyError:
