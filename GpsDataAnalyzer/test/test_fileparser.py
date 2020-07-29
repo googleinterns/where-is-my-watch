@@ -63,6 +63,12 @@ class FileParserTest(unittest.TestCase):
         xml_gpsdataset = self.fileparser.parse_file('testfile2.xml')
         self.assertEqual(5, len(xml_gpsdataset.gpsdatalist))
         self.assertEqual(self.xml_gpsdataset, xml_gpsdataset)
+        self.assertEqual(GpsMetaData(device='salmon',
+                                                       identifier='PXDB.200528.004',
+                                                       manufacturer='Compal',
+                                                       model='Suunto 7',
+                                                       startime=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
+                                                       endtime=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)), xml_gpsdataset.gpsmetadata)
 
     def test_parse_invalid_file_return_none(self):
         none_gpsdataset = self.fileparser.parse_file('wrongfilename.')
