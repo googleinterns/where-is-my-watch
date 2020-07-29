@@ -7,20 +7,20 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 
-from datamodel.gpsdataset import GpsData
-from datamodel.gpsdataset import GpsMetaData
-from datamodel.gpsdataset import GpsDataSet
-from calculator.deviation_calculator import DataSetDeviationCalculator
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
+from GpsDataAnalyzer.calculator.deviation_calculator import DataSetDeviationCalculator
 
 
 class DeviationCalculatorTest(unittest.TestCase):
   def setUp(self):
     self.watch_data_set = GpsDataSet(gps_meta_data=GpsMetaData(device='salmon',
-                                                   identifier='PXDB.200528.004',
-                                                   manufacturer='Compal',
-                                                   model='Suunto 7',
-                                                   start_time=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
-                                                   end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)),
+                                                            identifier='PXDB.200528.004',
+                                                            manufacturer='Compal',
+                                                            model='Suunto 7',
+                                                            start_time=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
+                                                            end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)),
                            gps_data_list=[GpsData(latitude= 37.31013773,
                                                 longitude= -122.0314044,
                                                 altitude= 44.2,
@@ -97,42 +97,39 @@ class DeviationCalculatorTest(unittest.TestCase):
                               datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc): 
                                 {"set1" : self.watch_data_set.gps_data_list[4],
                                  "set2" : self.simulator_data_set.gps_data_list[4]}}
+    self.test_offset_mapping_1 = {datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc): [self.watch_data_set.gps_data_list[0]],
+                                  datetime(2020, 7, 22, 15, 49, 5, tzinfo=timezone.utc): [self.watch_data_set.gps_data_list[1]],
+                                  datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc): [self.watch_data_set.gps_data_list[2]],
+                                  datetime(2020, 7, 22, 15, 49, 7, tzinfo=timezone.utc): [self.watch_data_set.gps_data_list[3]],
+                                  datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc): [self.watch_data_set.gps_data_list[4]]}
+    self.test_offset_mapping_2 = {datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[0]],
+                                  datetime(2020, 7, 22, 15, 49, 5, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[1]],
+                                  datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[2]],
+                                  datetime(2020, 7, 22, 15, 49, 7, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[3]],
+                                  datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[4]]}
   def test_init_calculator(self):
     calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)
 
-    self.assertEqual(self.test_time_point_mapping, calculator.offset_time_point_mapping)
     self.assertEqual(datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc), calculator.starting_time_1)
     self.assertEqual(datetime(2020, 7, 22, 15, 49, 2, tzinfo=timezone.utc), calculator.starting_time_2)
+    self.assertEqual(self.test_offset_mapping_1, calculator.offset_mapping_1)
+    self.assertEqual(self.test_offset_mapping_2, calculator.offset_mapping_2)
 
   def test_init_calculator_no_lineup(self):
     for data_point in self.simulator_data_set.gps_data_list:
       data_point.time = data_point.time + timedelta(seconds=100)
-    self.test_time_point_mapping = {datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc): 
-                                    {"set1" : self.watch_data_set.gps_data_list[0]},
-                                  datetime(2020, 7, 22, 15, 49, 5, tzinfo=timezone.utc): 
-                                    {"set1" : self.watch_data_set.gps_data_list[1]},
-                                  datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc): 
-                                    {"set1" : self.watch_data_set.gps_data_list[2]},
-                                  datetime(2020, 7, 22, 15, 49, 7, tzinfo=timezone.utc): 
-                                    {"set1" : self.watch_data_set.gps_data_list[3]},
-                                  datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc): 
-                                    {"set1" : self.watch_data_set.gps_data_list[4]},
-                                  datetime(2020, 7, 22, 15, 50, 42, tzinfo=timezone.utc): 
-                                    {"set2" : self.simulator_data_set.gps_data_list[0]},
-                                  datetime(2020, 7, 22, 15, 50, 43, tzinfo=timezone.utc): 
-                                    {"set2" : self.simulator_data_set.gps_data_list[1]},
-                                  datetime(2020, 7, 22, 15, 50, 44, tzinfo=timezone.utc): 
-                                    {"set2" : self.simulator_data_set.gps_data_list[2]},
-                                  datetime(2020, 7, 22, 15, 50, 45, tzinfo=timezone.utc): 
-                                    {"set2" : self.simulator_data_set.gps_data_list[3]},
-                                  datetime(2020, 7, 22, 15, 50, 46, tzinfo=timezone.utc): 
-                                    {"set2" : self.simulator_data_set.gps_data_list[4]}}
+    self.test_offset_mapping_2 = {datetime(2020, 7, 22, 15, 50, 42, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[0]],
+                                  datetime(2020, 7, 22, 15, 50, 43, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[1]],
+                                  datetime(2020, 7, 22, 15, 50, 44, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[2]],
+                                  datetime(2020, 7, 22, 15, 50, 45, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[3]],
+                                  datetime(2020, 7, 22, 15, 50, 46, tzinfo=timezone.utc): [self.simulator_data_set.gps_data_list[4]]}
 
     calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)
 
-    self.assertEqual(self.test_time_point_mapping, calculator.offset_time_point_mapping)
     self.assertEqual(None, calculator.starting_time_1)
     self.assertEqual(None, calculator.starting_time_2)
+    self.assertEqual(self.test_offset_mapping_1, calculator.offset_mapping_1)
+    self.assertEqual(self.test_offset_mapping_2, calculator.offset_mapping_2)
 
   def test_get_deviation_dataframe(self):
     time_list = [datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc),
@@ -175,7 +172,7 @@ class DeviationCalculatorTest(unittest.TestCase):
     for data_point in self.simulator_data_set.gps_data_list:
       data_point.time = data_point.time + timedelta(seconds=100)
     calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)
-    
+
     result = calculator.get_deviation_dataframe()
 
     pd.testing.assert_frame_equal(deviations_dataframe, result)

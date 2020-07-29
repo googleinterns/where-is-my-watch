@@ -2,9 +2,9 @@
 import unittest
 from datetime import datetime
 
-from datamodel.gpsdataset import GpsData
-from datamodel.gpsdataset import GpsMetaData
-from datamodel.gpsdataset import GpsDataSet
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
 
 class GpsDataSetTest(unittest.TestCase):
 

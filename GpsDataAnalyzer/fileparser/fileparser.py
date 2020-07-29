@@ -10,11 +10,11 @@ from datetime import timezone
 from geopy.distance import geodesic
 import math
 
-import utils
-from datamodel.gpsdataset import GpsData
-from datamodel.gpsdataset import GpsMetaData
-from datamodel.gpsdataset import GpsDataSet
-from mylogger import MyLogger
+from GpsDataAnalyzer import utils
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
+from GpsDataAnalyzer.mylogger import MyLogger
 
 import sys
 for path in sys.path:
@@ -185,7 +185,6 @@ class FileParser:
           a list of GpsDataSets
         """
         # reading in data
-        # TODO(ameles) replace with variable file path
         with open(filename, 'r') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=",")
             simulation_list = []
@@ -220,7 +219,7 @@ class FileParser:
             end_time = self.parse_time(simulation["metadata"]["end_time"])
             gps_metadata = GpsMetaData(device, None, None, None, start_time, end_time)
 
-            if "data" in simulation:
+            if device == "DynamicSimulation":
                 gps_data_list = self.get_dynamic_simulation_data(simulation)
             else:
                 gps_data_list = self.get_static_simulation_data(simulation)
@@ -270,7 +269,8 @@ class FileParser:
                 time_elapsed = (time_stamp-previous_point.time).total_seconds()
                 distance = utils.calculate_distance((lat, lon), (previous_point.latitude, previous_point.longitude))
                 speed = distance/time_elapsed
-            else: speed = 0.0  # first point has speed of zero
-
+            else: 
+                speed = 0.0  # first point has speed of zero
             gps_data_list.append(GpsData(lat, lon, alt, speed, time_stamp))
+            
         return gps_data_list

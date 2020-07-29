@@ -73,7 +73,7 @@ def round_time(time):
     time: Datetime object
 
   Returns:
-    roundedD atetime object
+    DateTime, rounded to the nearest second
   """
   if time.microsecond >= 500000:
     time = time + timedelta(seconds=1)
