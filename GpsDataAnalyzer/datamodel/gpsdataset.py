@@ -10,7 +10,7 @@ class GpsData:
 	speed: float
 	time: datetime
 	distance: float=0.0
-	isOutlier: bool=False
+	is_outlier: bool=False
 
 
 @dataclass
@@ -20,14 +20,12 @@ class GpsMetaData:
 	identifier: str
 	manufacturer: str
 	model: str
-	startime: datetime
-	endtime: datetime
+	start_time: datetime
+	end_time: datetime
 
 
 @dataclass
 class GpsDataSet:
-    """A GPS Data Set class includes gpsMeataData and list of GpsData"""
-    gpsmetadata: GpsMetaData
-    gpsdatalist: []
-
-
+  """A GPS Data Set class includes gpsMeataData and list of GpsData"""
+  gps_meta_data: GpsMetaData
+  gps_data_list: []

@@ -1,0 +1,6 @@
+
+simulation_type,file_path,run_duration,gain,start_time,end_time
+DynamicSimulation,/home/ameles/Desktop/GPS-simulator/geobeam-dev/geobeam/user_motion_files/userwalking.csv,,-2,2020-07-22T15:49:01.626803,2020-07-22T15:49:20.144408
+time_from_zero,x,y,z
+0.0,-2694181.47410382,-4297223.6170062525,3854326.738513777
+0.1,-2694181.47410382,-4297223.6170062525,3854326.738513777
