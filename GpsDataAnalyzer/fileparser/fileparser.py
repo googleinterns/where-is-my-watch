@@ -1,5 +1,5 @@
 """
-Usage: xmlparser.py
+Usage: fileparser.py
 
 Parse the xml or csv file and generate a GpsDataSet
 """
@@ -20,7 +20,10 @@ for path in sys.path:
 
 #Create my logger
 fileparser_logger = MyLogger('FileParser')
-logger = fileparser_logger.getLogger()
+logger = fileparser_logger.get_logger()
+
+#prefix url in xml file
+PREFIX_URL = "{http://www.topografix.com/GPX/1/1}"
 
 class FileParser: 
 
@@ -73,8 +76,8 @@ class FileParser:
         timestr = timestr.replace('Z', '', 1)
         
         #Parse time in the format "%Y-%m-%dT%H:%M:%S.%f"
-        time = datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S.%f")
-        
+        time = datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S.%fZ")
+
         return time.replace(tzinfo=timezone.utc)
 
 
@@ -175,7 +178,6 @@ class FileParser:
             xmlTree = ET.parse(xmlFile)
             
         root = xmlTree.getroot()
-        PREFIX_URL = "{http://www.topografix.com/GPX/1/1}"
 
         # Create the xml gpsmetadata
         xml_gpsmetadata = self.parse_xml_metadata(root, PREFIX_URL)

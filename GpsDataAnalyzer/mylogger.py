@@ -20,6 +20,6 @@ class MyLogger:
 		# add ch to logger
 		self.logger.addHandler(ch)
 
-	def getLogger(self):
+	def get_logger(self):
 		return self.logger
 		
