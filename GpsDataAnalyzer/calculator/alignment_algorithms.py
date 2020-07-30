@@ -4,14 +4,16 @@ import time
 
 from GpsDataAnalyzer import utils
 
+MEAN_DISTANCE_THRESHOLD = 100
+
 def find_lineup(set1, set2):
     """
-    Optimized algorithm to find the approximate offset between two GPS data sets.
+    Optimized algorithm to find the approximate time offset between two GPS data sets.
 
-    This algorithm first identifies a primary data set and a secondary one based
-    on which starts later. The offset is then applied to the secondary data set.
-    After mapping the timestamps to the corresponding points from each set, it
-    finds the range that has the most overlapping timestamps between the two
+    This algorithm assigns the data set that starts later as primary and the 
+    other one as secondary. The offset is then applied to the secondary data
+    set. After mapping the timestamps to the corresponding points from each set,
+    it finds the range that has the most overlapping timestamps between the two
     sets and then finds the optimal offset using the middle of that range 
     as the starting point.
 
@@ -42,50 +44,25 @@ def find_lineup(set1, set2):
     primary_time_points_mapping = create_time_to_points_mapping(primary_set)
     secondary_time_points_mapping = create_time_to_points_mapping(secondary_set)
 
-    offset_range_length = 50  # how many offsets to check so, for 50, check offsets (-25,25)
-    point_checking_range_length = 100  # points to check around each offset, for 100, check points (-50,50)
+    # how many offsets to check so, for 50, check offsets (-25,25); should be even
+    offset_range_length = 50
+    # points to check around each offset, for 100, check points (-50,50); should be even
+    point_checking_range_length = 100
 
     # span length is total length of the span of points to check around the offsets
     span_length = offset_range_length + point_checking_range_length
 
     range_start = utils.round_time(max(set1_start_time, set2_start_time)) - timedelta(seconds=span_length)
-    range_end = utils.round_time(min(set1_end_time, set2_end_time)) + timedelta(seconds=span_length)
-    total_seconds = int((range_end-range_start).total_seconds())
+    range_end = utils.round_time(min(set1_end_time, set2_end_time))
 
     # TODO(ameles): determine if 50 is just a good number or it should be tied to offset size
     range_optimization_size = offset_range_length
 
-    # count how many are skipped (not overlapping) in first 50  (offset_range_length) points
-    previous_range_skip_count = 0
-    for i in range(range_optimization_size):
-        time = range_start + timedelta(seconds=i)
-        if time not in primary_time_points_mapping or time not in secondary_time_points_mapping:
-            previous_range_skip_count += 1
-
-    best_range_start = range_start
-    lowest_skip_count = range_optimization_size
-
-    # check for the rest of the ranges how many skipped entries there are
-    for start_time in [range_start + timedelta(seconds=x) for x in range(1,total_seconds - span_length)]:
-        current_range_skip_count = 0
-
-        # use prior value but add or subtract for new point and old point
-        current_range_skip_count = previous_range_skip_count
-
-        end_time = start_time + timedelta(seconds=range_optimization_size-1)  # point at end of current range that was just added
-        if end_time not in primary_time_points_mapping or end_time not in secondary_time_points_mapping:
-            current_range_skip_count += 1
-
-        previous_start = start_time + timedelta(seconds=-1)  # point that was just edged out
-        if previous_start not in primary_time_points_mapping or previous_start not in secondary_time_points_mapping:
-            current_range_skip_count -= 1
-
-        if current_range_skip_count <= lowest_skip_count:
-            lowest_skip_count = current_range_skip_count
-            best_range_start = start_time
-            if lowest_skip_count == 0:
-                break
-        previous_range_skip_count = current_range_skip_count
+    best_range_start = find_best_data_range(primary_time_points_mapping,
+                                            secondary_time_points_mapping,
+                                            range_optimization_size,
+                                            range_start,
+                                            range_end)
 
     # find best offset starting at the middle of range with most valid points
     range_middle = best_range_start + timedelta(seconds=range_optimization_size//2)
@@ -214,18 +191,77 @@ def find_lineup_naive(set1, set2):
     starting_indexes[secondary_set_index] = best_index
     return starting_indexes
 
+def find_best_data_range(primary_time_points_mapping, secondary_time_points_mapping,
+                         range_optimization_size, range_start, range_end):
+    """
+    Find range of size range_optimization_size with most overlapping points.
+
+    This will return the best range where of the the best range is a range 
+    of size range_optimization_size that has the most number of overlapping points
+    between the primary and secondary sets that falls between range_start and
+    range_end.  
+
+    Args:
+        primary_time_points_mapping: Dictionary, {DateTime: [GpsData,], ...}
+        secondary_time_points_mapping: Dictionary, {DateTime: [GpsData,], ...}
+        range_optimization_size: int, size of optimal range to find
+        range_start: Datetime, beginning of range for possible best_range_start timestamp
+        range_end: Datetime, end of range for possible best_range_start timestamp
+
+    Returns:
+        Datetime, starting timestamp of the range of size 
+        range_optimization_size that has the most number of overlapping points
+        between the primary and secondary sets.
+    """
+
+    # count how many are skipped (not overlapping) in first 50  (offset_range_length) points
+    previous_range_skip_count = 0
+    for i in range(range_optimization_size):
+        time = range_start + timedelta(seconds=i)
+        if time not in primary_time_points_mapping or time not in secondary_time_points_mapping:
+            previous_range_skip_count += 1
+
+    best_range_start = range_start
+    lowest_skip_count = range_optimization_size
+
+    total_seconds = int((range_end-range_start).total_seconds())
+
+    # TODO(ameles): optimize loop so there are not 2n calls to check mappings
+    # check for the rest of the ranges how many skipped entries there are
+    for start_time in [range_start + timedelta(seconds=x) for x in range(1,total_seconds)]:
+        current_range_skip_count = 0
+
+        # use prior value but add or subtract for new point and old point
+        current_range_skip_count = previous_range_skip_count
+
+        end_time = start_time + timedelta(seconds=range_optimization_size-1)  # point at end of current range that was just added
+        if end_time not in primary_time_points_mapping or end_time not in secondary_time_points_mapping:
+            current_range_skip_count += 1
+
+        previous_start = start_time + timedelta(seconds=-1)  # point that was just edged out
+        if previous_start not in primary_time_points_mapping or previous_start not in secondary_time_points_mapping:
+            current_range_skip_count -= 1
+
+        if current_range_skip_count <= lowest_skip_count:
+            lowest_skip_count = current_range_skip_count
+            best_range_start = start_time
+            if lowest_skip_count == 0:
+                break
+        previous_range_skip_count = current_range_skip_count
+
+    return best_range_start
+
 def create_time_to_points_mapping(dataset, offset=0):
     """
-    Map common timestamp to points from both sets.
+    Map timestamp to points from the dataset.
 
     Args:
         dataset: GpsDataSet
         offset: int, seconds of offset to apply to timestamps
 
     Returns:
-        Dictionary that maps datetime timestamps to the points that fall at that
-        time in the following format:
-        {DateTime: {"set1": GpsData, "set2": GpsData}, ...}
+        Dictionary that goups dataset points by seconds timestamp in the
+        following format: {DateTime: [GpsData,], ...}
     """
     time_points_mapping = {}
     for point in dataset.gps_data_list:
@@ -262,7 +298,7 @@ def find_optimal_offset(primary_set, secondary_set, start_time,
         None otherwise
     """
     optimal_offset= 0
-    optimal_mean_distance = None
+    optimal_mean_distance = MEAN_DISTANCE_THRESHOLD+1
 
     for offset in range (-offset_range_length//2, offset_range_length//2):
         distances = []
@@ -283,11 +319,11 @@ def find_optimal_offset(primary_set, secondary_set, start_time,
             else:
                 skipped_point_count += 1
 
-        if distances and (optimal_mean_distance is None or np.mean(distances) < optimal_mean_distance):
+        if distances and np.mean(distances) < optimal_mean_distance:
             optimal_mean_distance = np.mean(distances)
             optimal_offset = offset
 
     print("optimal mean distance: " + str(optimal_mean_distance))
-    if optimal_mean_distance is None or optimal_mean_distance > 100:
+    if optimal_mean_distance is None or optimal_mean_distance > MEAN_DISTANCE_THRESHOLD:
         return None
     return optimal_offset

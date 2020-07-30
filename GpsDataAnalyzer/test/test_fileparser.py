@@ -15,12 +15,12 @@ class FileParserTest(unittest.TestCase):
 	def setUp(self):
 		self.fileparser = fileparser.FileParser()
 		self.xml_gpsdataset = GpsDataSet(gps_meta_data=GpsMetaData(device='salmon',
-													   identifier='PXDB.200528.004',
-													   manufacturer='Compal',
-													   model='Suunto 7',
-													   start_time=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
-													   end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)),
-							   gps_data_list=[GpsData(latitude= 37.31013773,
+														 identifier='PXDB.200528.004',
+														 manufacturer='Compal',
+														 model='Suunto 7',
+														 start_time=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
+														 end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)),
+								 gps_data_list=[GpsData(latitude= 37.31013773,
 													longitude= -122.0314044,
 													altitude= 44.6412353515625,
 													speed= 0.0,
@@ -51,11 +51,11 @@ class FileParserTest(unittest.TestCase):
 													time=datetime(2020,7,7,18,46,40,0,tzinfo=timezone.utc),
 													distance=0.28544519128269824)])
 		self.csv_gpsdataset1 = GpsDataSet(gps_meta_data=GpsMetaData(device='DynamicSimulation',
-													   identifier=None,
-													   manufacturer=None,
-													   model=None,
-													   start_time=datetime(2020, 7, 22, 15, 49, 1, 626803, tzinfo=timezone.utc),
-													   end_time=datetime(2020, 7, 22, 15, 49, 20, 144408, tzinfo=timezone.utc)),
+														 identifier=None,
+														 manufacturer=None,
+														 model=None,
+														 start_time=datetime(2020, 7, 22, 15, 49, 1, 626803, tzinfo=timezone.utc),
+														 end_time=datetime(2020, 7, 22, 15, 49, 20, 144408, tzinfo=timezone.utc)),
 										gps_data_list=[GpsData(latitude= 37.31013773,
 															longitude= -122.0314044,
 															altitude= 44.6412353515625,
@@ -67,22 +67,22 @@ class FileParserTest(unittest.TestCase):
 															speed= 0.16,
 															time=datetime(2020, 7, 22, 15, 49, 1, 726803, tzinfo=timezone.utc))])
 		self.csv_gpsdataset2 = GpsDataSet(gps_meta_data=GpsMetaData(device='DynamicSimulation',
-													   identifier=None,
-													   manufacturer=None,
-													   model=None,
-													   start_time=datetime(2020, 7, 22, 15, 49, 21, 247269, tzinfo=timezone.utc),
-													   end_time=datetime(2020, 7, 22, 15, 49, 32, 954147, tzinfo=timezone.utc)),
+														 identifier=None,
+														 manufacturer=None,
+														 model=None,
+														 start_time=datetime(2020, 7, 22, 15, 49, 21, 247269, tzinfo=timezone.utc),
+														 end_time=datetime(2020, 7, 22, 15, 49, 32, 954147, tzinfo=timezone.utc)),
 										gps_data_list=[GpsData(latitude= 37.31013773,
 															longitude= -122.0314044,
 															altitude= 44.6412353515625,
 															speed= 0.0,
 															time=datetime(2020, 7, 22, 15, 49, 21, 247269, tzinfo=timezone.utc))])
 		self.csv_gpsdataset3 = GpsDataSet(gps_meta_data=GpsMetaData(device='StaticSimulation',
-													   identifier=None,
-													   manufacturer=None,
-													   model=None,
-													   start_time=datetime(2020, 7, 22, 15, 49, 34, 60437, tzinfo=timezone.utc),
-													   end_time=datetime(2020, 7, 22, 15, 49, 47, 631769, tzinfo=timezone.utc)),
+														 identifier=None,
+														 manufacturer=None,
+														 model=None,
+														 start_time=datetime(2020, 7, 22, 15, 49, 34, 60437, tzinfo=timezone.utc),
+														 end_time=datetime(2020, 7, 22, 15, 49, 47, 631769, tzinfo=timezone.utc)),
 										gps_data_list=[GpsData(latitude= 27.417747,
 															longitude= -112.086086,
 															altitude= 0.0,
@@ -112,9 +112,9 @@ class FileParserTest(unittest.TestCase):
 	@patch('GpsDataAnalyzer.utils.cartesian_to_geodetic')
 	def test_parse_csv_file_multiple_simulations(self, mock_cartesian_to_geodetic, mock_calculate_distance):
 		test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
-						  (37.31013774, -122.03140539, 44.76190185546875),
-						  (37.31013773, -122.0314044, 44.6412353515625),
-						  (37.31013773, -122.0314044, 44.6412353515625)]
+							(37.31013774, -122.03140539, 44.76190185546875),
+							(37.31013773, -122.0314044, 44.6412353515625),
+							(37.31013773, -122.0314044, 44.6412353515625)]
 		test_distances = [.016,]
 		mock_cartesian_to_geodetic.side_effect = test_locations
 		mock_calculate_distance.side_effect = test_distances
@@ -128,7 +128,7 @@ class FileParserTest(unittest.TestCase):
 	@patch('GpsDataAnalyzer.utils.cartesian_to_geodetic')
 	def test_parse_csv_file_one_simulation(self, mock_cartesian_to_geodetic, mock_calculate_distance):
 		test_locations = [(37.31013773, -122.0314044, 44.6412353515625),
-						  (37.31013774, -122.03140539, 44.76190185546875)]
+							(37.31013774, -122.03140539, 44.76190185546875)]
 		test_distances = [.016,]
 		mock_cartesian_to_geodetic.side_effect = test_locations
 		mock_calculate_distance.side_effect = test_distances
