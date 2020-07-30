@@ -61,3 +61,5 @@ proguard-project.txt
 .classpath
 .settings/
 
+#python
+__pycache__
