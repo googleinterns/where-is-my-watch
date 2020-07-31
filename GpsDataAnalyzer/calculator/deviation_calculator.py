@@ -30,9 +30,9 @@ import time
 import numpy as np
 import pandas as pd
 
-import utils
-from fileparser.fileparser import FileParser
-from calculator import alignment_algorithms
+from GpsDataAnalyzer import utils
+from GpsDataAnalyzer.fileparser.fileparser import FileParser
+from GpsDataAnalyzer.calculator import alignment_algorithms
 
 
 class DataSetDeviationCalculator:

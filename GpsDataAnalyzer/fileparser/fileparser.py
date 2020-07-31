@@ -10,15 +10,15 @@ from datetime import timezone
 from geopy.distance import geodesic
 import math
 
-import utils
-from datamodel.gpsdataset import GpsData
-from datamodel.gpsdataset import GpsMetaData
-from datamodel.gpsdataset import GpsDataSet
-from mylogger import MyLogger
+from GpsDataAnalyzer import utils
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
+from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
+from GpsDataAnalyzer.mylogger import MyLogger
 
-#Create my logger
-fileparser_logger = MyLogger('FileParser')
-logger = fileparser_logger.get_logger()
+# Create my logger
+FILEPARSER_LOGGER = MyLogger('FileParser')
+LOGGER = FILEPARSER_LOGGER.get_logger()
 
 #prefix url in xml file
 PREFIX_URL = "{http://www.topografix.com/GPX/1/1}"
@@ -31,13 +31,13 @@ class FileParser:
         """
         # if filename replaced by file path, should use os.path.splittext(filepath)
         if filename is None:
-            logger.debug('Filename is None.')
+            LOGGER.debug('Filename is None.')
             return None
         
         file_type = filename.split(".")[-1]
 
         if file_type is None:
-            logger.debug('File extension is None.')
+            LOGGER.debug('File extension is None.')
             return None
 
         return file_type
@@ -49,13 +49,13 @@ class FileParser:
         file_type = self._get_file_type(filename)
         
         if file_type == 'xml':
-            logger.info('Parse xml file ' + filename)
+            LOGGER.info('Parse xml file ' + filename)
             return self.parse_xml(filename)
         elif file_type == 'csv':
-            logger.info('Parse csv file ' + filename)
+            LOGGER.info('Parse csv file ' + filename)
             return self.parse_csv(filename)
         else:
-            logger.debug('Invalid file type. Accepted: xml, csv. Received: ' + file_type)
+            LOGGER.debug('Invalid file type. Accepted: xml, csv. Received: ' + file_type)
             return None
 
 
@@ -85,6 +85,10 @@ class FileParser:
         """
         # Get metadata information
         metadata = root.find(prefix + 'metadata')
+        if metadata is None:
+            LOGGER.debug('Metadata is None, could not be parsed.')
+            return None
+
 
         # Parse metadata information
         device, identifier, manufacturer, model = "", "", "", ""
@@ -115,12 +119,26 @@ class FileParser:
         """
         xml_gpsdatalist = []
 
+        trk = root.find(prefix + 'trk')
+        if trk is None:
+            LOGGER.debug('trk is None, could not parse trkpts.')
+            return None
+
+        trkseg = trk.find(prefix + 'trkseg')
+        if trkseg is None:
+            LOGGER.debug('trkseg is None, could not parse trkpts.')
+            return None
+
+        if len(trkseg) == 0:
+            LOGGER.debug('trkseg is empty, could not parse trkpts.')
+            return None
+
         # Get the start location
-        first_trkpt = root.find(prefix + 'trk').find(prefix + 'trkseg')[0]
+        first_trkpt = trkseg[0]
         prev_location = (first_trkpt.get('lat'), first_trkpt.get('lon'))
 
         # Get every track point information
-        for trkpt in root.find(prefix + 'trk').find(prefix + 'trkseg'):
+        for trkpt in trkseg:
             # Get the latitude and longitude
             lat = float(trkpt.get('lat'))
             lon = float(trkpt.get('lon'))

@@ -8,6 +8,7 @@ import matplotlib.dates as dates
 import numpy as np
 import seaborn as sns
 import pandas as pd
+import os
 
 from datetime import datetime
 from datetime import timedelta
@@ -17,6 +18,24 @@ class Visualizer:
     """
     Classify the deivation of distance and visualize the deviations of distance/speed/altitude
     """
+    def get_min_deviation(self, data):
+        """
+        Get the min value of deviation
+
+        Args:
+           data: the deviation data
+        """
+        return min(float(deviation) for deviation in data)
+
+    def get_max_deviation(self, data):
+        """
+        Get the max value of deviation
+
+        Args:
+           data: the deviation data
+        """
+        return max(float(deviation) for deviation in data)
+
     def classify_deviation(self, deviation_dataframe):
         """
         Classify the deviation of distance according to its absolute value, and mark the data confidence (1, 2, 3). 
@@ -69,9 +88,9 @@ class Visualizer:
         plt.yticks(range(0,5))
 
         # Save the graph as a png picture
-        fig.savefig(title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png") 
-
-        # plt.show()
+        my_path = os.path.dirname(__file__)
+        my_file = title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png"
+        fig.savefig(os.path.join(my_path, my_file)) 
 
 
     def draw_line_graph(self, x_data, x_label, y_data, y_label, title):
@@ -85,12 +104,18 @@ class Visualizer:
           y_label: label for y axis
           title: title for the graph
         """
-        # Get the absolute mean of deviation and stadard deviation
+        # Get the absolute mean of deviation, stadard deviation, min and max deviation
         abs_mean_deviation = round(np.mean(y_data),3)
         std_deviation = round(np.std(y_data),3)
+        min_deviation = round(self.get_min_deviation(y_data), 3)
+        max_deviation = round(self.get_max_deviation(y_data), 3)
 
-        # Create the absolute mean of deviation and stadard deviation label
-        line_label = 'Mean: '+ str(abs_mean_deviation) + '\n' +'STD: ' + str(std_deviation)
+        # Get the time duration 
+        time_duration = x_data[len(x_data) - 1] - x_data[0]
+
+        # Set the line_label and x_label
+        line_label = 'Mean: '+ str(abs_mean_deviation) + '\n' +'STD: ' + str(std_deviation) + '\n' + 'Min: ' + str(min_deviation) + '\n' + 'Max: ' + str(max_deviation)
+        x_label += str(time_duration)
 
         # Plot the data
         fig = plt.figure(figsize=(20,10))
@@ -107,7 +132,8 @@ class Visualizer:
         plt.ylabel(y_label, fontsize = 10)
 
         # Save the graph as a png picture
-        fig.savefig(title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png")
-        # plt.show()
+        my_path = os.path.dirname(__file__)
+        my_file = title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png"
+        fig.savefig(os.path.join(my_path, my_file))
 
 

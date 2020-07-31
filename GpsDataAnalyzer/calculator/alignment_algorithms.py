@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import time
 
-import utils
+from GpsDataAnalyzer import utils
 
 MEAN_DISTANCE_THRESHOLD = 100
 
