@@ -10,15 +10,11 @@ from datetime import timezone
 from geopy.distance import geodesic
 import math
 
-from GpsDataAnalyzer import utils
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsData
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsMetaData
-from GpsDataAnalyzer.datamodel.gpsdataset import GpsDataSet
-from GpsDataAnalyzer.mylogger import MyLogger
-
-import sys
-for path in sys.path:
-    print (path)
+import utils
+from datamodel.gpsdataset import GpsData
+from datamodel.gpsdataset import GpsMetaData
+from datamodel.gpsdataset import GpsDataSet
+from mylogger import MyLogger
 
 #Create my logger
 fileparser_logger = MyLogger('FileParser')
@@ -78,7 +74,7 @@ class FileParser:
             timestr = timestr[:-1]
 
         #Parse time in the format "%Y-%m-%dT%H:%M:%S.%f"
-        time = datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S.%fZ")
+        time = datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S.%f")
 
         return time.replace(tzinfo=timezone.utc)
 

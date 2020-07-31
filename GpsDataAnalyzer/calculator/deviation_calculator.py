@@ -30,9 +30,9 @@ import time
 import numpy as np
 import pandas as pd
 
-from GpsDataAnalyzer import utils
-from GpsDataAnalyzer.fileparser.fileparser import FileParser
-from GpsDataAnalyzer.calculator import alignment_algorithms
+import utils
+from fileparser.fileparser import FileParser
+from calculator import alignment_algorithms
 
 
 class DataSetDeviationCalculator:
@@ -132,3 +132,14 @@ class DataSetDeviationCalculator:
         return self.deviations_dataframe
 
 
+    def get_availability(self):
+        """
+        Calculate the availability of wear captured gps data
+
+        Returns:
+            Percentile of wear captured gps data by compared gpsdataset
+        """
+        gps_data_count1 = len(self.data_set_1.gps_data_list)
+        gps_data_count2 = len(self.data_set_2.gps_data_list)
+
+        return round(gps_data_count1 / gps_data_count2, 4)*100
