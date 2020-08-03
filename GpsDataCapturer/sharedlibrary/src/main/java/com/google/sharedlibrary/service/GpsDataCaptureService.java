@@ -10,7 +10,6 @@ import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;

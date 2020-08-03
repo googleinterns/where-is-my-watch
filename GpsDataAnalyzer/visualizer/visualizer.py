@@ -1,12 +1,11 @@
 """
 Usage: visualizer.py
 
-Parse the xml or csv file and generate a GpsDataSet
+Visualize the classified data as histogram and line graph with min/max/mean/std/availability information
 """
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 import numpy as np
-import seaborn as sns
 import pandas as pd
 import os
 
@@ -14,9 +13,15 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 
+"""
+Deviation distribution zone
+"""
+FIVE_METERS = 5
+TEN_METERS = 10
+
 class Visualizer:
     """
-    Classify the deivation of distance and visualize the deviations of distance/speed/altitude
+    Classify the deviation of distance and visualize the deviations of distance/speed/altitude
     """
     def get_min_deviation(self, data):
         """
@@ -25,7 +30,7 @@ class Visualizer:
         Args:
            data: the deviation data
         """
-        return min(float(deviation) for deviation in data)
+        return min(deviation for deviation in data)
 
     def get_max_deviation(self, data):
         """
@@ -34,27 +39,27 @@ class Visualizer:
         Args:
            data: the deviation data
         """
-        return max(float(deviation) for deviation in data)
+        return max(deviation for deviation in data)
 
     def classify_deviation(self, deviation_dataframe):
         """
         Classify the deviation of distance according to its absolute value, and mark the data confidence (1, 2, 3). 
-        Higher score means higher confidence and acurancy.
+        Higher score means higher confidence and accuracy.
 
         Args:
-          deviation_dataframe: a dataframe constaining time and deviation of distance/speed/altitude 
+          deviation_dataframe: a dataframe containing time and deviation of distance/speed/altitude 
 
         Returns:
-          A dataframe with confidence
+          A dataframe after distance deviation classified with confidence
         """
         deviation_list = deviation_dataframe["Deviations"]
         confidence = []
 
         for deviation in deviation_list:
             abs_deviation = abs(deviation)
-            if abs_deviation <= 5:
+            if abs_deviation <= FIVE_METERS:
                 confidence.append(3)
-            elif abs_deviation > 5 and abs_deviation <= 10:
+            elif abs_deviation <= TEN_METERS:
                 confidence.append(2)
             else:
                 confidence.append(1)
@@ -77,7 +82,7 @@ class Visualizer:
         """
         # Plot the data
         fig = plt.figure(figsize=(20,10))
-        hist_label = 'Availability: ' + str(availability) + '%'
+        hist_label = "Availability: {}%".format(availability)
         plt.hist(data, align='mid', bins=[0.5,1.5,2.5,3.5], rwidth=0.8, label=hist_label, orientation="horizontal")
         
         # Set the title and labels    
@@ -89,7 +94,7 @@ class Visualizer:
 
         # Save the graph as a png picture
         my_path = os.path.dirname(__file__)
-        my_file = title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png"
+        my_file = "{}_Deviation_Confidence_{}.png".format(title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
         fig.savefig(os.path.join(my_path, my_file)) 
 
 
@@ -111,10 +116,10 @@ class Visualizer:
         max_deviation = round(self.get_max_deviation(y_data), 3)
 
         # Get the time duration 
-        time_duration = x_data[len(x_data) - 1] - x_data[0]
+        time_duration = x_data[len(x_data)-1] - x_data[0]
 
         # Set the line_label and x_label
-        line_label = 'Mean: '+ str(abs_mean_deviation) + '\n' +'STD: ' + str(std_deviation) + '\n' + 'Min: ' + str(min_deviation) + '\n' + 'Max: ' + str(max_deviation)
+        line_label = "Mean: {}\nSTD: {}\nMin: {}\nMax: {}".format(abs_mean_deviation, std_deviation, min_deviation, max_deviation)
         x_label += str(time_duration)
 
         # Plot the data
@@ -127,13 +132,13 @@ class Visualizer:
 
         # Set the title and labels
         plt.legend(loc="upper left")
-        plt.title(title, fontsize = 12)
+        plt.title(title +" Deviation", fontsize = 12)
         plt.xlabel(x_label, fontsize = 10)
         plt.ylabel(y_label, fontsize = 10)
 
         # Save the graph as a png picture
         my_path = os.path.dirname(__file__)
-        my_file = title + "_" + datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S") + ".png"
+        my_file = "{}_Deviation_{}.png".format(title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
         fig.savefig(os.path.join(my_path, my_file))
 
 
