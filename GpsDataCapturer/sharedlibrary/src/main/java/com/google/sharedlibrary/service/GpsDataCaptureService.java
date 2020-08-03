@@ -1,5 +1,6 @@
 package com.google.sharedlibrary.service;
 
+import static com.google.sharedlibrary.gpxfile.GpxFileHelper.createFileName;
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.startFusedLocationProviderClient;
 import static com.google.sharedlibrary.locationhelper.FusedLocationProviderHelper.stopFusedLocationProviderClient;
 import static com.google.sharedlibrary.gpxfile.GpxFileHelper.createGpxFile;
@@ -181,7 +182,7 @@ public class GpsDataCaptureService extends IntentService {
      */
     public void startCapture(LocationApiType locationApiType) {
         //create a new file
-        gpxFile = createGpxFile(gpxFileFolder, sdf.format(System.currentTimeMillis()));
+        gpxFile = createGpxFile(gpxFileFolder, createFileName());
 
         //instantiate the gpxFileWriter if it's null
         if (gpxFileWriter == null) {

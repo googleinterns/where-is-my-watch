@@ -8,6 +8,7 @@ import com.google.sharedlibrary.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 /**
  * Wrapper class for create new GpxFile
@@ -32,4 +33,13 @@ public class GpxFileHelper {
         }
         return gpxFile;
     }
+
+    /**
+     * Create a new file name
+     */
+    public static String createFileName(){
+        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+        return dataFormat.format(System.currentTimeMillis());
+    }
+
 }
