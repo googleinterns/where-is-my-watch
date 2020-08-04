@@ -55,6 +55,7 @@ class DataSetDeviationCalculator:
         self.offset_mapping_1= {}
         self.offset_mapping_2 = {}
         self.deviations_dataframe = None
+        self.availability = None
 
         # comparing both algorithms for deciding offset, will delete this one post-testing
         start = time.perf_counter()
@@ -100,6 +101,7 @@ class DataSetDeviationCalculator:
         """
         if self.deviations_dataframe is not None: 
             return self.deviations_dataframe
+
         time_list, deviation_list, speed_differentials, altitude_differentials = [], [], [], []
         set1_time_list, set2_time_list = [], []
 
@@ -139,7 +141,26 @@ class DataSetDeviationCalculator:
         Returns:
             Percentile of wear captured gps data by compared gpsdataset
         """
+        if self.availability:
+            return self.availability
+        if not self.starting_time_1 and not self.starting_time_2:
+            return 0
+        total_timestamps = 0
+        available_timestamps = 0
+
+        start_time = utils.round_time(max(self.starting_time_1, self.starting_time_2))
+        end_time = utils.round_time(min(max(self.offset_mapping_1), max(self.offset_mapping_2)))
+        total_seconds = int((end_time-start_time).total_seconds())
+
+        for timestamp in [start_time + timedelta(seconds=x) for x in range(total_seconds)]:
+            total_timestamps += 1
+            if timestamp in self.offset_mapping_1 and timestamp in self.offset_mapping_2:
+                available_timestamps += 1
+
+        return round(available_timestamps / total_timestamps, 4)*100
+        '''
         gps_data_count1 = len(self.data_set_1.gps_data_list)
         gps_data_count2 = len(self.data_set_2.gps_data_list)
 
         return round(gps_data_count1 / gps_data_count2, 4)*100
+        '''

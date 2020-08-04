@@ -23,6 +23,12 @@ class Visualizer:
     """
     Classify the deviation of distance and visualize the deviations of distance/speed/altitude
     """
+    def __init__(self):
+        current_directory = os.path.dirname(__file__)
+        current_time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S")
+        self.output_file_folder = os.path.join(current_directory, current_time)
+        os.mkdir(self.output_file_folder)
+
     def get_min_deviation(self, data):
         """
         Get the min value of deviation
@@ -93,9 +99,8 @@ class Visualizer:
         plt.yticks(range(0,5))
 
         # Save the graph as a png picture
-        my_path = os.path.dirname(__file__)
         my_file = "{}_Deviation_Confidence_{}.png".format(title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
-        fig.savefig(os.path.join(my_path, my_file)) 
+        fig.savefig(os.path.join(self.output_file_folder, my_file)) 
 
 
     def draw_line_graph(self, x_data, x_label, y_data, y_label, title):
@@ -137,8 +142,7 @@ class Visualizer:
         plt.ylabel(y_label, fontsize = 10)
 
         # Save the graph as a png picture
-        my_path = os.path.dirname(__file__)
         my_file = "{}_Deviation_{}.png".format(title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
-        fig.savefig(os.path.join(my_path, my_file))
+        fig.savefig(os.path.join(self.output_file_folder, my_file))
 
 
