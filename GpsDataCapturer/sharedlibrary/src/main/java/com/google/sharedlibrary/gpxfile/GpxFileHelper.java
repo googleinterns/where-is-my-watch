@@ -9,6 +9,7 @@ import com.google.sharedlibrary.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * Wrapper class for create new GpxFile
@@ -38,7 +39,8 @@ public class GpxFileHelper {
      * Create a new file name
      */
     public static String createFileName(){
-        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+        SimpleDateFormat dataFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss-SSS'Z'");
+        dataFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dataFormat.format(System.currentTimeMillis());
     }
 
