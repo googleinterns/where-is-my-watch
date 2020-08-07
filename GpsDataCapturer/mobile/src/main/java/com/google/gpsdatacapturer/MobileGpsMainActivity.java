@@ -29,6 +29,8 @@ import com.google.sharedlibrary.utils.Utils.LocationApiType;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
 import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
 
+import org.w3c.dom.Text;
+
 public class MobileGpsMainActivity extends AppCompatActivity {
     private static final String TAG = "MobileGpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
@@ -44,6 +46,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private Button startAndStopButton;
     private TextView gpsDataTextView;
     private TextView gpsStatusTextView;
+    private TextView satellitesTextView;
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
@@ -68,6 +71,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         startAndStopButton = (Button) findViewById(R.id.m_start_stop_button);
         gpsDataTextView = (TextView) findViewById(R.id.m_text_view_gps_data);
         gpsStatusTextView = (TextView) findViewById(R.id.m_text_view_gps_status);
+        satellitesTextView = (TextView) findViewById(R.id.m_text_view_satellites);
 
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
@@ -94,7 +98,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         // connected
         //stop capture data, then stop and unbind service on stop button clicked
         startAndStopButton.setOnClickListener((View v) -> {
-            if (startAndStopButtonState == Utils.ButtonState.START_CAPTURE) {
+            if (startAndStopButtonState == ButtonState.START_CAPTURE) {
                 //hide radio group
                 apiRadioGroup.setVisibility(View.GONE);
 

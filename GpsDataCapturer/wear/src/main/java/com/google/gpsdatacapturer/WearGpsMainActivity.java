@@ -45,6 +45,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private Button startAndStopButton;
     private TextView gpsDataTextView;
     private TextView gpsStatusTextView;
+    private TextView satellitesTextView;
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
@@ -73,6 +74,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         startAndStopButton = (Button) findViewById(R.id.button_start_stop);
         gpsDataTextView = (TextView) findViewById(R.id.text_view_gps_data);
         gpsStatusTextView = (TextView) findViewById(R.id.text_view_gps_status);
+        satellitesTextView = (TextView) findViewById(R.id.text_view_satellites);
 
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
@@ -250,6 +252,12 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private void showGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.VISIBLE);
         gpsStatusTextView.setVisibility(View.VISIBLE);
+        satellitesTextView.setVisibility(View.VISIBLE);
+
+        if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+            gpsStatusTextView.setText(R.string.gps_status_not_available);
+            satellitesTextView.setText(R.string.satellites_not_available);
+        }
     }
 
     /**
@@ -258,6 +266,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private void hideGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.GONE);
         gpsStatusTextView.setVisibility(View.GONE);
+        satellitesTextView.setVisibility(View.GONE);
     }
 
     /**
@@ -297,7 +306,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         return new MyAmbientCallback();
     }
 
-    private class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
+    private static class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
         @Override
         public void onEnterAmbient(Bundle ambientDetails) {
             // Handle entering ambient mode

@@ -26,6 +26,7 @@ public class FusedLocationProviderListener extends LocationCallback implements G
         for (Location location : locationResult.getLocations()) {
             if (location != null) {
                 gpsDataCaptureService.onLocationChanged(location);
+
             }
         }
     }
@@ -35,6 +36,6 @@ public class FusedLocationProviderListener extends LocationCallback implements G
 
     @Override
     public void onGpsStatusChanged(int event) {
-        gpsDataCaptureService.onGpsStatusChanged(event);
+        gpsDataCaptureService.onGpsStatusChanged(event, -1);
     }
 }

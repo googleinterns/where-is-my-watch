@@ -230,10 +230,11 @@ public class GpsDataCaptureService extends IntentService {
      *
      * @param event the event returned by GpsStatus Listener's callback function
      */
-    public void onGpsStatusChanged(int event) {
+    public void onGpsStatusChanged(int event, int satellites) {
         //set gps status in the view model
         if (gpsInfoViewModel != null) {
             gpsInfoViewModel.setGpsStatusMutableLiveData(event);
+            gpsInfoViewModel.setSatellitesUsedInFix(satellites);
         }
     }
 
@@ -259,5 +260,9 @@ public class GpsDataCaptureService extends IntentService {
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;
         gpxFile = null;
+    }
+
+    public LocationManager getLocationManager(){
+        return this.locationManager;
     }
 }
