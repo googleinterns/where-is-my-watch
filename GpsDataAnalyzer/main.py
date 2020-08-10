@@ -1,5 +1,7 @@
+from datetime import datetime
 import itertools
 import sys
+import os
 
 from GpsDataAnalyzer.fileparser import fileparser
 from GpsDataAnalyzer.calculator import deviation_calculator
@@ -59,6 +61,7 @@ def main(args):
             LOGGER.debug('%s and %s do not align.' % (dataset_pair[0].gps_meta_data.device,
                                                       dataset_pair[1].gps_meta_data.device))
             continue
+
         classified_deviation_df = my_visualizer.classify_deviation(deviation_dataframe)
 
         #time could also be 'Set 1 Timestamp'
@@ -73,6 +76,11 @@ def main(args):
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Deviations'], 'Deviations (Meters)', dataset_title + 'Distance')
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Altitude Differentials'], 'Deviations (Meters)', dataset_title + 'Altitude')
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Speed Differentials'], 'Deviations (Meters)', dataset_title + 'Speed')
+
+        # save deviation dataframe to csv
+        deviation_data_file = "{}Deviation_Data_{}.csv".format(dataset_title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
+        data_file_path = os.path.join(my_visualizer.output_file_folder, deviation_data_file)
+        classified_deviation_df.to_csv(data_file_path)
 
     LOGGER.debug('Finish drawing graphs and save them in visualizer directory.')
 

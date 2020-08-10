@@ -18,7 +18,7 @@ class DeviationCalculatorTest(unittest.TestCase):
 		watch_metadata = GpsMetaData(device='sampleDevice',
 									 identifier='sampleId',
 									 manufacturer='sampleManufacturer',
-									 model='samplModel',
+									 model='sampleModel',
 									 start_time=datetime(2020, 7, 7, 18,45,47,5000, tzinfo=timezone.utc),
 									 end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc))
 		watch_data_list = [GpsData(latitude= 37.31013773,
@@ -179,4 +179,4 @@ class DeviationCalculatorTest(unittest.TestCase):
 		self.assertEqual(expected_offset, result_offset)
 
 if __name__ == "__main__":
-		unittest.main()
+	unittest.main()

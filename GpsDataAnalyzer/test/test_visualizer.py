@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 import pytest
 import pandas as pd
 from datetime import datetime
@@ -33,7 +34,9 @@ class VisualizerTest(unittest.TestCase):
                                              "Altitude Differentials": self.altitude_differentials,
                                              "Set 1 Timestamp": set1_time_list,
                                              "Set 2 Timestamp": set2_time_list})
-        self.visualizer = visualizer.Visualizer()
+        
+        with patch('os.mkdir') as mock_mkdir:
+            self.visualizer = visualizer.Visualizer()
 
     def test_classify_deviation(self):
         expected_confidence = [3, 3, 2, 3, 1]

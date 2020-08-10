@@ -63,7 +63,7 @@ def find_lineup(set1, set2):
                                             range_optimization_size,
                                             range_start,
                                             range_end)
-
+    print(best_range_start)
     # find best offset starting at the middle of range with most valid points
     range_middle = best_range_start + timedelta(seconds=range_optimization_size//2)
 

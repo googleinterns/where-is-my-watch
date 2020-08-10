@@ -18,7 +18,7 @@ class FileParserTest(unittest.TestCase):
         self.xml_gpsdataset = GpsDataSet(gps_meta_data=GpsMetaData(device='sampleDevice',
                                                          identifier='sampleId',
                                                          manufacturer='sampleManufacturer',
-                                                         model='samplModel',
+                                                         model='sampleModel',
                                                          start_time=datetime(2020,7,7,18,45,47,5000,tzinfo=timezone.utc),
                                                          end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)),
                                  gps_data_list=[GpsData(latitude= 63.17964,
@@ -87,11 +87,11 @@ class FileParserTest(unittest.TestCase):
         self.assertEqual(2, len(xml_gpsdataset.gps_data_list))
         self.assertEqual(self.xml_gpsdataset, xml_gpsdataset)
         self.assertEqual(GpsMetaData(device='sampleDevice',
-                                                         identifier='sampleId',
-                                                         manufacturer='sampleManufacturer',
-                                                         model='samplModel',
-                                                         start_time=datetime(2020,7,7,18,45,47,5000,tzinfo=timezone.utc),
-                                                         end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)), xml_gpsdataset.gps_meta_data)
+                                     identifier='sampleId',
+                                     manufacturer='sampleManufacturer',
+                                     model='sampleModel',
+                                     start_time=datetime(2020,7,7,18,45,47,5000,tzinfo=timezone.utc),
+                                     end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc)), xml_gpsdataset.gps_meta_data)
 
     def test_parse_invalid_file_return_none(self):
         none_gpsdataset = self.fileparser.parse_file('wrongfilename.')

@@ -158,9 +158,3 @@ class DataSetDeviationCalculator:
                 available_timestamps += 1
 
         return round(available_timestamps / total_timestamps, 4)*100
-        '''
-        gps_data_count1 = len(self.data_set_1.gps_data_list)
-        gps_data_count2 = len(self.data_set_2.gps_data_list)
-
-        return round(gps_data_count1 / gps_data_count2, 4)*100
-        '''
