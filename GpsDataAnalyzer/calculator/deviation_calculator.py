@@ -52,21 +52,12 @@ class DataSetDeviationCalculator:
         self.data_set_2 = data_set_2
         self.starting_time_1 = None
         self.starting_time_2 = None
+        self.ending_time_1 = None
+        self.ending_time_2 = None
         self.offset_mapping_1= {}
         self.offset_mapping_2 = {}
         self.deviations_dataframe = None
         self.availability = None
-
-        # comparing both algorithms for deciding offset, will delete this one post-testing
-        start = time.perf_counter()
-        print("Unoptimized lineup implementation:")
-        self.starting_time_1, self.starting_time_2 = alignment_algorithms.find_lineup_no_optimization(self.data_set_1,
-                                                                                                      self.data_set_2)
-        end = time.perf_counter()
-        print(f"Lined up data in {end - start:0.4f} seconds")
-        print("start time 1: " + str(self.starting_time_1))
-        print("start time 2: " + str(self.starting_time_2))
-        print("\n")
 
         start = time.perf_counter()
         print("Optimized lineup implementation:")
@@ -78,6 +69,8 @@ class DataSetDeviationCalculator:
         print("start time 2: " + str(self.starting_time_2))
         print("\n")
 
+        self.ending_time_1 = self.data_set_1.gps_meta_data.end_time
+        self.ending_time_2 = self.data_set_2.gps_meta_data.end_time
         if not self.starting_time_1 and not self.starting_time_2:
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, 0)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, 0)
@@ -85,10 +78,12 @@ class DataSetDeviationCalculator:
             offset = (self.starting_time_1-self.starting_time_2).total_seconds()
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, 0)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, offset)
+            self.ending_time_2 = self.ending_time_2 + timedelta(seconds=offset)
         else:
             offset = (self.starting_time_2-self.starting_time_1).total_seconds()
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, offset)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, 0)
+            self.ending_time_1 = self.ending_time_1 + timedelta(seconds=offset)
 
     def get_deviation_dataframe(self):
         """
@@ -149,7 +144,7 @@ class DataSetDeviationCalculator:
         available_timestamps = 0
 
         start_time = utils.round_time(max(self.starting_time_1, self.starting_time_2))
-        end_time = utils.round_time(min(max(self.offset_mapping_1), max(self.offset_mapping_2)))
+        end_time = utils.round_time(min(self.ending_time_1, self.ending_time_2))
         total_seconds = int((end_time-start_time).total_seconds())
 
         for timestamp in [start_time + timedelta(seconds=x) for x in range(total_seconds)]:

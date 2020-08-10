@@ -106,6 +106,8 @@ class DeviationCalculatorTest(unittest.TestCase):
 		self.assertEqual(datetime(2020, 7, 22, 15, 49, 2, tzinfo=timezone.utc), calculator.starting_time_2)
 		self.assertEqual(self.test_offset_mapping_1, calculator.offset_mapping_1)
 		self.assertEqual(self.test_offset_mapping_2, calculator.offset_mapping_2)
+		self.assertEqual(datetime(2020, 7, 7, 19, 8, 1, 318000,tzinfo=timezone.utc), calculator.ending_time_1)
+		self.assertEqual(datetime(2020, 7, 22, 15, 49, 22, 144408, tzinfo=timezone.utc), calculator.ending_time_2)
 
 	def test_init_calculator_no_lineup(self):
 		for data_point in self.simulator_data_set.gps_data_list:
@@ -122,6 +124,8 @@ class DeviationCalculatorTest(unittest.TestCase):
 		self.assertEqual(None, calculator.starting_time_2)
 		self.assertEqual(self.test_offset_mapping_1, calculator.offset_mapping_1)
 		self.assertEqual(self.test_offset_mapping_2, calculator.offset_mapping_2)
+		self.assertEqual(datetime(2020, 7, 7, 19, 8, 1, 318000,tzinfo=timezone.utc), calculator.ending_time_1)
+		self.assertEqual(datetime(2020, 7, 22, 15, 49, 20, 144408, tzinfo=timezone.utc), calculator.ending_time_2)
 
 	def test_get_deviation_dataframe(self):
 		time_list = [datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc),
