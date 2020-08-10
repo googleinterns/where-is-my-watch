@@ -40,7 +40,6 @@ def main(args):
 
     # Get all pairs of datasets between the two files
     dataset_combinations = itertools.product(*gpsdatasets)
-    print(dataset_combinations)
 
     # Visualize the deviation
     LOGGER.debug('Create visualizer')
