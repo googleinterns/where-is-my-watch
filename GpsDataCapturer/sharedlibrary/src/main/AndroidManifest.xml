@@ -9,6 +9,9 @@
     <!-- Read and Write log files to storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Allow foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
 
     <application>
         <!-- SERVICES-->
@@ -20,5 +23,6 @@
                 <action android:name="com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE"/>
             </intent-filter>
         </service>
+
     </application>
 </manifest>

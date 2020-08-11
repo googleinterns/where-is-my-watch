@@ -11,22 +11,29 @@ import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.sharedlibrary.R;
 import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
@@ -96,28 +103,24 @@ public class GpsDataCaptureService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+//        startForeground(1, getNotification());
         if (intent != null) {
             Log.d(TAG, "On handle intent");
 
             //Extra the location api type
             boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
+            Log.d(TAG, "type_from_intent: " + type_from_intent);
             LocationApiType type = LocationApiType.LOCATIONMANAGER;
             if (type_from_intent) {
                 type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
             }
+            Log.d(TAG, "LocationApiType: " + type);
 
             if (intent.getAction() != null) {
                 if (intent.getAction().equals(
-                        "com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE")) {
-                    Handler mHandler = new Handler(getMainLooper());
-                    LocationApiType finalType = type;
-                    mHandler.post(() -> {
-                        Log.d(TAG, "Starting capture via intent");
-                        startCapture(finalType);
-                    });
-                }
-                if (intent.getAction().equals(
                         "com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE")) {
+                    Log.d(TAG, "Intent action: com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE");
+
                     Handler mHandler = new Handler(getMainLooper());
                     LocationApiType finalType = type;
                     mHandler.post(() -> {
@@ -132,7 +135,7 @@ public class GpsDataCaptureService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        startForeground(1, getNotification());
         if (fusedLocationProviderClient == null) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         }
@@ -262,7 +265,35 @@ public class GpsDataCaptureService extends IntentService {
         gpxFile = null;
     }
 
+    /**
+     * Get the location manager
+     * @return the location manager
+     */
     public LocationManager getLocationManager(){
         return this.locationManager;
+    }
+
+    /**
+     * Create a new notification
+     * @return a notification
+     */
+    private Notification getNotification(){
+        String NOTIFICATION_CHANNEL_ID = "com.google.sharedlibrary.gpsdatacapturer";
+        String channelName = "My Background Service";
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        Notification notification = builder.setOngoing(true)
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                .setContentTitle("App is running in background")
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+        return notification;
     }
 }

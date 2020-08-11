@@ -12,7 +12,7 @@
         <activity android:name="com.google.gpsdatacapturer.MobileGpsMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="com.google.gpsdatacapturer.START_CAPTURE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -49,6 +50,8 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private TextView satellitesTextView;
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
+
+    private Intent adbIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +96,10 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //Start the service
         startAndBindGpsDataCaptureService();
+
+        //get the called intent
+        adbIntent = this.getIntent();
+        Log.d(TAG, adbIntent.toString());
 
         //start and bind service on start button clicked and start capture once the service is
         // connected
@@ -200,6 +207,29 @@ public class MobileGpsMainActivity extends AppCompatActivity {
             //get the gpsDataCaptureService
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
+
+            //start capture via intent
+            if(adbIntent != null) {
+                //Extra the location api type
+                if(adbIntent.getExtras() != null){
+                    Log.d(TAG, "Intent extra is " + adbIntent.getExtras().toString());
+                    boolean type_from_intent = adbIntent.getBooleanExtra("fused_location_type", false);
+                    Log.d(TAG, "fused_location_type: " + type_from_intent);
+                    if(type_from_intent){
+                        locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+                    }
+                    Log.d(TAG, "LocationApiType: " + locationApiType);
+                }
+                //Start capture if the action is START_CAPTURE
+                if (adbIntent.getAction() != null) {
+                    Log.d(TAG, "Intent action: " + adbIntent.getAction());
+                    if (adbIntent.getAction().equals(
+                            "com.google.gpsdatacapturer.START_CAPTURE")) {
+                        Log.d(TAG, "Start capture via intent");
+                        gpsDataCaptureService.startCapture(locationApiType);
+                    }
+                }
+            }
         }
 
         @Override
@@ -251,6 +281,12 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void showGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.VISIBLE);
         gpsStatusTextView.setVisibility(View.VISIBLE);
+        satellitesTextView.setVisibility(View.VISIBLE);
+
+        if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+            gpsStatusTextView.setText(R.string.gps_status_not_available);
+            satellitesTextView.setText(R.string.satellites_not_available);
+        }
     }
 
     /**
@@ -259,6 +295,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void hideGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.GONE);
         gpsStatusTextView.setVisibility(View.GONE);
+        satellitesTextView.setVisibility(View.GONE);
     }
 
     /**

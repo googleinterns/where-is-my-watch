@@ -49,6 +49,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
+    private Intent adbIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +96,10 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
         //Start the service
         startAndBindGpsDataCaptureService();
+
+        //get the called intent
+        adbIntent = this.getIntent();
+        Log.d(TAG, adbIntent.toString());
 
         //start and bind service on start button clicked and start capture once the service is
         // connected
@@ -201,6 +207,29 @@ public class WearGpsMainActivity extends AppCompatActivity implements
             //get the gpsDataCaptureService
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
+
+            //start capture via intent
+            if(adbIntent != null) {
+                //Extra the location api type
+                if(adbIntent.getExtras() != null){
+                    Log.d(TAG, "Intent extra is " + adbIntent.getExtras().toString());
+                    boolean type_from_intent = adbIntent.getBooleanExtra("fused_location_type", false);
+                    Log.d(TAG, "fused_location_type: " + type_from_intent);
+                    if(type_from_intent){
+                        locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+                    }
+                    Log.d(TAG, "LocationApiType: " + locationApiType);
+                }
+                //Start capture if the action is START_CAPTURE
+                if (adbIntent.getAction() != null) {
+                    Log.d(TAG, "Intent action: " + adbIntent.getAction());
+                    if (adbIntent.getAction().equals(
+                            "com.google.gpsdatacapturer.START_CAPTURE")) {
+                        Log.d(TAG, "Start capture via intent");
+                        gpsDataCaptureService.startCapture(locationApiType);
+                    }
+                }
+            }
         }
 
         @Override
