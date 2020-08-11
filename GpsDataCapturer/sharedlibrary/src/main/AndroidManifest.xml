@@ -19,8 +19,7 @@
             android:exported="true"
             android:enabled="true">
             <intent-filter>
-                <action android:name="com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE"/>
-                <action android:name="com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE"/>
+                <action android:name="com.google.gpsdatacapturer.STOP_CAPTURE"/>
             </intent-filter>
         </service>
 
