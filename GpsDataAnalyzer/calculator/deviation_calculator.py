@@ -43,6 +43,8 @@ class DataSetDeviationCalculator:
         data_set_2: GpsDataSet
         starting_time_1: Datetime, offset included start time for 1st set
         starting_time_2: Datetime, offset included start time for 2nd set
+        ending_time_1: Datetime, offset included end time for 1st set
+        ending_time_2: Datetime, offset included end time for 2nd set
         offset_mapping_1: Dictionary, {DateTime: [GpsData, ], ...}
         offset_mapping_2: Dictionary, {DateTime: [GpsData, ], ...}
         deviations_dataframe: Pandas Dataframe that holds values after calculation
@@ -148,8 +150,7 @@ class DataSetDeviationCalculator:
         total_seconds = int((end_time-start_time).total_seconds())
 
         for timestamp in [start_time + timedelta(seconds=x) for x in range(total_seconds)]:
-            total_timestamps += 1
             if timestamp in self.offset_mapping_1 and timestamp in self.offset_mapping_2:
                 available_timestamps += 1
 
-        return round(available_timestamps / total_timestamps, 4)*100
+        return round(available_timestamps / total_seconds, 4)*100
