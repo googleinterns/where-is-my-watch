@@ -15,10 +15,10 @@ public class GpxFileFolder {
      * @return return the folder if not created
      */
     public static File createGpsDataFolder(Context context) {
-        File gpxDataFolder = context.getExternalFilesDir(
-                Environment.getExternalStorageDirectory().getAbsolutePath());
+        File gpxDataFolder = new File(context.getExternalFilesDir(
+                Environment.getExternalStorageDirectory().getAbsolutePath()) + File.separator + "GpxDataFolder");
         try {
-//            assert gpxDataFolder != null;
+            assert gpxDataFolder != null;
             if (!gpxDataFolder.exists()) {
                 gpxDataFolder.mkdir();
             }

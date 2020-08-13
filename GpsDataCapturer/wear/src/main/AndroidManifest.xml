@@ -34,8 +34,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--declare the service to be used-->
-        <service android:name="com.google.sharedlibrary.service.GpsDataCaptureService" />
     </application>
 
 </manifest>

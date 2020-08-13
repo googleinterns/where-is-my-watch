@@ -32,6 +32,7 @@ public class Utils {
         ActivityCompat.requestPermissions(activity,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_EXTERNAL_STORAGE},
                 PERMISSION_REQUEST_CODE);
@@ -43,6 +44,7 @@ public class Utils {
     public static boolean hasUserGrantedNecessaryPermissions(Context context) {
         return hasUserGrantedPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                 && hasUserGrantedPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                && hasUserGrantedPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 && hasUserGrantedPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 && hasUserGrantedPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
