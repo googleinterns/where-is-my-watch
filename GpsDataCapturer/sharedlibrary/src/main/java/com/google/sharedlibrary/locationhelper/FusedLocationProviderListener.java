@@ -12,7 +12,7 @@ import com.google.sharedlibrary.service.GpsDataCaptureService;
  * This class extends LocationCallback and implements GpsStatus.Listener and help handle location
  * and Gps status updates via FusedLocationProviderClient API
  */
-public class FusedLocationProviderListener extends LocationCallback implements GpsStatus.Listener {
+public class FusedLocationProviderListener extends LocationCallback {
     private GpsDataCaptureService gpsDataCaptureService;
 
     public FusedLocationProviderListener(GpsDataCaptureService gpsDataCaptureService) {
@@ -34,8 +34,8 @@ public class FusedLocationProviderListener extends LocationCallback implements G
     public void onLocationAvailability(LocationAvailability var1) {
     }
 
-    @Override
-    public void onGpsStatusChanged(int event) {
-        gpsDataCaptureService.onGpsStatusChanged(event, -1);
-    }
+//    @Override
+//    public void onGpsStatusChanged(int event) {
+//        gpsDataCaptureService.onGpsStatusChanged(event, -1);
+//    }
 }

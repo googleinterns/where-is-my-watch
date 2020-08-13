@@ -11,29 +11,20 @@ import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
 import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.sharedlibrary.R;
 import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
@@ -54,23 +45,22 @@ import java.util.TimeZone;
 public class GpsDataCaptureService extends IntentService {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
+
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationManager locationManager;
     private LocationManagerListener locationManagerListener;
     private FusedLocationProviderListener fusedLocationProviderListener;
+    private LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
 
     private File gpxFileFolder;
-
     protected File gpxFile;
-
     private GpxFileWriter gpxFileWriter;
 
     private GpsInfoViewModel gpsInfoViewModel;
 
     private SimpleDateFormat sdf;
 
-    private BroadcastReceiver serviceBroadcastReceiver;
-    private IntentFilter intentFilter;
+    private float averageOfTop4Signal;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -105,15 +95,15 @@ public class GpsDataCaptureService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
             Log.d(TAG, "On handle intent");
-
-            //Extra the location api type
-            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
-            Log.d(TAG, "type_from_intent: " + type_from_intent);
-            LocationApiType type = LocationApiType.LOCATIONMANAGER;
-            if (type_from_intent) {
-                type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
-            }
-            Log.d(TAG, "LocationApiType: " + type);
+//
+//            //Extra the location api type
+//            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
+//            Log.d(TAG, "type_from_intent: " + type_from_intent);
+//            LocationApiType type = LocationApiType.LOCATIONMANAGER;
+//            if (type_from_intent) {
+//                type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+//            }
+//            Log.d(TAG, "LocationApiType: " + type);
 
             if (intent.getAction() != null) {
                 if (intent.getAction().equals(
@@ -121,9 +111,8 @@ public class GpsDataCaptureService extends IntentService {
                     Log.d(TAG, "Intent action: com.google.gpsdatacapturer.STOP_CAPTURE");
 
                     Handler mHandler = new Handler(getMainLooper());
-                    LocationApiType finalType = type;
                     mHandler.post(() -> {
-                        stopCapture(finalType);
+                        stopCapture();
                         Log.d(TAG, "Stopped capture via intent");
                     });
                 }
@@ -178,10 +167,8 @@ public class GpsDataCaptureService extends IntentService {
 
     /**
      * Start capturing data from GPS via the chosen location api
-     *
-     * @param locationApiType the chosen location api
      */
-    public void startCapture(LocationApiType locationApiType) {
+    public void startCapture() {
         //create a new file
         gpxFile = createGpxFile(gpxFileFolder, createFileName());
 
@@ -220,7 +207,10 @@ public class GpsDataCaptureService extends IntentService {
 
         //write gps data to file
         try {
-            gpxFileWriter.writeGpsData(location);
+            if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+                averageOfTop4Signal = 0.0f;
+            }
+            gpxFileWriter.writeGpsData(location, averageOfTop4Signal);
         } catch (Exception e) {
             Log.e(TAG, "GpxFileWriter could not write data.", e);
         }
@@ -241,10 +231,8 @@ public class GpsDataCaptureService extends IntentService {
 
     /**
      * Stop capturing data from GPS via the chosen location api
-     *
-     * @param locationApiType the chosen location api
      */
-    public void stopCapture(LocationApiType locationApiType) {
+    public void stopCapture() {
 
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             stopFusedLocationProviderClient(fusedLocationProviderClient,
@@ -261,6 +249,7 @@ public class GpsDataCaptureService extends IntentService {
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;
         gpxFile = null;
+        locationApiType = LocationApiType.LOCATIONMANAGER;
     }
 
     /**
@@ -269,5 +258,19 @@ public class GpsDataCaptureService extends IntentService {
      */
     public LocationManager getLocationManager(){
         return this.locationManager;
+    }
+
+    /**
+     * Set the average top 4 signal strength from satellites
+     */
+    public void setAverageOfTop4Signal(float signal){
+        this.averageOfTop4Signal = signal;
+    }
+
+    /**
+     * Set the locationApiType
+     */
+    public void setLocationApiType(LocationApiType locationApiType){
+        this.locationApiType = locationApiType;
     }
 }

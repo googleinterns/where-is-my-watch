@@ -181,7 +181,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
         Log.d(TAG, "Start capture data.");
         gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
-        gpsDataCaptureService.startCapture(locationApiType);
+        gpsDataCaptureService.setLocationApiType(locationApiType);
+        gpsDataCaptureService.startCapture();
     }
 
     /**
@@ -193,7 +194,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         }
 
         Log.d(TAG, "Stop capture data.");
-        gpsDataCaptureService.stopCapture(locationApiType);
+        gpsDataCaptureService.stopCapture();
         gpsCaptureStopped = true;
     }
 
@@ -219,6 +220,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                         locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
                     }
                     Log.d(TAG, "LocationApiType: " + locationApiType);
+                    gpsDataCaptureService.setLocationApiType(locationApiType);
                 }
                 //Start capture if the action is START_CAPTURE
                 if (adbIntent.getAction() != null) {
@@ -226,7 +228,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     if (adbIntent.getAction().equals(
                             "com.google.gpsdatacapturer.START_CAPTURE")) {
                         Log.d(TAG, "Start capture via intent");
-                        gpsDataCaptureService.startCapture(locationApiType);
+                        gpsDataCaptureService.startCapture();
                     }
                 }
             }
@@ -284,6 +286,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         satellitesTextView.setVisibility(View.VISIBLE);
 
         if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+            Log.d(TAG, "GPS Status not available via FusedLocationProvider");
             gpsStatusTextView.setText(R.string.gps_status_not_available);
             satellitesTextView.setText(R.string.satellites_not_available);
         }

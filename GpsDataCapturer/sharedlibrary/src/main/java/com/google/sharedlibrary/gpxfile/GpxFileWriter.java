@@ -40,13 +40,13 @@ public class GpxFileWriter {
      * @param location the updated location
      * @throws Exception
      */
-    public void writeGpsData(Location location) throws Exception {
+    public void writeGpsData(Location location, float averageTop4Signal) throws Exception {
         long time = location.getTime();
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
 
-        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location,
+        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location, averageTop4Signal,
                 append);
         EXECUTOR.execute(writeHandler);
     }
