@@ -55,7 +55,6 @@ def find_lineup(set1, set2):
     range_start = utils.round_time(max(set1_start_time, set2_start_time)) - timedelta(seconds=span_length)
     range_end = utils.round_time(min(set1_end_time, set2_end_time))
 
-    # TODO(ameles): determine if 50 is just a good number or it should be tied to offset size
     range_optimization_size = offset_range_length
 
     best_range_start = find_best_data_range(primary_time_points_mapping,
@@ -63,7 +62,7 @@ def find_lineup(set1, set2):
                                             range_optimization_size,
                                             range_start,
                                             range_end)
-
+    
     # find best offset starting at the middle of range with most valid points
     range_middle = best_range_start + timedelta(seconds=range_optimization_size//2)
 
@@ -213,20 +212,23 @@ def find_best_data_range(primary_time_points_mapping, secondary_time_points_mapp
         range_optimization_size that has the most number of overlapping points
         between the primary and secondary sets.
     """
+    # set for which of the range_optimization_size most recent timestamps overlap
+    overlapping_timestamps = set()
 
-    # count how many are skipped (not overlapping) in first 50  (offset_range_length) points
+    # count skipped (not overlapping) points out of first 50 (range_optimization_size)
     previous_range_skip_count = 0
     for i in range(range_optimization_size):
         time = range_start + timedelta(seconds=i)
         if time not in primary_time_points_mapping or time not in secondary_time_points_mapping:
             previous_range_skip_count += 1
+        else:
+            overlapping_timestamps.add(time)
 
     best_range_start = range_start
     lowest_skip_count = range_optimization_size
 
     total_seconds = int((range_end-range_start).total_seconds())
 
-    # TODO(ameles): optimize loop so there are not 2n calls to check mappings
     # check for the rest of the ranges how many skipped entries there are
     for start_time in [range_start + timedelta(seconds=x) for x in range(1,total_seconds)]:
         current_range_skip_count = 0
@@ -237,9 +239,14 @@ def find_best_data_range(primary_time_points_mapping, secondary_time_points_mapp
         end_time = start_time + timedelta(seconds=range_optimization_size-1)  # point at end of current range that was just added
         if end_time not in primary_time_points_mapping or end_time not in secondary_time_points_mapping:
             current_range_skip_count += 1
+        else:
+            overlapping_timestamps.add(end_time)
 
         previous_start = start_time + timedelta(seconds=-1)  # point that was just edged out
-        if previous_start not in primary_time_points_mapping or previous_start not in secondary_time_points_mapping:
+        if previous_start in overlapping_timestamps:
+            # remove from set to keep set size of max range_optimization_size
+            overlapping_timestamps.remove(previous_start)
+        else:
             current_range_skip_count -= 1
 
         if current_range_skip_count <= lowest_skip_count:
@@ -250,6 +257,7 @@ def find_best_data_range(primary_time_points_mapping, secondary_time_points_mapp
         previous_range_skip_count = current_range_skip_count
 
     return best_range_start
+
 
 def create_time_to_points_mapping(dataset, offset=0):
     """

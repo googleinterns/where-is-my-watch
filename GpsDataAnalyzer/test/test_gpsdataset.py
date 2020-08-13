@@ -13,7 +13,7 @@ class GpsDataSetTest(unittest.TestCase):
         self.gps_meta_data = GpsMetaData(device='sampleDevice',
                                                          identifier='sampleId',
                                                          manufacturer='sampleManufacturer',
-                                                         model='samplModel',
+                                                         model='sampleModel',
                                                          start_time=datetime(2020,7,7,18,45,47,5000,tzinfo=timezone.utc),
                                                          end_time=datetime(2020,7,7,19,8,1,318000,tzinfo=timezone.utc))
         self.gpsdata1 = GpsData(63.17964, -174.12954, 4.91, 0.0, datetime.strptime('2020-07-07T18:46:36.000', "%Y-%m-%dT%H:%M:%S.%f"))

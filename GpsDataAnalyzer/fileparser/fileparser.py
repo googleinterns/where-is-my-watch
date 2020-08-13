@@ -257,10 +257,14 @@ class FileParser:
         latitude = float(simulation["metadata"]["latitude"])
         longitude = float(simulation["metadata"]["longitude"])
         altitude = 0.0
-        time_stamp = self.parse_time(simulation["metadata"]["start_time"])
         speed = 0.0
-        new_point = GpsData(latitude, longitude, altitude, speed, time_stamp)
-        return [new_point]
+        start_time = self.parse_time(simulation["metadata"]["start_time"])
+        end_time = self.parse_time(simulation["metadata"]["end_time"])
+        total_seconds = int((end_time-start_time).total_seconds())
+        gps_data_list = []
+        for timestamp in [start_time + timedelta(seconds=x) for x in range(total_seconds)]:
+            gps_data_list.append(GpsData(latitude, longitude, altitude, speed, timestamp))
+        return gps_data_list
 
     def get_dynamic_simulation_data(self, simulation):
         """
