@@ -46,6 +46,16 @@ def main(args):
     my_visualizer = visualizer.Visualizer()
 
     for dataset_pair in dataset_combinations:
+
+        device_1 = dataset_pair[0].gps_meta_data.device
+        device_2 = dataset_pair[1].gps_meta_data.device
+
+        # Move to next dataset pair if one or both datasets are empty
+        if not dataset_pair[0].gps_data_list or not dataset_pair[1].gps_data_list:
+            empty_datasets = [dataset.gps_meta_data.device for dataset in dataset_pair if not dataset.gps_data_list]
+            LOGGER.debug('Gps Data List is empty for %s, cannot calculate deviations' % empty_datasets)
+            continue
+
         # Calculate deviation of wear gpsdataset with compared gpsdataset
         LOGGER.debug('Create calculator')
         calculator = deviation_calculator.DataSetDeviationCalculator(*dataset_pair)
@@ -57,8 +67,7 @@ def main(args):
 
         # Do not create visualizations for pairs that do not align
         if availability == 0:
-            LOGGER.debug('%s and %s do not align.' % (dataset_pair[0].gps_meta_data.device,
-                                                      dataset_pair[1].gps_meta_data.device))
+            LOGGER.debug('%s and %s do not align.' % (device_1, device_2))
             continue
 
         classified_deviation_df = my_visualizer.classify_deviation(deviation_dataframe)
@@ -69,8 +78,7 @@ def main(args):
         #draw the graphs and save as png files
         LOGGER.debug('Start drawing graphs...')
         
-        dataset_title = "%s_vs_%s_" % (dataset_pair[0].gps_meta_data.device,
-                                        dataset_pair[1].gps_meta_data.device)
+        dataset_title = "%s_vs_%s_" % (device_1, device_2) 
         my_visualizer.draw_hist_graph(classified_deviation_df['Confidence'], 'Count', 'Confidence',  dataset_title + 'Distance', availability)
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Deviations'], 'Deviations (Meters)', dataset_title + 'Distance')
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Altitude Differentials'], 'Deviations (Meters)', dataset_title + 'Altitude')

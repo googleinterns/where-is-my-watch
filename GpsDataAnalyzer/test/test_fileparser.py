@@ -65,12 +65,22 @@ class FileParserTest(unittest.TestCase):
                                                          manufacturer=None,
                                                          model=None,
                                                          start_time=datetime(2020, 7, 22, 15, 49, 34, 60437, tzinfo=timezone.utc),
-                                                         end_time=datetime(2020, 7, 22, 15, 49, 47, 631769, tzinfo=timezone.utc)),
+                                                         end_time=datetime(2020, 7, 22, 15, 49, 37, 631769, tzinfo=timezone.utc)),
                                         gps_data_list=[GpsData(latitude= 63.18,
                                                             longitude= -174.13,
                                                             altitude= 0.0,
                                                             speed= 0.0,
-                                                            time=datetime(2020, 7, 22, 15, 49, 34, 60437, tzinfo=timezone.utc))])
+                                                            time=datetime(2020, 7, 22, 15, 49, 34, 60437, tzinfo=timezone.utc)),
+                                                    GpsData(latitude= 63.18,
+                                                            longitude= -174.13,
+                                                            altitude= 0.0,
+                                                            speed= 0.0,
+                                                            time=datetime(2020, 7, 22, 15, 49, 35, 60437, tzinfo=timezone.utc)),
+                                                    GpsData(latitude= 63.18,
+                                                            longitude= -174.13,
+                                                            altitude= 0.0,
+                                                            speed= 0.0,
+                                                            time=datetime(2020, 7, 22, 15, 49, 36, 60437, tzinfo=timezone.utc))])
 
     def test_get_file_type(self):
         xml_file_type = self.fileparser._get_file_type('testfile2.xml')
