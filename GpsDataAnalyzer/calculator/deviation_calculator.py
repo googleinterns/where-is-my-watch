@@ -43,6 +43,8 @@ class DataSetDeviationCalculator:
         data_set_2: GpsDataSet
         starting_time_1: Datetime, offset included start time for 1st set
         starting_time_2: Datetime, offset included start time for 2nd set
+        ending_time_1: Datetime, offset included end time for 1st set
+        ending_time_2: Datetime, offset included end time for 2nd set
         offset_mapping_1: Dictionary, {DateTime: [GpsData, ], ...}
         offset_mapping_2: Dictionary, {DateTime: [GpsData, ], ...}
         deviations_dataframe: Pandas Dataframe that holds values after calculation
@@ -52,20 +54,12 @@ class DataSetDeviationCalculator:
         self.data_set_2 = data_set_2
         self.starting_time_1 = None
         self.starting_time_2 = None
+        self.ending_time_1 = None
+        self.ending_time_2 = None
         self.offset_mapping_1= {}
         self.offset_mapping_2 = {}
         self.deviations_dataframe = None
-
-        # comparing both algorithms for deciding offset, will delete this one post-testing
-        start = time.perf_counter()
-        print("Unoptimized lineup implementation:")
-        self.starting_time_1, self.starting_time_2 = alignment_algorithms.find_lineup_no_optimization(self.data_set_1,
-                                                                                                      self.data_set_2)
-        end = time.perf_counter()
-        print(f"Lined up data in {end - start:0.4f} seconds")
-        print("start time 1: " + str(self.starting_time_1))
-        print("start time 2: " + str(self.starting_time_2))
-        print("\n")
+        self.availability = None
 
         start = time.perf_counter()
         print("Optimized lineup implementation:")
@@ -77,6 +71,8 @@ class DataSetDeviationCalculator:
         print("start time 2: " + str(self.starting_time_2))
         print("\n")
 
+        self.ending_time_1 = self.data_set_1.gps_meta_data.end_time
+        self.ending_time_2 = self.data_set_2.gps_meta_data.end_time
         if not self.starting_time_1 and not self.starting_time_2:
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, 0)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, 0)
@@ -84,10 +80,12 @@ class DataSetDeviationCalculator:
             offset = (self.starting_time_1-self.starting_time_2).total_seconds()
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, 0)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, offset)
+            self.ending_time_2 = self.ending_time_2 + timedelta(seconds=offset)
         else:
             offset = (self.starting_time_2-self.starting_time_1).total_seconds()
             self.offset_mapping_1 = alignment_algorithms.create_time_to_points_mapping(self.data_set_1, offset)
             self.offset_mapping_2 = alignment_algorithms.create_time_to_points_mapping(self.data_set_2, 0)
+            self.ending_time_1 = self.ending_time_1 + timedelta(seconds=offset)
 
     def get_deviation_dataframe(self):
         """
@@ -100,6 +98,7 @@ class DataSetDeviationCalculator:
         """
         if self.deviations_dataframe is not None: 
             return self.deviations_dataframe
+
         time_list, deviation_list, speed_differentials, altitude_differentials = [], [], [], []
         set1_time_list, set2_time_list = [], []
 
@@ -139,7 +138,19 @@ class DataSetDeviationCalculator:
         Returns:
             Percentile of wear captured gps data by compared gpsdataset
         """
-        gps_data_count1 = len(self.data_set_1.gps_data_list)
-        gps_data_count2 = len(self.data_set_2.gps_data_list)
+        if self.availability:
+            return self.availability
+        if not self.starting_time_1 and not self.starting_time_2:
+            return 0
+        total_timestamps = 0
+        available_timestamps = 0
 
-        return round(gps_data_count1 / gps_data_count2, 4)*100
+        start_time = utils.round_time(max(self.starting_time_1, self.starting_time_2))
+        end_time = utils.round_time(min(self.ending_time_1, self.ending_time_2))
+        total_seconds = int((end_time-start_time).total_seconds())
+
+        for timestamp in [start_time + timedelta(seconds=x) for x in range(total_seconds)]:
+            if timestamp in self.offset_mapping_1 and timestamp in self.offset_mapping_2:
+                available_timestamps += 1
+
+        return round(available_timestamps / total_seconds, 4)*100
