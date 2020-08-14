@@ -14,6 +14,8 @@ import android.app.IntentService;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -32,6 +34,7 @@ import com.google.sharedlibrary.model.GpsInfoViewModel;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.PriorityQueue;
 import java.util.TimeZone;
 
 /**
@@ -65,7 +68,6 @@ public class GpsDataCaptureService extends IntentService {
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      * <p>
-     * //     * @param name Used to name the worker thread, important only for debugging.
      */
     public GpsDataCaptureService() {
         super(TAG);
@@ -95,15 +97,6 @@ public class GpsDataCaptureService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
             Log.d(TAG, "On handle intent");
-//
-//            //Extra the location api type
-//            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
-//            Log.d(TAG, "type_from_intent: " + type_from_intent);
-//            LocationApiType type = LocationApiType.LOCATIONMANAGER;
-//            if (type_from_intent) {
-//                type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
-//            }
-//            Log.d(TAG, "LocationApiType: " + type);
 
             if (intent.getAction() != null) {
                 if (intent.getAction().equals(
@@ -188,10 +181,6 @@ public class GpsDataCaptureService extends IntentService {
         }
     }
 
-    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel) {
-        this.gpsInfoViewModel = gpsInfoViewModel;
-    }
-
     /**
      * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
      * gps data to file
@@ -221,11 +210,56 @@ public class GpsDataCaptureService extends IntentService {
      *
      * @param event the event returned by GpsStatus Listener's callback function
      */
-    public void onGpsStatusChanged(int event, int satellites) {
-        //set gps status in the view model
+    public void onGpsStatusChanged(int event) {
+        int satellitesUsedInFix = 0;
+        if (event == GpsStatus.GPS_EVENT_SATELLITE_STATUS) {
+            //Get Gps Status
+            @SuppressLint("MissingPermission")
+            GpsStatus status = locationManager.getGpsStatus(null);
+
+            assert status != null;
+            Iterable<GpsSatellite> satellites = status.getSatellites();
+            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<Float>((a, b) -> Float.compare(b, a));
+
+            int satellitesVisible = 0;
+            float averageSignalStrength = 0;
+
+            //Get the satellites visible, satellites used in fix and the signal to noise ratio for the satellite.
+            for(GpsSatellite sat: satellites){
+                if(sat.usedInFix()){
+                    satellitesUsedInFix++;
+                    float signalStrength = sat.getSnr();
+                    averageSignalStrength += signalStrength;
+
+                    if(signalPriorityQueue.size() > 4){
+                        signalPriorityQueue.poll();
+                    }
+                    signalPriorityQueue.add(signalStrength);
+                }
+                satellitesVisible++;
+            }
+
+            //Calculate the average of signal strength and top 4 strongest signal strength
+            if(satellitesUsedInFix != 0){
+                averageSignalStrength /= satellitesUsedInFix;
+
+                int size = signalPriorityQueue.size();
+                while(!signalPriorityQueue.isEmpty()){
+                    averageOfTop4Signal += signalPriorityQueue.poll();
+                }
+                averageOfTop4Signal /= size;
+            }
+
+            Log.d(TAG, "Satellites visible: " + satellitesVisible);
+            Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
+            Log.d(TAG, "Average of satellites used in fix signal strength: " + averageSignalStrength);
+            Log.d(TAG, "Average of top 4 strongest signal strength: " + averageOfTop4Signal);
+        }
+
+        //set gps status and satellites in the view model
         if (gpsInfoViewModel != null) {
             gpsInfoViewModel.setGpsStatusMutableLiveData(event);
-            gpsInfoViewModel.setSatellitesUsedInFix(satellites);
+            gpsInfoViewModel.setSatellitesUsedInFix(satellitesUsedInFix);
         }
     }
 
@@ -233,7 +267,6 @@ public class GpsDataCaptureService extends IntentService {
      * Stop capturing data from GPS via the chosen location api
      */
     public void stopCapture() {
-
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             stopFusedLocationProviderClient(fusedLocationProviderClient,
                     fusedLocationProviderListener);
@@ -241,6 +274,7 @@ public class GpsDataCaptureService extends IntentService {
         } else {
             stopLocationManager(locationManager, locationManagerListener);
         }
+
         //write the file footer
         if (gpxFileWriter != null) {
             gpxFileWriter.writeFileAnnotation(false);
@@ -253,24 +287,16 @@ public class GpsDataCaptureService extends IntentService {
     }
 
     /**
-     * Get the location manager
-     * @return the location manager
-     */
-    public LocationManager getLocationManager(){
-        return this.locationManager;
-    }
-
-    /**
-     * Set the average top 4 signal strength from satellites
-     */
-    public void setAverageOfTop4Signal(float signal){
-        this.averageOfTop4Signal = signal;
-    }
-
-    /**
      * Set the locationApiType
      */
     public void setLocationApiType(LocationApiType locationApiType){
         this.locationApiType = locationApiType;
+    }
+
+    /**
+     * Set the gpsInfoViewModel
+     */
+    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel) {
+        this.gpsInfoViewModel = gpsInfoViewModel;
     }
 }

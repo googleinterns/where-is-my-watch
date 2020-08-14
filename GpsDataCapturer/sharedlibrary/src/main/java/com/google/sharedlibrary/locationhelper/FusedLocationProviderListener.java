@@ -33,9 +33,4 @@ public class FusedLocationProviderListener extends LocationCallback {
     @Override
     public void onLocationAvailability(LocationAvailability var1) {
     }
-
-//    @Override
-//    public void onGpsStatusChanged(int event) {
-//        gpsDataCaptureService.onGpsStatusChanged(event, -1);
-//    }
 }

@@ -30,11 +30,12 @@ import com.google.sharedlibrary.utils.Utils;
 import com.google.sharedlibrary.utils.Utils.ButtonState;
 import com.google.sharedlibrary.utils.Utils.LocationApiType;
 
+import java.util.Objects;
+
 public class WearGpsMainActivity extends AppCompatActivity implements
         AmbientModeSupport.AmbientCallbackProvider {
     private static final String TAG = "WearGpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
-    private static Intent serviceIntent;
     private LocationManager locationManager;
     private static boolean isBound = false;
 
@@ -49,14 +50,14 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
-    private Intent adbIntent;
+    private Intent launchIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Hide the action bar
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         //Binding the layout with view model
         ActivityWearGpsMainBinding binding = DataBindingUtil.setContentView(this,
@@ -98,8 +99,8 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         startAndBindGpsDataCaptureService();
 
         //get the called intent
-        adbIntent = this.getIntent();
-        Log.d(TAG, adbIntent.toString());
+        launchIntent = this.getIntent();
+        Log.d(TAG, launchIntent.toString());
 
         //start and bind service on start button clicked and start capture once the service is
         // connected
@@ -160,7 +161,6 @@ public class WearGpsMainActivity extends AppCompatActivity implements
      * Set GPS if it's not enabled
      */
     private void setGpsEnabled() {
-        //Todo pop out a dialog to accept/deny enable setting??
         Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         startActivity(settingsIntent);
     }
@@ -210,11 +210,11 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
 
             //start capture via intent
-            if(adbIntent != null) {
+            if(launchIntent != null) {
                 //Extra the location api type
-                if(adbIntent.getExtras() != null){
-                    Log.d(TAG, "Intent extra is " + adbIntent.getExtras().toString());
-                    boolean type_from_intent = adbIntent.getBooleanExtra("fused_location_type", false);
+                if(launchIntent.getExtras() != null){
+                    Log.d(TAG, "Intent extra is " + launchIntent.getExtras().toString());
+                    boolean type_from_intent = launchIntent.getBooleanExtra("fused_location_type", false);
                     Log.d(TAG, "fused_location_type: " + type_from_intent);
                     if(type_from_intent){
                         locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
@@ -222,10 +222,11 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     Log.d(TAG, "LocationApiType: " + locationApiType);
                     gpsDataCaptureService.setLocationApiType(locationApiType);
                 }
+
                 //Start capture if the action is START_CAPTURE
-                if (adbIntent.getAction() != null) {
-                    Log.d(TAG, "Intent action: " + adbIntent.getAction());
-                    if (adbIntent.getAction().equals(
+                if (launchIntent.getAction() != null) {
+                    Log.d(TAG, "Intent action: " + launchIntent.getAction());
+                    if (launchIntent.getAction().equals(
                             "com.google.gpsdatacapturer.START_CAPTURE")) {
                         Log.d(TAG, "Start capture via intent");
                         gpsDataCaptureService.startCapture();
@@ -245,7 +246,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
      * Bind the activity to GpsDataCaptureService
      */
     private void startAndBindGpsDataCaptureService() {
-        serviceIntent = new Intent(this, GpsDataCaptureService.class);
+        Intent serviceIntent = new Intent(this, GpsDataCaptureService.class);
         //start GpsDataCaptureService
         try {
             Log.d(TAG, "Start Service");
