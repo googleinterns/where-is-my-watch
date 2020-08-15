@@ -45,7 +45,7 @@ import java.util.TimeZone;
  * @author lynnzl
  * @date 2020-06-30
  */
-public class GpsDataCaptureService extends IntentService {
+public class GpsDataCaptureService extends Service {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
 
@@ -65,14 +65,14 @@ public class GpsDataCaptureService extends IntentService {
 
     private float averageOfTop4Signal;
 
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     * <p>
-     */
-    public GpsDataCaptureService() {
-        super(TAG);
-        Log.d(TAG, "Creates the GpsDataCapture IntentService");
-    }
+//    /**
+//     * Creates an IntentService.  Invoked by your subclass's constructor.
+//     * <p>
+//     */
+//    public GpsDataCaptureService() {
+//        super(TAG);
+//        Log.d(TAG, "Creates the GpsDataCapture IntentService");
+//    }
 
     @Nullable
     @Override
@@ -93,25 +93,25 @@ public class GpsDataCaptureService extends IntentService {
      *               Service#onStartCommand} for details.
      */
 
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent != null) {
-            Log.d(TAG, "On handle intent");
-
-            if (intent.getAction() != null) {
-                if (intent.getAction().equals(
-                        "com.google.gpsdatacapturer.STOP_CAPTURE")) {
-                    Log.d(TAG, "Intent action: com.google.gpsdatacapturer.STOP_CAPTURE");
-
-                    Handler mHandler = new Handler(getMainLooper());
-                    mHandler.post(() -> {
-                        stopCapture();
-                        Log.d(TAG, "Stopped capture via intent");
-                    });
-                }
-            }
-        }
-    }
+//    @Override
+//    protected void onHandleIntent(@Nullable Intent intent) {
+//        if (intent != null) {
+//            Log.d(TAG, "On handle intent");
+//
+//            if (intent.getAction() != null) {
+//                if (intent.getAction().equals(
+//                        "com.google.gpsdatacapturer.STOP_CAPTURE")) {
+//                    Log.d(TAG, "Intent action: com.google.gpsdatacapturer.STOP_CAPTURE");
+//
+//                    Handler mHandler = new Handler(getMainLooper());
+//                    mHandler.post(() -> {
+//                        stopCapture();
+//                        Log.d(TAG, "Stopped capture via intent");
+//                    });
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void onCreate() {
@@ -135,6 +135,11 @@ public class GpsDataCaptureService extends IntentService {
         sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 this.getResources().getConfiguration().locale);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
+        return START_STICKY;
     }
 
     @Override

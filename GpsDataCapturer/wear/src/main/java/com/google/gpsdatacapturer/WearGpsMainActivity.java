@@ -55,6 +55,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "On Create");
 
         //Hide the action bar
         Objects.requireNonNull(getSupportActionBar()).hide();
@@ -95,12 +96,12 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                     : LocationApiType.LOCATIONMANAGER;
         });
 
-        //Start the service
-        startAndBindGpsDataCaptureService();
-
-        //get the called intent
+        //get the launch intent
         launchIntent = this.getIntent();
         Log.d(TAG, launchIntent.toString());
+
+        //Start the service
+        startAndBindGpsDataCaptureService();
 
         //start and bind service on start button clicked and start capture once the service is
         // connected
@@ -125,11 +126,30 @@ public class WearGpsMainActivity extends AppCompatActivity implements
                 switchToStartButton();
             }
         });
+
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if(intent.getAction() != null) {
+            Log.d(TAG, "Intent action: " + intent.getAction());
+            //Stop capture if it's stop intent
+            if (intent.getAction().equals(
+                    "com.google.gpsdatacapturer.STOP_CAPTURE")) {
+                Log.d(TAG, "Stop capture via intent onNewIntent");
+                gpsDataCaptureService.stopCapture();
+            }else {
+                Utils.startCaptureViaIntent(gpsDataCaptureService, intent, locationApiType);
+                Log.d(TAG, "Start capture onNewIntent");
+            }
+        }
+    }
+    @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "on Start");
     }
 
     @Override
@@ -209,29 +229,10 @@ public class WearGpsMainActivity extends AppCompatActivity implements
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
 
-            //start capture via intent
             if(launchIntent != null) {
-                //Extra the location api type
-                if(launchIntent.getExtras() != null){
-                    Log.d(TAG, "Intent extra is " + launchIntent.getExtras().toString());
-                    boolean type_from_intent = launchIntent.getBooleanExtra("fused_location_type", false);
-                    Log.d(TAG, "fused_location_type: " + type_from_intent);
-                    if(type_from_intent){
-                        locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
-                    }
-                    Log.d(TAG, "LocationApiType: " + locationApiType);
-                    gpsDataCaptureService.setLocationApiType(locationApiType);
-                }
-
-                //Start capture if the action is START_CAPTURE
-                if (launchIntent.getAction() != null) {
-                    Log.d(TAG, "Intent action: " + launchIntent.getAction());
-                    if (launchIntent.getAction().equals(
-                            "com.google.gpsdatacapturer.START_CAPTURE")) {
-                        Log.d(TAG, "Start capture via intent");
-                        gpsDataCaptureService.startCapture();
-                    }
-                }
+                //start capture via launch intent
+                Utils.startCaptureViaIntent(gpsDataCaptureService, launchIntent, locationApiType);
+                Log.d(TAG, "Start capture via launch intent onServiceConnected");
             }
         }
 

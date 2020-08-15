@@ -3,6 +3,7 @@ package com.google.sharedlibrary.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+
+import com.google.sharedlibrary.service.GpsDataCaptureService;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -94,5 +97,30 @@ public class Utils {
      */
     public static boolean isGpsEnabled(LocationManager locationManager) {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
+     * Start capture via intent
+     */
+    public static void startCaptureViaIntent(GpsDataCaptureService gpsDataCaptureService, Intent intent, LocationApiType locationApiType){
+        //Extra the location api type
+        if(intent.getExtras() != null){
+            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
+            Log.d(TAG, "fused_location_type: " + type_from_intent);
+            if(type_from_intent){
+                locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+            }
+            Log.d(TAG, "LocationApiType: " + locationApiType);
+
+            gpsDataCaptureService.setLocationApiType(locationApiType);
+        }
+        //Start capture via intent
+        if (intent.getAction() != null) {
+            Log.d(TAG, "Intent action: " + intent.getAction());
+            if (intent.getAction().equals(
+                    "com.google.gpsdatacapturer.START_CAPTURE")) {
+                gpsDataCaptureService.startCapture();
+            }
+        }
     }
 }
