@@ -178,7 +178,7 @@ public class MobileGpsMainActivityUnitTest {
         startAndStopButton.performClick();
 
         verify(gpsDataCaptureService).setGpsInfoViewModel(any());
-        verify(gpsDataCaptureService).startCapture(any());
+        verify(gpsDataCaptureService).startCapture();
     }
 
 
@@ -189,7 +189,7 @@ public class MobileGpsMainActivityUnitTest {
         startAndStopButton.performClick();
         startAndStopButton.performClick();
 
-        verify(gpsDataCaptureService).stopCapture(any());
+        verify(gpsDataCaptureService).stopCapture();
     }
 
     @Test

@@ -1,22 +1,12 @@
 package com.google.sharedlibrary.locationhelper;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
-import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
-
 import com.google.sharedlibrary.service.GpsDataCaptureService;
-
-import java.util.Iterator;
-import java.util.PriorityQueue;
 
 /**
  * This class implements LocationListener and GpsStatus.Listener callback functions and handle

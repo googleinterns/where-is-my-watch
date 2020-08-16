@@ -19,7 +19,7 @@ public class GpsDataUnitTest {
     public void testGetGpsDataString() {
         //Given
         String expected =
-                "GPS DATA \n" + "Lat: " + "0.0\n" + "Lon: " + "0.0\n" + "Speed: " + "0.0\n";
+                "GPS DATA \n" + "Lat: " + "0.000000\n" + "Lon: " + "0.000000\n" + "Speed: " + "0.0000\n";
         Location location = mock(Location.class);
 
         //When

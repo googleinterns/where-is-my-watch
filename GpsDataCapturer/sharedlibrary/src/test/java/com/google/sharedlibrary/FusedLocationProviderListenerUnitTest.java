@@ -69,17 +69,6 @@ public class FusedLocationProviderListenerUnitTest {
         verify(service, times(2 )).onLocationChanged(location);
     }
 
-    @Test
-    public void testOnGpsStatusChanged(){
-        flpListener.onGpsStatusChanged(1);
-
-        verify(service).onGpsStatusChanged(1);
-        verify(service, times(1)).onGpsStatusChanged(1);
-
-        flpListener.onGpsStatusChanged(1);
-        verify(service, times(2)).onGpsStatusChanged(1);
-    }
-
     @After
     public void tearDown(){
         service.onDestroy();

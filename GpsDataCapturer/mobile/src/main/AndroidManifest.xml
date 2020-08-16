@@ -9,13 +9,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.google.gpsdatacapturer.MobileGpsMainActivity">
+        <activity android:name="com.google.gpsdatacapturer.MobileGpsMainActivity"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.google.gpsdatacapturer.START_CAPTURE" />
+                <action android:name="com.google.gpsdatacapturer.STOP_CAPTURE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

@@ -10,7 +10,6 @@ import static com.google.sharedlibrary.storage.GpxFileFolder.createGpsDataFolder
 import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +18,6 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -65,53 +63,12 @@ public class GpsDataCaptureService extends Service {
 
     private float averageOfTop4Signal;
 
-//    /**
-//     * Creates an IntentService.  Invoked by your subclass's constructor.
-//     * <p>
-//     */
-//    public GpsDataCaptureService() {
-//        super(TAG);
-//        Log.d(TAG, "Creates the GpsDataCapture IntentService");
-//    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Return the binder");
         return binder;
     }
-
-    /**
-     * This method is invoked on the worker thread with a request to process. Only one Intent is
-     * processed at a time, but the processing happens on a worker thread that runs independently
-     * from other application logic. So, if this code takes a long time, it will hold up other
-     * requests to the same IntentService, but it will not hold up anything else. When all requests
-     * have been handled, the IntentService stops itself, so you should not call {@link #stopSelf}.
-     *
-     * @param intent The value passed to {@link Context#startService(Intent)}. This may be null if
-     *               the service is being restarted after its process has gone away; see {@link
-     *               Service#onStartCommand} for details.
-     */
-
-//    @Override
-//    protected void onHandleIntent(@Nullable Intent intent) {
-//        if (intent != null) {
-//            Log.d(TAG, "On handle intent");
-//
-//            if (intent.getAction() != null) {
-//                if (intent.getAction().equals(
-//                        "com.google.gpsdatacapturer.STOP_CAPTURE")) {
-//                    Log.d(TAG, "Intent action: com.google.gpsdatacapturer.STOP_CAPTURE");
-//
-//                    Handler mHandler = new Handler(getMainLooper());
-//                    mHandler.post(() -> {
-//                        stopCapture();
-//                        Log.d(TAG, "Stopped capture via intent");
-//                    });
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public void onCreate() {
@@ -138,7 +95,7 @@ public class GpsDataCaptureService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
@@ -201,7 +158,7 @@ public class GpsDataCaptureService extends Service {
 
         //write gps data to file
         try {
-            if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+            if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
                 averageOfTop4Signal = 0.0f;
             }
             gpxFileWriter.writeGpsData(location, averageOfTop4Signal);
@@ -224,19 +181,21 @@ public class GpsDataCaptureService extends Service {
 
             assert status != null;
             Iterable<GpsSatellite> satellites = status.getSatellites();
-            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<Float>((a, b) -> Float.compare(b, a));
+            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<Float>(
+                    (a, b) -> Float.compare(b, a));
 
             int satellitesVisible = 0;
             float averageSignalStrength = 0;
 
-            //Get the satellites visible, satellites used in fix and the signal to noise ratio for the satellite.
-            for(GpsSatellite sat: satellites){
-                if(sat.usedInFix()){
+            //Get the satellites visible, satellites used in fix and the signal to noise ratio
+            // for the satellite.
+            for (GpsSatellite sat : satellites) {
+                if (sat.usedInFix()) {
                     satellitesUsedInFix++;
                     float signalStrength = sat.getSnr();
                     averageSignalStrength += signalStrength;
 
-                    if(signalPriorityQueue.size() > 4){
+                    if (signalPriorityQueue.size() > 4) {
                         signalPriorityQueue.poll();
                     }
                     signalPriorityQueue.add(signalStrength);
@@ -245,11 +204,11 @@ public class GpsDataCaptureService extends Service {
             }
 
             //Calculate the average of signal strength and top 4 strongest signal strength
-            if(satellitesUsedInFix != 0){
+            if (satellitesUsedInFix != 0) {
                 averageSignalStrength /= satellitesUsedInFix;
 
                 int size = signalPriorityQueue.size();
-                while(!signalPriorityQueue.isEmpty()){
+                while (!signalPriorityQueue.isEmpty()) {
                     averageOfTop4Signal += signalPriorityQueue.poll();
                 }
                 averageOfTop4Signal /= size;
@@ -257,7 +216,8 @@ public class GpsDataCaptureService extends Service {
 
             Log.d(TAG, "Satellites visible: " + satellitesVisible);
             Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
-            Log.d(TAG, "Average of satellites used in fix signal strength: " + averageSignalStrength);
+            Log.d(TAG,
+                    "Average of satellites used in fix signal strength: " + averageSignalStrength);
             Log.d(TAG, "Average of top 4 strongest signal strength: " + averageOfTop4Signal);
         }
 
@@ -294,7 +254,7 @@ public class GpsDataCaptureService extends Service {
     /**
      * Set the locationApiType
      */
-    public void setLocationApiType(LocationApiType locationApiType){
+    public void setLocationApiType(LocationApiType locationApiType) {
         this.locationApiType = locationApiType;
     }
 

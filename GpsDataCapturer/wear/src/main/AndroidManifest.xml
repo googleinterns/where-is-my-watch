@@ -36,6 +36,7 @@
             <intent-filter>
                 <action android:name="com.google.gpsdatacapturer.START_CAPTURE" />
                 <action android:name="com.google.gpsdatacapturer.STOP_CAPTURE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

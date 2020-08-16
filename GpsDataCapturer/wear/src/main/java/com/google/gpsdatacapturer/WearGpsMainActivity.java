@@ -133,19 +133,21 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if(intent.getAction() != null) {
+        if (intent.getAction() != null) {
             Log.d(TAG, "Intent action: " + intent.getAction());
             //Stop capture if it's stop intent
             if (intent.getAction().equals(
                     "com.google.gpsdatacapturer.STOP_CAPTURE")) {
                 Log.d(TAG, "Stop capture via intent onNewIntent");
                 gpsDataCaptureService.stopCapture();
-            }else {
+            } else if (intent.getAction().equals(
+                    "com.google.gpsdatacapturer.START_CAPTURE")) {
                 Utils.startCaptureViaIntent(gpsDataCaptureService, intent, locationApiType);
                 Log.d(TAG, "Start capture onNewIntent");
             }
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -170,7 +172,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        if(!gpsCaptureStopped) {
+        if (!gpsCaptureStopped) {
             stopGpsCapture();
         }
         unbindGpsDataCaptureService();
@@ -221,7 +223,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     /**
      * Provides connection to GpsDataCaptureService
      */
-     public final ServiceConnection gpsServiceConnection = new ServiceConnection() {
+    public final ServiceConnection gpsServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Connected to GpsDataCaptureService.");
@@ -229,10 +231,15 @@ public class WearGpsMainActivity extends AppCompatActivity implements
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
 
-            if(launchIntent != null) {
+            if (launchIntent.getAction() != null) {
                 //start capture via launch intent
-                Utils.startCaptureViaIntent(gpsDataCaptureService, launchIntent, locationApiType);
-                Log.d(TAG, "Start capture via launch intent onServiceConnected");
+                try {
+                    Utils.startCaptureViaIntent(gpsDataCaptureService, launchIntent,
+                            locationApiType);
+                    Log.d(TAG, "Start capture via launch intent onServiceConnected");
+                } catch (Exception e) {
+                    Log.d(TAG, "Could not start capture via launch intent");
+                }
             }
         }
 
@@ -287,7 +294,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
         gpsStatusTextView.setVisibility(View.VISIBLE);
         satellitesTextView.setVisibility(View.VISIBLE);
 
-        if(locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT){
+        if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             Log.d(TAG, "GPS Status not available via FusedLocationProvider");
             gpsStatusTextView.setText(R.string.gps_status_not_available);
             satellitesTextView.setText(R.string.satellites_not_available);

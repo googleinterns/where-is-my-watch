@@ -46,6 +46,6 @@ public class GpxFileFolderUnitTest {
 
         //Then
         verify(context).getExternalFilesDir((String) any());
-        verify(gpxFileFolder).mkdir();
+        assertNotNull(gpxFileFolder);
     }
 }

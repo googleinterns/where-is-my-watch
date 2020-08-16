@@ -1,6 +1,5 @@
 package com.google.sharedlibrary.locationhelper;
 
-import android.location.GpsStatus;
 import android.location.Location;
 
 import com.google.android.gms.location.LocationAvailability;
@@ -18,6 +17,7 @@ public class FusedLocationProviderListener extends LocationCallback {
     public FusedLocationProviderListener(GpsDataCaptureService gpsDataCaptureService) {
         this.gpsDataCaptureService = gpsDataCaptureService;
     }
+
     @Override
     public void onLocationResult(LocationResult locationResult) {
         if (locationResult == null) {
@@ -30,6 +30,7 @@ public class FusedLocationProviderListener extends LocationCallback {
             }
         }
     }
+
     @Override
     public void onLocationAvailability(LocationAvailability var1) {
     }
