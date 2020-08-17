@@ -3,6 +3,8 @@ package com.google.sharedlibrary.gpxfile;
 import android.content.Context;
 import android.location.Location;
 
+import com.google.sharedlibrary.model.SatelliteSignalData;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -40,13 +42,13 @@ public class GpxFileWriter {
      * @param location the updated location
      * @throws Exception
      */
-    public void writeGpsData(Location location, float averageTop4Signal) throws Exception {
+    public void writeGpsData(Location location, SatelliteSignalData signalData) throws Exception {
         long time = location.getTime();
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
 
-        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location, averageTop4Signal,
+        Runnable writeHandler = new GpxWriteHandler(sdf.format(time), gpxFile, location, signalData,
                 append);
         EXECUTOR.execute(writeHandler);
     }

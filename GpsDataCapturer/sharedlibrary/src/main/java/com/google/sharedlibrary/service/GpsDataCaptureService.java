@@ -29,6 +29,7 @@ import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
+import com.google.sharedlibrary.model.SatelliteSignalData;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -61,7 +62,7 @@ public class GpsDataCaptureService extends Service {
 
     private SimpleDateFormat sdf;
 
-    private float averageOfTop4Signal;
+    private SatelliteSignalData signalData = new SatelliteSignalData();
 
     @Nullable
     @Override
@@ -159,9 +160,9 @@ public class GpsDataCaptureService extends Service {
         //write gps data to file
         try {
             if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
-                averageOfTop4Signal = 0.0f;
+                signalData.resetSignalData();
             }
-            gpxFileWriter.writeGpsData(location, averageOfTop4Signal);
+            gpxFileWriter.writeGpsData(location, signalData);
         } catch (Exception e) {
             Log.e(TAG, "GpxFileWriter could not write data.", e);
         }
@@ -181,21 +182,20 @@ public class GpsDataCaptureService extends Service {
 
             assert status != null;
             Iterable<GpsSatellite> satellites = status.getSatellites();
-            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<Float>(
-                    (a, b) -> Float.compare(b, a));
+            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<>();
 
             int satellitesVisible = 0;
             float averageSignalStrength = 0;
 
-            //Get the satellites visible, satellites used in fix and the signal to noise ratio
-            // for the satellite.
+            //Get the satellites visible, satellites used in fix and the top 4 strongest signal
+            // to noise ratio from the satellite.
             for (GpsSatellite sat : satellites) {
                 if (sat.usedInFix()) {
                     satellitesUsedInFix++;
                     float signalStrength = sat.getSnr();
                     averageSignalStrength += signalStrength;
 
-                    if (signalPriorityQueue.size() > 4) {
+                    if (signalPriorityQueue.size() == 4) {
                         signalPriorityQueue.poll();
                     }
                     signalPriorityQueue.add(signalStrength);
@@ -203,22 +203,23 @@ public class GpsDataCaptureService extends Service {
                 satellitesVisible++;
             }
 
-            //Calculate the average of signal strength and top 4 strongest signal strength
+            //Calculate the average of signal strength
             if (satellitesUsedInFix != 0) {
                 averageSignalStrength /= satellitesUsedInFix;
+            }
 
-                int size = signalPriorityQueue.size();
-                while (!signalPriorityQueue.isEmpty()) {
-                    averageOfTop4Signal += signalPriorityQueue.poll();
-                }
-                averageOfTop4Signal /= size;
+            //Set the signalData
+            if (signalPriorityQueue.size() == 4) {
+                Log.d(TAG, "signalPriorityQueue size is: " + 4);
+                signalData.setSignalData(signalPriorityQueue);
             }
 
             Log.d(TAG, "Satellites visible: " + satellitesVisible);
             Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
             Log.d(TAG,
                     "Average of satellites used in fix signal strength: " + averageSignalStrength);
-            Log.d(TAG, "Average of top 4 strongest signal strength: " + averageOfTop4Signal);
+            Log.d(TAG,
+                    "Average of top 4 strongest signal strength: " + signalData.getAverageSignal());
         }
 
         //set gps status and satellites in the view model

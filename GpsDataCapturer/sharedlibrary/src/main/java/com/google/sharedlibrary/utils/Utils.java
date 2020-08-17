@@ -97,29 +97,30 @@ public class Utils {
      * Start capture via intent
      */
     public static void startCaptureViaIntent(GpsDataCaptureService gpsDataCaptureService,
-            Intent intent, LocationApiType locationApiType) {
-        //Extra the location api type
-        if (intent.hasExtra("fused_location_type")) {
-            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
-            Log.d(TAG, "fused_location_type: " + type_from_intent);
-            if (type_from_intent) {
-                locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+            Intent intent) {
+        String action = intent.getAction();
+        Log.d(TAG, "Intent action: " + action);
+
+        if(gpsDataCaptureService != null) {
+            //Extra the location api type
+            LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
+            if (intent.hasExtra("fused_location_type")) {
+                boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
+                Log.d(TAG, "fused_location_type: " + type_from_intent);
+
+                if (type_from_intent) {
+                    locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+                }
+                Log.d(TAG, "LocationApiType: " + locationApiType);
+
+                gpsDataCaptureService.setLocationApiType(locationApiType);
             }
-            Log.d(TAG, "LocationApiType: " + locationApiType);
 
-            gpsDataCaptureService.setLocationApiType(locationApiType);
-        }
-        //Start capture via intent
-        Log.d(TAG, "Intent action: " + intent.getAction());
-        if (intent.getAction().equals(
-                "com.google.gpsdatacapturer.START_CAPTURE")) {
+            //Start capture via intent
             gpsDataCaptureService.startCapture();
-        } else {
-            Log.d("TAG",
-                    "To start capture, use correct script: adb shell am start -a com.google"
-                            + ".gpsdatacapturer.START_CAPTURE --ez fused_location_type false --ez"
-                            + " batching false");
-        }
 
+        }else{
+            Log.d(TAG, "Could not start capture via intent: gpsDataCaptureService is null");
+        }
     }
 }

@@ -47,7 +47,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
-    private Intent launchIntent;
+    private Intent mLaunchIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
             Log.d(TAG,
-                    "Permissions required to run this app. Start to request necessary permissions"
+                    "Missing permission. Requesting all necessary permissions..."
                             + ".");
             Utils.requestNecessaryPermissions(this);
         }
@@ -92,8 +92,8 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         });
 
         //get the launch intent
-        launchIntent = this.getIntent();
-        Log.d(TAG, launchIntent.toString());
+        mLaunchIntent = this.getIntent();
+        Log.d(TAG, mLaunchIntent.toString());
 
         //Start the service
         startAndBindGpsDataCaptureService();
@@ -127,15 +127,16 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (intent.getAction() != null) {
-            Log.d(TAG, "Intent action: " + intent.getAction());
+        String action = intent.getAction();
+        if (action != null && isBound){
+            Log.d(TAG, "Intent action: " + action);
             //Stop capture if it's stop intent
-            if (intent.getAction().equals(
+            if (action.equals(
                     "com.google.gpsdatacapturer.STOP_CAPTURE")) {
                 Log.d(TAG, "Stop capture via intent onNewIntent");
                 gpsDataCaptureService.stopCapture();
-            } else {
-                Utils.startCaptureViaIntent(gpsDataCaptureService, intent, locationApiType);
+            } else if(action.equals("com.google.gpsdatacapturer.START_CAPTURE")){
+                Utils.startCaptureViaIntent(gpsDataCaptureService, intent);
                 Log.d(TAG, "Start capture onNewIntent");
             }
         }
@@ -223,11 +224,11 @@ public class MobileGpsMainActivity extends AppCompatActivity {
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
 
-            if (launchIntent.getAction() != null) {
+            String action = mLaunchIntent.getAction();
+            if (action != null && action.equals("com.google.gpsdatacapturer.START_CAPTURE")) {
                 //start capture via launch intent
                 try {
-                    Utils.startCaptureViaIntent(gpsDataCaptureService, launchIntent,
-                            locationApiType);
+                    Utils.startCaptureViaIntent(gpsDataCaptureService, mLaunchIntent);
                     Log.d(TAG, "Start capture via launch intent onServiceConnected");
                 } catch (Exception e) {
                     Log.d(TAG, "Could not start capture via launch intent");
