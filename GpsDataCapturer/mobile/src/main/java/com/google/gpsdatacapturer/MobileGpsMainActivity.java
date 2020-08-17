@@ -127,7 +127,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (intent.getAction() != null) {
+       String action = intent.getAction();
+        if (action != null) {
+
             Log.d(TAG, "Intent action: " + intent.getAction());
             //Stop capture if it's stop intent
             if (intent.getAction().equals(
