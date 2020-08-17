@@ -47,7 +47,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
-    private Intent launchIntent;
+    private Intent mLaunchIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
