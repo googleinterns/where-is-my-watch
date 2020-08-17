@@ -50,7 +50,7 @@ public class WearGpsMainActivity extends AppCompatActivity implements
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
-    private Intent launchIntent;
+    private Intent mLaunchIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
