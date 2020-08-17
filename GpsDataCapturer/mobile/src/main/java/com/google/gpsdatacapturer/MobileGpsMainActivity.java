@@ -132,7 +132,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
            Log.d(TAG, "Intent action: " + action);
             //Stop capture if it's stop intent
-            if (intent.getAction().equals(
+            if (action.equals(
                     "com.google.gpsdatacapturer.STOP_CAPTURE")) {
                 Log.d(TAG, "Stop capture via intent onNewIntent");
                 gpsDataCaptureService.stopCapture();
