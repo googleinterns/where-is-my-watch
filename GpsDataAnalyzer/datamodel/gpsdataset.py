@@ -10,7 +10,12 @@ class GpsData:
 	speed: float
 	time: datetime
 	distance: float=0.0
-	is_outlier: bool=False
+	satellites: int=0
+	first_signal: float=0.0
+	second_signal: float=0.0
+	third_signal: float=0.0
+	forth_signal: float=0.0
+
 
 
 @dataclass
