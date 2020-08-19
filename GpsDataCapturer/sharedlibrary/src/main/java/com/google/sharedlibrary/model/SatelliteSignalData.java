@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
  * The data class wrapping the top 4 strongest satellites signal.
  */
 public class SatelliteSignalData {
+    private final String TAG = "SatelliteSignalData";
     private float firstSignal;
     private float secondSignal;
     private float thirdSignal;
@@ -20,6 +21,8 @@ public class SatelliteSignalData {
             this.thirdSignal = pq.poll();
             this.secondSignal = pq.poll();
             this.firstSignal = pq.poll();
+        }else{
+            resetSignalData();
         }
     }
 

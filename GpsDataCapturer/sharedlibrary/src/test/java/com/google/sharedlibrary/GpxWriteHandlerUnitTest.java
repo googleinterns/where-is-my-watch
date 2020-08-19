@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.sharedlibrary.gpxfile.GpxAnnotationHandler;
 import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.gpxfile.GpxWriteHandler;
+import com.google.sharedlibrary.model.SatelliteSignalData;
 
 import org.checkerframework.checker.units.qual.A;
 import org.junit.After;
@@ -45,10 +46,10 @@ public class GpxWriteHandlerUnitTest {
         ShadowLog.stream = System.out;
         gpxFile = mock(File.class);
         location = mock(Location.class);
-        float signal = 0.0f;
+        SatelliteSignalData signalData = new SatelliteSignalData();
         String formattedTime = "2020-07-12T00:02:36.000Z";
         boolean append = true;
-        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, signal, append);
+        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, signalData, append);
     }
 
     @Test
