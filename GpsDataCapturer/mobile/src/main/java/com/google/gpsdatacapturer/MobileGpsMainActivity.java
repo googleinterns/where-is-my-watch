@@ -309,7 +309,6 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void resetRadioGroup() {
         apiRadioGroup.check(R.id.m_radio_button_LM);
         apiRadioGroup.setVisibility(View.VISIBLE);
-        locationApiType = LocationApiType.LOCATIONMANAGER;
     }
 
     /**

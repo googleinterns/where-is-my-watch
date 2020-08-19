@@ -30,8 +30,4 @@ public class FusedLocationProviderListener extends LocationCallback {
             }
         }
     }
-
-    @Override
-    public void onLocationAvailability(LocationAvailability var1) {
-    }
 }

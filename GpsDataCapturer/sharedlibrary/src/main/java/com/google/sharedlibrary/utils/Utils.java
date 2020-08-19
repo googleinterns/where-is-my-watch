@@ -105,10 +105,10 @@ public class Utils {
             //Extra the location api type
             LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
             if (intent.hasExtra("fused_location_type")) {
-                boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
-                Log.d(TAG, "fused_location_type: " + type_from_intent);
+                boolean isTypeFromIntentFused = intent.getBooleanExtra("fused_location_type", false);
+                Log.d(TAG, "fused_location_type: " + isTypeFromIntentFused);
 
-                if (type_from_intent) {
+                if (isTypeFromIntentFused) {
                     locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
                 }
                 Log.d(TAG, "LocationApiType: " + locationApiType);

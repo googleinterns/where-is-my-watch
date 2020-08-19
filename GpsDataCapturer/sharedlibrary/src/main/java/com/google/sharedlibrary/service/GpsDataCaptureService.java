@@ -180,46 +180,49 @@ public class GpsDataCaptureService extends Service {
             @SuppressLint("MissingPermission")
             GpsStatus status = locationManager.getGpsStatus(null);
 
-            assert status != null;
-            Iterable<GpsSatellite> satellites = status.getSatellites();
-            PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<>();
+            if(status != null) {
+                Iterable<GpsSatellite> satellites = status.getSatellites();
+                PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<>();
 
-            int satellitesVisible = 0;
-            float averageSignalStrength = 0;
+                int satellitesVisible = 0;
+                float averageSignalStrength = 0;
 
-            //Get the satellites visible, satellites used in fix and the top 4 strongest signal
-            // to noise ratio from the satellite.
-            for (GpsSatellite sat : satellites) {
-                if (sat.usedInFix()) {
-                    satellitesUsedInFix++;
-                    float signalStrength = sat.getSnr();
-                    averageSignalStrength += signalStrength;
+                //Get the satellites visible, satellites used in fix and the top 4 strongest signal
+                // to noise ratio from the satellite.
+                for (GpsSatellite sat : satellites) {
+                    if (sat.usedInFix()) {
+                        satellitesUsedInFix++;
+                        float signalStrength = sat.getSnr();
+                        averageSignalStrength += signalStrength;
 
-                    if (signalPriorityQueue.size() == 4) {
-                        signalPriorityQueue.poll();
+                        if (signalPriorityQueue.size() == 4) {
+                            signalPriorityQueue.poll();
+                        }
+                        signalPriorityQueue.add(signalStrength);
                     }
-                    signalPriorityQueue.add(signalStrength);
+                    satellitesVisible++;
                 }
-                satellitesVisible++;
-            }
 
-            //Calculate the average of signal strength
-            if (satellitesUsedInFix != 0) {
-                averageSignalStrength /= satellitesUsedInFix;
-            }
+                //Calculate the average of signal strength
+                if (satellitesUsedInFix != 0) {
+                    averageSignalStrength /= satellitesUsedInFix;
+                }
 
-            //Set the signalData
-            if (signalPriorityQueue.size() == 4) {
-                Log.d(TAG, "signalPriorityQueue size is: " + 4);
-                signalData.setSignalData(signalPriorityQueue);
-            }
+                //Set the signalData
+                if (signalPriorityQueue.size() == 4) {
+                    Log.d(TAG, "signalPriorityQueue size is: " + 4);
+                    signalData.setSignalData(signalPriorityQueue);
+                }
 
-            Log.d(TAG, "Satellites visible: " + satellitesVisible);
-            Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
-            Log.d(TAG,
-                    "Average of satellites used in fix signal strength: " + averageSignalStrength);
-            Log.d(TAG,
-                    "Average of top 4 strongest signal strength: " + signalData.getAverageSignal());
+                Log.d(TAG, "Satellites visible: " + satellitesVisible);
+                Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
+                Log.d(TAG,
+                        "Average of satellites used in fix signal strength: "
+                                + averageSignalStrength);
+                Log.d(TAG,
+                        "Average of top 4 strongest signal strength: "
+                                + signalData.getAverageSignal());
+            }
         }
 
         //set gps status and satellites in the view model
