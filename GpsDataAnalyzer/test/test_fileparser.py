@@ -31,7 +31,8 @@ class FileParserTest(unittest.TestCase):
                                                     first_signal=35.026,
                                                     second_signal=32.124,
                                                     third_signal=29.458,
-                                                    forth_signal=27.123),
+                                                    forth_signal=27.123,
+                                                    average_signal=30.93275),
                                             GpsData(latitude= 63.17965,
                                                     longitude= -174.12955,
                                                     altitude= 4.91,
@@ -42,7 +43,8 @@ class FileParserTest(unittest.TestCase):
                                                     first_signal=30.026,
                                                     second_signal=28.124,
                                                     third_signal=27.458,
-                                                    forth_signal=25.123)])
+                                                    forth_signal=25.123,
+                                                    average_signal=27.68275)])
         self.csv_gpsdataset1 = GpsDataSet(gps_meta_data=GpsMetaData(device='DynamicSimulation',
                                                          identifier=None,
                                                          manufacturer=None,

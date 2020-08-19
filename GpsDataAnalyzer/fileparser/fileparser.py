@@ -151,7 +151,7 @@ class FileParser:
             # Get the altitude, speed and time 
             alt, speed, tz_time = None, None, None
             sat = 0
-            first_signal, second_signal, third_signal, forth_signal = 0.0, 0.0, 0.0, 0.0
+            first_signal, second_signal, third_signal, forth_signal, average_signal = 0.0, 0.0, 0.0, 0.0, 0.0
 
             for data in trkpt.iter():
                 if data.tag == PREFIX_URL + 'ele':
@@ -170,9 +170,11 @@ class FileParser:
                     third_signal = float(data.text)
                 elif data.tag == PREFIX_URL + 'signal04':
                     forth_signal = float(data.text)
+                elif data.tag == PREFIX_URL + 'average':
+                    average_signal = float(data.text)
 
                         
-            dataPoint = GpsData(lat, lon, alt, speed, tz_time, distance, sat, first_signal, second_signal, third_signal, forth_signal)
+            dataPoint = GpsData(lat, lon, alt, speed, tz_time, distance, sat, first_signal, second_signal, third_signal, forth_signal, average_signal)
             xml_gpsdatalist.append(dataPoint)
 
         return xml_gpsdatalist

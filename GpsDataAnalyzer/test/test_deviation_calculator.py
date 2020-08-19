@@ -146,12 +146,18 @@ class DeviationCalculatorTest(unittest.TestCase):
                           datetime(2020, 7, 22, 15, 49, 3, 626803, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 4, 626803, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 5, 626803, tzinfo=timezone.utc)]
+        set1_singal_list = [0.0, 0.0, 0.0, 0.0, 0.0]
+        set2_signal_list = [0.0, 0.0, 0.0, 0.0, 0.0]
+        signal_differentials = [0.0, 0.0, 0.0, 0.0, 0.0]
         deviations_dataframe = pd.DataFrame({"Common Timestamp": time_list,
                                              "Deviations": deviation_list,
                                              "Speed Differentials": speed_differentials,
                                              "Altitude Differentials": altitude_differentials,
                                              "Set 1 Timestamp": set1_time_list,
-                                             "Set 2 Timestamp": set2_time_list})
+                                             "Set 2 Timestamp": set2_time_list,
+                                              "Set 1 Average Signal": set1_singal_list,
+                                             "Set 2 Average Signal": set2_signal_list,
+                                             "Signal Differentials": signal_differentials})
         calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)
 
         result = calculator.get_deviation_dataframe()
@@ -164,7 +170,10 @@ class DeviationCalculatorTest(unittest.TestCase):
                                              "Speed Differentials": [],
                                              "Altitude Differentials": [],
                                              "Set 1 Timestamp": [],
-                                             "Set 2 Timestamp": []})
+                                             "Set 2 Timestamp": [],
+                                             "Set 1 Average Signal": [],
+                                             "Set 2 Average Signal": [],
+                                             "Signal Differentials": []})
         for data_point in self.simulator_data_set.gps_data_list:
             data_point.time = data_point.time + timedelta(seconds=100)
         calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)

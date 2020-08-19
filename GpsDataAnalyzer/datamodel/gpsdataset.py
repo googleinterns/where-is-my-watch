@@ -15,6 +15,7 @@ class GpsData:
 	second_signal: float=0.0
 	third_signal: float=0.0
 	forth_signal: float=0.0
+	average_signal: float=0.0
 
 
 

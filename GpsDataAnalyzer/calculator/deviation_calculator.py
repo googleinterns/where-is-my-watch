@@ -101,33 +101,49 @@ class DataSetDeviationCalculator:
 
         time_list, deviation_list, speed_differentials, altitude_differentials = [], [], [], []
         set1_time_list, set2_time_list = [], []
+        set1_average_signal_list, set2_average_signal_list, signal_differential_list = [], [], []
 
         for timestamp in self.offset_mapping_1:
             if timestamp in self.offset_mapping_2:
                 time_list.append(timestamp)
 
+                # Get the mapping pair of data points in each dataset
                 point1 = self.offset_mapping_1[timestamp][0]
                 point2 = self.offset_mapping_2[timestamp][0]
+
+                # Calculate the distance deviation
                 location1 = (point1.latitude, point1.longitude)
                 location2 = (point2.latitude, point2.longitude)
                 deviation_list.append(utils.calculate_distance(location1, location2))
 
+                # Calculate the speed differentials
                 speed_differentials.append(point2.speed - point1.speed)
 
+                # Calculate the altitude differentials
                 if point1.altitude is None or point2.altitude is None:
                     altitude_differentials.append(None)
                 else:
                     altitude_differentials.append(point2.altitude - point1.altitude)
 
+                # Append the original timestamp in each dataset
                 set1_time_list.append(point1.time)
                 set2_time_list.append(point2.time)
+
+                # Append the average signal if have
+                set1_average_signal_list.append(point1.average_signal)
+                set2_average_signal_list.append(point2.average_signal)
+                signal_differential_list.append(point2.average_signal - point1.average_signal)
+
 
         self.deviations_dataframe = pd.DataFrame({"Common Timestamp": time_list,
                                                   "Deviations": deviation_list,
                                                   "Speed Differentials": speed_differentials,
                                                   "Altitude Differentials": altitude_differentials,
                                                   "Set 1 Timestamp": set1_time_list,
-                                                  "Set 2 Timestamp": set2_time_list})
+                                                  "Set 2 Timestamp": set2_time_list,
+                                                  "Set 1 Average Signal": set1_average_signal_list,
+                                                  "Set 2 Average Signal": set2_average_signal_list,
+                                                  "Signal Differentials": signal_differential_list})
         return self.deviations_dataframe
 
 
@@ -154,3 +170,4 @@ class DataSetDeviationCalculator:
                 available_timestamps += 1
 
         return round(available_timestamps / total_seconds, 4)*100
+

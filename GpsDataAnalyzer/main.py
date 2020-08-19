@@ -47,8 +47,8 @@ def main(args):
 
     for dataset_pair in dataset_combinations:
 
-        device_1 = dataset_pair[0].gps_meta_data.device
-        device_2 = dataset_pair[1].gps_meta_data.device
+        device_1 = dataset_pair[0].gps_meta_data.device.capitalize()
+        device_2 = dataset_pair[1].gps_meta_data.device.capitalize()
 
         # Move to next dataset pair if one or both datasets are empty
         if not dataset_pair[0].gps_data_list or not dataset_pair[1].gps_data_list:
@@ -78,11 +78,14 @@ def main(args):
         #draw the graphs and save as png files
         LOGGER.debug('Start drawing graphs...')
         
-        dataset_title = "%s_vs_%s_" % (device_1, device_2) 
+        dataset_title = "%s VS %s " % (device_1, device_2) 
         my_visualizer.draw_hist_graph(classified_deviation_df['Confidence'], 'Count', 'Confidence',  dataset_title + 'Distance', availability)
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Deviations'], 'Deviations (Meters)', dataset_title + 'Distance')
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Altitude Differentials'], 'Deviations (Meters)', dataset_title + 'Altitude')
         my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Speed Differentials'], 'Deviations (Meters)', dataset_title + 'Speed')
+
+        my_visualizer.draw_lines_graph(time, 'Time Duration: ', classified_deviation_df['Set 1 Average Signal'], classified_deviation_df['Set 2 Average Signal'], classified_deviation_df['Signal Differentials'],
+            'Average Signal (SNR)', dataset_title + 'Average Signal', device_1, device_2)
 
         # save deviation dataframe to csv
         deviation_data_file = "{}Deviation_Data_{}.csv".format(dataset_title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))
