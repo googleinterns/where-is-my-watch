@@ -1,6 +1,11 @@
 package com.google.sharedlibrary;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.sharedlibrary.model.SatelliteSignalData;
 
 import org.junit.After;
@@ -18,18 +23,18 @@ public class SatellitesSignalDataUnitTest {
     private PriorityQueue<Float> pq;
 
     @Before
-    public void setUp(){
-        signalData = new SatelliteSignalData();
+    public void setUp() {
         pq = new PriorityQueue<>();
     }
 
     @Test
-    public void testSetSignalDataSuccess(){
-        Float[] signals = new Float[] {20.375f, 36.156f, 33.945f, 29.188f};
+    public void testSatelliteSignalDataSuccessWithPQ() {
+        Float[] signals = new Float[]{20.375f, 36.156f, 33.945f, 29.188f};
         float average = (20.375f + 36.156f + 33.945f + 29.188f) / 4;
         pq.addAll(Arrays.asList(signals));
 
-        signalData.setSignalData(pq);
+        signalData = new SatelliteSignalData(pq);
+        assertTrue(pq.isEmpty());
         assertEquals(36.156f, signalData.getFirstSignal(), 0.0f);
         assertEquals(33.945f, signalData.getSecondSignal(), 0.0f);
         assertEquals(29.188f, signalData.getThirdSignal(), 0.0f);
@@ -38,11 +43,8 @@ public class SatellitesSignalDataUnitTest {
     }
 
     @Test
-    public void testSetSignalDataFailure(){
-        Float[] signals = new Float[] {20.375f, 36.156f, 33.945f};
-        pq.addAll(Arrays.asList(signals));
-
-        signalData.setSignalData(pq);
+    public void testSatelliteSignalDataSuccess() {
+        signalData = new SatelliteSignalData();
         assertEquals(0.0f, signalData.getFirstSignal(), 0.0f);
         assertEquals(0.0f, signalData.getSecondSignal(), 0.0f);
         assertEquals(0.0f, signalData.getThirdSignal(), 0.0f);
@@ -50,8 +52,56 @@ public class SatellitesSignalDataUnitTest {
         assertEquals(0.0f, signalData.getAverageSignal(), 0.0f);
     }
 
+    @Test
+    public void testSatelliteSignalDataFailure() {
+        Float[] signals = new Float[]{20.375f, 36.156f, 33.945f};
+        pq.addAll(Arrays.asList(signals));
+
+        try {
+            signalData = new SatelliteSignalData(pq);
+            assertEquals(0.0f, signalData.getFirstSignal(), 0.0f);
+            assertEquals(0.0f, signalData.getSecondSignal(), 0.0f);
+            assertEquals(0.0f, signalData.getThirdSignal(), 0.0f);
+            assertEquals(0.0f, signalData.getForthSignal(), 0.0f);
+            assertEquals(0.0f, signalData.getAverageSignal(), 0.0f);
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void testSatelliteSignalDataEqual() {
+        Float[] signals = new Float[]{20.375f, 36.156f, 33.945f, 29.188f};
+        pq.addAll(Arrays.asList(signals));
+        SatelliteSignalData signalData1 = new SatelliteSignalData(pq);
+
+        pq.addAll(Arrays.asList(signals));
+        SatelliteSignalData signalData2 = new SatelliteSignalData(pq);
+
+        signals = new Float[]{20.375f, 36.156f, 33.945f, 35.123f};
+        pq.addAll(Arrays.asList(signals));
+        SatelliteSignalData signalData3 = new SatelliteSignalData(pq);
+
+        assertTrue(signalData1.equals(signalData2));
+        assertFalse(signalData1.equals(signalData3));
+        assertFalse(signalData2.equals(signalData3));
+    }
+
+    @Test
+    public void testSatelliteSignalDataHashcode() {
+        Float[] signals = new Float[]{20.375f, 36.156f, 33.945f, 29.188f};
+        pq.addAll(Arrays.asList(signals));
+        SatelliteSignalData signalData1 = new SatelliteSignalData(pq);
+
+        signals = new Float[]{20.375f, 36.156f, 33.945f, 35.123f};
+        pq.addAll(Arrays.asList(signals));
+        SatelliteSignalData signalData2 = new SatelliteSignalData(pq);
+
+        assertNotEquals(signalData1.hashCode(), signalData2.hashCode());
+    }
+
     @After
-    public void tearDown(){
+    public void tearDown() {
         signalData = null;
         pq = null;
     }

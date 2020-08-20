@@ -174,8 +174,20 @@ class FileParser:
                     average_signal = float(data.text)
 
                         
-            dataPoint = GpsData(lat, lon, alt, speed, tz_time, distance, sat, first_signal, second_signal, third_signal, forth_signal, average_signal)
-            xml_gpsdatalist.append(dataPoint)
+            data_point = GpsData(latitude=lat,
+                                 longitude=lon, 
+                                 altitude=alt, 
+                                 speed=speed, 
+                                 time=tz_time, 
+                                 distance=distance, 
+                                 satellites=sat, 
+                                 first_signal=first_signal, 
+                                 second_signal=second_signal, 
+                                 third_signal=third_signal, 
+                                 forth_signal=forth_signal, 
+                                 average_signal=average_signal)
+
+            xml_gpsdatalist.append(data_point)
 
         return xml_gpsdatalist
 

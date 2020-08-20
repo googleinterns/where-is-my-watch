@@ -16,8 +16,8 @@ from datetime import timezone
 """
 Deviation distribution zone
 """
-CONFIDENCE_THRESHOLD_THREE = 5
-CONFIDENCE_THRESHOLD_TWO = 10
+HIGH_CONFIDENCE_THRESHOLD = 5
+LOW_CONFIDENCE_THRESHOLD = 10
 
 class Visualizer:
     """
@@ -63,9 +63,9 @@ class Visualizer:
 
         for deviation in deviation_list:
             abs_deviation = abs(deviation)
-            if abs_deviation <= CONFIDENCE_THRESHOLD_THREE:
+            if abs_deviation <= HIGH_CONFIDENCE_THRESHOLD:
                 confidence.append(3)
-            elif abs_deviation <= CONFIDENCE_THRESHOLD_TWO:
+            elif abs_deviation <= LOW_CONFIDENCE_THRESHOLD:
                 confidence.append(2)
             else:
                 confidence.append(1)
@@ -146,7 +146,7 @@ class Visualizer:
         fig.savefig(os.path.join(self.output_file_folder, my_file))
 
 
-    def draw_lines_graph(self, x_data, x_label, y1_data, y2_data, y3_data, y_label, title, device_1, device_2):
+    def draw_lines_graph(self, x_data, x_label, y1_data, y2_data, y_label, title, label_1, label_2):
          # Get the time duration 
         time_duration = x_data[len(x_data)-1] - x_data[0]
         x_label += str(time_duration)
@@ -154,9 +154,8 @@ class Visualizer:
          # Plot the data
         fig = plt.figure(figsize=(20,10))
         ax = plt.subplot()
-        ax.plot(x_data, y1_data, color='cornflowerblue', label=device_1)
-        ax.plot(x_data, y2_data, color='forestgreen', label=device_2)
-        ax.plot(x_data, y3_data, color='orange', label="Differentials")
+        ax.plot(x_data, y1_data, color='cornflowerblue', label=label_1)
+        ax.plot(x_data, y2_data, color='forestgreen', label=label_2)
 
         # Format the time on x axis '%H:%M:%S'
         ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
