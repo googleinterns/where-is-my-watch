@@ -1,26 +1,19 @@
 package com.google.sharedlibrary;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.location.Location;
 import android.os.Build;
-import android.util.Log;
 
-import com.google.sharedlibrary.gpxfile.GpxAnnotationHandler;
-import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.gpxfile.GpxWriteHandler;
+import com.google.sharedlibrary.model.SatelliteSignalData;
 
-import org.checkerframework.checker.units.qual.A;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
@@ -41,14 +34,14 @@ public class GpxWriteHandlerUnitTest {
 
 
     @Before
-    public void setUp(){
+    public void setUp() {
         ShadowLog.stream = System.out;
         gpxFile = mock(File.class);
         location = mock(Location.class);
-        float signal = 0.0f;
+        SatelliteSignalData signalData = new SatelliteSignalData();
         String formattedTime = "2020-07-12T00:02:36.000Z";
         boolean append = true;
-        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, signal, append);
+        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, signalData, append);
     }
 
     @Test
@@ -59,7 +52,7 @@ public class GpxWriteHandlerUnitTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         gpxFile = null;
         location = null;
         gpxWriteHandler = null;
