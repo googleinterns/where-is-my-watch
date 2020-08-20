@@ -160,7 +160,7 @@ public class GpsDataCaptureService extends Service {
         //write gps data to file
         try {
             if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
-                signalData.resetSignalData();
+                signalData = new SatelliteSignalData();
             }
             gpxFileWriter.writeGpsData(location, signalData);
         } catch (Exception e) {
@@ -211,7 +211,7 @@ public class GpsDataCaptureService extends Service {
                 //Set the signalData
                 if (signalPriorityQueue.size() == 4) {
                     Log.d(TAG, "signalPriorityQueue size is: " + 4);
-                    signalData.setSignalData(signalPriorityQueue);
+                    signalData = new SatelliteSignalData(signalPriorityQueue);
                 }
 
                 Log.d(TAG, "Satellites visible: " + satellitesVisible);
