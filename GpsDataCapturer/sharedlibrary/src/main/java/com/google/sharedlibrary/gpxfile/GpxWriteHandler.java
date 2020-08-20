@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.google.sharedlibrary.BuildConfig;
+import com.google.sharedlibrary.model.SatelliteSignalData;
 import com.google.sharedlibrary.utils.Utils;
 
 import java.io.BufferedWriter;
@@ -21,16 +22,18 @@ public class GpxWriteHandler implements Runnable {
     private static final String TAG = "GpxWriterHandler";
     private final String formattedTime;
     private final Location location;
+    private final SatelliteSignalData signalData;
     private final File gpxFile;
     private final boolean append;
     private static final int SIZE = 20480;
 
 
     public GpxWriteHandler(String formattedTime, File gpxFile,
-            Location location, boolean append) {
+            Location location, SatelliteSignalData signalData, boolean append) {
         this.formattedTime = formattedTime;
         this.gpxFile = gpxFile;
         this.location = location;
+        this.signalData = signalData;
         this.append = append;
     }
 
@@ -42,7 +45,7 @@ public class GpxWriteHandler implements Runnable {
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter, SIZE);
 
             //write the captured gps data to file
-            String trackPointXml = getTrackPointXml(location, formattedTime);
+            String trackPointXml = getTrackPointXml(location, formattedTime, signalData);
             bufferedWriter.write(trackPointXml);
             bufferedWriter.flush();
             bufferedWriter.close();
@@ -53,7 +56,6 @@ public class GpxWriteHandler implements Runnable {
         }
     }
 
-
     /**
      * Generate the xml track point of the location
      *
@@ -61,7 +63,7 @@ public class GpxWriteHandler implements Runnable {
      * @param formattedTime time of on location changed in format
      * @return a string of xml track point
      */
-    private String getTrackPointXml(Location location, String formattedTime) {
+    private String getTrackPointXml(Location location, String formattedTime, SatelliteSignalData signalData) {
         StringBuilder trackPoint = new StringBuilder();
 
         trackPoint.append("<trkpt lat=\"")
@@ -83,6 +85,19 @@ public class GpxWriteHandler implements Runnable {
                 location.hasAccuracy() ? location.getAccuracy() : "0.0").append("</accuracy>");
 
         trackPoint.append("<src>").append(location.getProvider()).append("</src>");
+
+        //append satellites used in fix
+        if(location.getExtras() != null){
+            int sat = location.getExtras().getInt("satellites", 0);
+            trackPoint.append("<sat>").append(sat).append("</sat>");
+        }
+
+        //append top 4 satellites signal data
+        trackPoint.append("<signal01>").append(signalData.getFirstSignal()).append("</signal01>");
+        trackPoint.append("<signal02>").append(signalData.getSecondSignal()).append("</signal02>");
+        trackPoint.append("<signal03>").append(signalData.getThirdSignal()).append("</signal03>");
+        trackPoint.append("<signal04>").append(signalData.getForthSignal()).append("</signal04>");
+        trackPoint.append("<average>").append(signalData.getAverageSignal()).append("</average>");
 
         trackPoint.append("</trkpt>\n");
 

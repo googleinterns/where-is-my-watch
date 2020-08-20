@@ -3,16 +3,15 @@ package com.google.sharedlibrary.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import com.google.sharedlibrary.service.GpsDataCaptureService;
 
 /**
  * This Utils class wraps all the utility functions
@@ -32,7 +31,6 @@ public class Utils {
         ActivityCompat.requestPermissions(activity,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_EXTERNAL_STORAGE},
                 PERMISSION_REQUEST_CODE);
@@ -44,7 +42,6 @@ public class Utils {
     public static boolean hasUserGrantedNecessaryPermissions(Context context) {
         return hasUserGrantedPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                 && hasUserGrantedPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                && hasUserGrantedPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 && hasUserGrantedPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 && hasUserGrantedPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
@@ -94,5 +91,36 @@ public class Utils {
      */
     public static boolean isGpsEnabled(LocationManager locationManager) {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
+     * Start capture via intent
+     */
+    public static void startCaptureViaIntent(GpsDataCaptureService gpsDataCaptureService,
+            Intent intent) {
+        String action = intent.getAction();
+        Log.d(TAG, "Intent action: " + action);
+
+        if(gpsDataCaptureService != null) {
+            //Extra the location api type
+            LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
+            if (intent.hasExtra("fused_location_type")) {
+                boolean isTypeFromIntentFused = intent.getBooleanExtra("fused_location_type", false);
+                Log.d(TAG, "fused_location_type: " + isTypeFromIntentFused);
+
+                if (isTypeFromIntentFused) {
+                    locationApiType = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
+                }
+                Log.d(TAG, "LocationApiType: " + locationApiType);
+
+                gpsDataCaptureService.setLocationApiType(locationApiType);
+            }
+
+            //Start capture via intent
+            gpsDataCaptureService.startCapture();
+
+        }else{
+            Log.d(TAG, "Could not start capture via intent: gpsDataCaptureService is null");
+        }
     }
 }

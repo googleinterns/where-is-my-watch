@@ -10,16 +10,14 @@ import static com.google.sharedlibrary.storage.GpxFileFolder.createGpsDataFolder
 import static com.google.sharedlibrary.utils.Utils.LocationApiType;
 
 import android.annotation.SuppressLint;
-import android.app.IntentService;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -31,9 +29,11 @@ import com.google.sharedlibrary.gpxfile.GpxFileWriter;
 import com.google.sharedlibrary.locationhelper.FusedLocationProviderListener;
 import com.google.sharedlibrary.locationhelper.LocationManagerListener;
 import com.google.sharedlibrary.model.GpsInfoViewModel;
+import com.google.sharedlibrary.model.SatelliteSignalData;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.PriorityQueue;
 import java.util.TimeZone;
 
 /**
@@ -44,36 +44,25 @@ import java.util.TimeZone;
  * @author lynnzl
  * @date 2020-06-30
  */
-public class GpsDataCaptureService extends IntentService {
+public class GpsDataCaptureService extends Service {
     private static final String TAG = "GpsDataCaptureService";
     private final IBinder binder = new GpsDataCaptureBinder();
+
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationManager locationManager;
     private LocationManagerListener locationManagerListener;
     private FusedLocationProviderListener fusedLocationProviderListener;
+    private LocationApiType locationApiType = LocationApiType.LOCATIONMANAGER;
 
     private File gpxFileFolder;
-
     protected File gpxFile;
-
     private GpxFileWriter gpxFileWriter;
 
     private GpsInfoViewModel gpsInfoViewModel;
 
     private SimpleDateFormat sdf;
 
-    private BroadcastReceiver serviceBroadcastReceiver;
-    private IntentFilter intentFilter;
-
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     * <p>
-     * //     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public GpsDataCaptureService() {
-        super(TAG);
-        Log.d(TAG, "Creates the GpsDataCapture IntentService");
-    }
+    private SatelliteSignalData signalData = new SatelliteSignalData();
 
     @Nullable
     @Override
@@ -82,57 +71,9 @@ public class GpsDataCaptureService extends IntentService {
         return binder;
     }
 
-    /**
-     * This method is invoked on the worker thread with a request to process. Only one Intent is
-     * processed at a time, but the processing happens on a worker thread that runs independently
-     * from other application logic. So, if this code takes a long time, it will hold up other
-     * requests to the same IntentService, but it will not hold up anything else. When all requests
-     * have been handled, the IntentService stops itself, so you should not call {@link #stopSelf}.
-     *
-     * @param intent The value passed to {@link Context#startService(Intent)}. This may be null if
-     *               the service is being restarted after its process has gone away; see {@link
-     *               Service#onStartCommand} for details.
-     */
-
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        if (intent != null) {
-            Log.d(TAG, "On handle intent");
-
-            //Extra the location api type
-            boolean type_from_intent = intent.getBooleanExtra("fused_location_type", false);
-            LocationApiType type = LocationApiType.LOCATIONMANAGER;
-            if (type_from_intent) {
-                type = LocationApiType.FUSEDLOCATIONPROVIDERCLIENT;
-            }
-
-            if (intent.getAction() != null) {
-                if (intent.getAction().equals(
-                        "com.google.sharedlibrary.service.GpsDataCaptureService.STARTCAPTURE")) {
-                    Handler mHandler = new Handler(getMainLooper());
-                    LocationApiType finalType = type;
-                    mHandler.post(() -> {
-                        Log.d(TAG, "Starting capture via intent");
-                        startCapture(finalType);
-                    });
-                }
-                if (intent.getAction().equals(
-                        "com.google.sharedlibrary.service.GpsDataCaptureService.STOPCAPTURE")) {
-                    Handler mHandler = new Handler(getMainLooper());
-                    LocationApiType finalType = type;
-                    mHandler.post(() -> {
-                        stopCapture(finalType);
-                        Log.d(TAG, "Stopped capture via intent");
-                    });
-                }
-            }
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-
         if (fusedLocationProviderClient == null) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         }
@@ -152,6 +93,11 @@ public class GpsDataCaptureService extends IntentService {
         sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 this.getResources().getConfiguration().locale);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 
     @Override
@@ -177,10 +123,8 @@ public class GpsDataCaptureService extends IntentService {
 
     /**
      * Start capturing data from GPS via the chosen location api
-     *
-     * @param locationApiType the chosen location api
      */
-    public void startCapture(LocationApiType locationApiType) {
+    public void startCapture() {
         //create a new file
         gpxFile = createGpxFile(gpxFileFolder, createFileName());
 
@@ -200,10 +144,6 @@ public class GpsDataCaptureService extends IntentService {
         }
     }
 
-    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel) {
-        this.gpsInfoViewModel = gpsInfoViewModel;
-    }
-
     /**
      * On location changed, update gps data on gpsDataTextView, draw gps data point on Map and write
      * gps data to file
@@ -219,7 +159,10 @@ public class GpsDataCaptureService extends IntentService {
 
         //write gps data to file
         try {
-            gpxFileWriter.writeGpsData(location);
+            if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
+                signalData.resetSignalData();
+            }
+            gpxFileWriter.writeGpsData(location, signalData);
         } catch (Exception e) {
             Log.e(TAG, "GpxFileWriter could not write data.", e);
         }
@@ -231,19 +174,68 @@ public class GpsDataCaptureService extends IntentService {
      * @param event the event returned by GpsStatus Listener's callback function
      */
     public void onGpsStatusChanged(int event) {
-        //set gps status in the view model
+        int satellitesUsedInFix = 0;
+        if (event == GpsStatus.GPS_EVENT_SATELLITE_STATUS) {
+            //Get Gps Status
+            @SuppressLint("MissingPermission")
+            GpsStatus status = locationManager.getGpsStatus(null);
+
+            if(status != null) {
+                Iterable<GpsSatellite> satellites = status.getSatellites();
+                PriorityQueue<Float> signalPriorityQueue = new PriorityQueue<>();
+
+                int satellitesVisible = 0;
+                float averageSignalStrength = 0;
+
+                //Get the satellites visible, satellites used in fix and the top 4 strongest signal
+                // to noise ratio from the satellite.
+                for (GpsSatellite sat : satellites) {
+                    if (sat.usedInFix()) {
+                        satellitesUsedInFix++;
+                        float signalStrength = sat.getSnr();
+                        averageSignalStrength += signalStrength;
+
+                        if (signalPriorityQueue.size() == 4) {
+                            signalPriorityQueue.poll();
+                        }
+                        signalPriorityQueue.add(signalStrength);
+                    }
+                    satellitesVisible++;
+                }
+
+                //Calculate the average of signal strength
+                if (satellitesUsedInFix != 0) {
+                    averageSignalStrength /= satellitesUsedInFix;
+                }
+
+                //Set the signalData
+                if (signalPriorityQueue.size() == 4) {
+                    Log.d(TAG, "signalPriorityQueue size is: " + 4);
+                    signalData.setSignalData(signalPriorityQueue);
+                }
+
+                Log.d(TAG, "Satellites visible: " + satellitesVisible);
+                Log.d(TAG, "Satellites used in fix: " + satellitesUsedInFix);
+                Log.d(TAG,
+                        "Average of satellites used in fix signal strength: "
+                                + averageSignalStrength);
+                Log.d(TAG,
+                        "Average of top 4 strongest signal strength: "
+                                + signalData.getAverageSignal());
+            }
+        }
+
+        //set gps status and satellites in the view model
         if (gpsInfoViewModel != null) {
             gpsInfoViewModel.setGpsStatusMutableLiveData(event);
+            gpsInfoViewModel.setSatellitesUsedInFix(satellitesUsedInFix);
         }
     }
 
     /**
      * Stop capturing data from GPS via the chosen location api
-     *
-     * @param locationApiType the chosen location api
      */
-    public void stopCapture(LocationApiType locationApiType) {
-
+    public void stopCapture() {
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             stopFusedLocationProviderClient(fusedLocationProviderClient,
                     fusedLocationProviderListener);
@@ -251,6 +243,7 @@ public class GpsDataCaptureService extends IntentService {
         } else {
             stopLocationManager(locationManager, locationManagerListener);
         }
+
         //write the file footer
         if (gpxFileWriter != null) {
             gpxFileWriter.writeFileAnnotation(false);
@@ -259,5 +252,20 @@ public class GpsDataCaptureService extends IntentService {
         //reset gpxFileWriter and gpxFile
         gpxFileWriter = null;
         gpxFile = null;
+        locationApiType = LocationApiType.LOCATIONMANAGER;
+    }
+
+    /**
+     * Set the locationApiType
+     */
+    public void setLocationApiType(LocationApiType locationApiType) {
+        this.locationApiType = locationApiType;
+    }
+
+    /**
+     * Set the gpsInfoViewModel
+     */
+    public void setGpsInfoViewModel(GpsInfoViewModel gpsInfoViewModel) {
+        this.gpsInfoViewModel = gpsInfoViewModel;
     }
 }

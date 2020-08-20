@@ -54,6 +54,7 @@
             android:scrollHorizontally="false"
             android:singleLine="false"
             android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString()?? @string/waiting_gps_data}"
+            android:textStyle="bold"
             android:textAlignment="center"
             android:textSize="@dimen/complicationDrawable_textSize"
             android:visibility="gone"
@@ -67,12 +68,29 @@
             android:layout_below="@id/text_view_gps_data"
             android:layout_centerHorizontal="true"
             android:singleLine="true"
-            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()}"
+            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
+            android:textStyle="bold"
             android:textAlignment="center"
             android:textSize="@dimen/complicationDrawable_textSize"
             android:visibility="gone"
             tools:hint="GPS Status"
             tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_view_satellites"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/text_view_gps_status"
+            android:layout_centerHorizontal="true"
+            android:singleLine="true"
+            android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textSize="@dimen/complicationDrawable_textSize"
+            android:visibility="gone"
+            tools:hint="Satellites"
+            tools:visibility="visible"
+            />
     </RelativeLayout>
 
     <data>

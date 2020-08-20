@@ -17,11 +17,13 @@ public class GpsInfoViewModel extends ViewModel {
     private static final String TAG = "GpsInfoViewModel";
     private MutableLiveData<GpsData> gpsDataMutableLiveData;
     private MutableLiveData<String> gpsStatusMutableLiveData;
+    private MutableLiveData<String>  satellitesUsedInFix;
 
     public GpsInfoViewModel() {
         Log.i("ViewModel", "Create GpsInfoViewModel");
         gpsDataMutableLiveData = new MutableLiveData<>();
         gpsStatusMutableLiveData = new MutableLiveData<>();
+        satellitesUsedInFix = new MutableLiveData<>();
     }
 
     /**
@@ -53,6 +55,19 @@ public class GpsInfoViewModel extends ViewModel {
     }
 
     /**
+     * Set the satellietesUsedInFix value
+     * @param  satellites the number of satellites used in fix passed from gps status listener
+     */
+    public void setSatellitesUsedInFix(int satellites){
+        if(satellites == -1){
+            Log.d(TAG, "setSatellitesUsedInFix: UNKNOWN");
+            satellitesUsedInFix.setValue("UNKNOWN");
+        }
+        Log.d(TAG, "setSatellitesUsedInFix");
+        satellitesUsedInFix.setValue("Satellites: " + String.valueOf(satellites));
+    }
+
+    /**
      * @return gpsDataMutableLiveData
      */
     @NonNull
@@ -68,6 +83,14 @@ public class GpsInfoViewModel extends ViewModel {
     public LiveData<String> getGpsStatusMutableLiveData() {
         Log.d(TAG, "getGpsStatusMutableLiveData");
         return gpsStatusMutableLiveData;
+    }
+
+    /**
+     * @return satellitesUsedInFix
+     */
+    public LiveData<String> getSatellitesUsedInFix(){
+        Log.d(TAG, "getSatellitesUsedInFix");
+        return satellitesUsedInFix;
     }
 
     @Override

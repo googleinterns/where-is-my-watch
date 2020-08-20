@@ -32,7 +32,6 @@ import com.google.sharedlibrary.model.GpsInfoViewModelFactory;
 public class MobileGpsMainActivity extends AppCompatActivity {
     private static final String TAG = "MobileGpsMainActivity";
     private static GpsDataCaptureService gpsDataCaptureService;
-    private static Intent serviceIntent;
     private LocationManager locationManager;
     private static boolean isBound = false;
 
@@ -44,8 +43,11 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private Button startAndStopButton;
     private TextView gpsDataTextView;
     private TextView gpsStatusTextView;
+    private TextView satellitesTextView;
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
+
+    private Intent mLaunchIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +70,13 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         startAndStopButton = (Button) findViewById(R.id.m_start_stop_button);
         gpsDataTextView = (TextView) findViewById(R.id.m_text_view_gps_data);
         gpsStatusTextView = (TextView) findViewById(R.id.m_text_view_gps_status);
+        satellitesTextView = (TextView) findViewById(R.id.m_text_view_satellites);
 
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
-            Log.d(TAG, "Permissions required to run this app. Start to request necessary permissions.");
+            Log.d(TAG,
+                    "Missing permission. Requesting all necessary permissions..."
+                            + ".");
             Utils.requestNecessaryPermissions(this);
         }
         if (!isGpsEnabled(locationManager)) {
@@ -86,6 +91,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
                     : LocationApiType.LOCATIONMANAGER;
         });
 
+        //get the launch intent
+        mLaunchIntent = this.getIntent();
+        Log.d(TAG, mLaunchIntent.toString());
 
         //Start the service
         startAndBindGpsDataCaptureService();
@@ -94,7 +102,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         // connected
         //stop capture data, then stop and unbind service on stop button clicked
         startAndStopButton.setOnClickListener((View v) -> {
-            if (startAndStopButtonState == Utils.ButtonState.START_CAPTURE) {
+            if (startAndStopButtonState == ButtonState.START_CAPTURE) {
                 //hide radio group
                 apiRadioGroup.setVisibility(View.GONE);
 
@@ -113,6 +121,25 @@ public class MobileGpsMainActivity extends AppCompatActivity {
                 switchToStartButton();
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String action = intent.getAction();
+        if (action != null && isBound){
+            Log.d(TAG, "Intent action: " + action);
+            //Stop capture if it's stop intent
+            if (action.equals(
+                    "com.google.gpsdatacapturer.STOP_CAPTURE")) {
+                Log.d(TAG, "Stop capture via intent onNewIntent");
+                gpsDataCaptureService.stopCapture();
+            } else if(action.equals("com.google.gpsdatacapturer.START_CAPTURE")){
+                Utils.startCaptureViaIntent(gpsDataCaptureService, intent);
+                Log.d(TAG, "Start capture onNewIntent");
+            }
+        }
     }
 
     @Override
@@ -138,7 +165,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if(!gpsCaptureStopped) {
+        if (!gpsCaptureStopped) {
             stopGpsCapture();
         }
         unbindGpsDataCaptureService();
@@ -149,7 +176,6 @@ public class MobileGpsMainActivity extends AppCompatActivity {
      * Set GPS if it's not enabled
      */
     private void setGpsEnabled() {
-        //Todo pop out a dialog to accept/deny enable setting??
         Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         startActivity(settingsIntent);
     }
@@ -170,7 +196,8 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         Log.d(TAG, "Start capture data.");
         gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
-        gpsDataCaptureService.startCapture(locationApiType);
+        gpsDataCaptureService.setLocationApiType(locationApiType);
+        gpsDataCaptureService.startCapture();
     }
 
     /**
@@ -182,7 +209,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "Stop capture data.");
-        gpsDataCaptureService.stopCapture(locationApiType);
+        gpsDataCaptureService.stopCapture();
         gpsCaptureStopped = true;
     }
 
@@ -196,6 +223,17 @@ public class MobileGpsMainActivity extends AppCompatActivity {
             //get the gpsDataCaptureService
             gpsDataCaptureService =
                     ((GpsDataCaptureService.GpsDataCaptureBinder) service).getService();
+
+            String action = mLaunchIntent.getAction();
+            if (action != null && action.equals("com.google.gpsdatacapturer.START_CAPTURE")) {
+                //start capture via launch intent
+                try {
+                    Utils.startCaptureViaIntent(gpsDataCaptureService, mLaunchIntent);
+                    Log.d(TAG, "Start capture via launch intent onServiceConnected");
+                } catch (Exception e) {
+                    Log.d(TAG, "Could not start capture via launch intent");
+                }
+            }
         }
 
         @Override
@@ -209,7 +247,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
      * Bind the activity to GpsDataCaptureService
      */
     private void startAndBindGpsDataCaptureService() {
-        serviceIntent = new Intent(this, GpsDataCaptureService.class);
+        Intent serviceIntent = new Intent(this, GpsDataCaptureService.class);
         //start GpsDataCaptureService
         try {
             Log.d(TAG, "Start service");
@@ -247,6 +285,13 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void showGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.VISIBLE);
         gpsStatusTextView.setVisibility(View.VISIBLE);
+        satellitesTextView.setVisibility(View.VISIBLE);
+
+        if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
+            Log.d(TAG, "GPS Status not available via FusedLocationProvider");
+            gpsStatusTextView.setText(R.string.gps_status_not_available);
+            satellitesTextView.setText(R.string.satellites_not_available);
+        }
     }
 
     /**
@@ -255,6 +300,7 @@ public class MobileGpsMainActivity extends AppCompatActivity {
     private void hideGpsDataAndStatusTextView() {
         gpsDataTextView.setVisibility(View.GONE);
         gpsStatusTextView.setVisibility(View.GONE);
+        satellitesTextView.setVisibility(View.GONE);
     }
 
     /**

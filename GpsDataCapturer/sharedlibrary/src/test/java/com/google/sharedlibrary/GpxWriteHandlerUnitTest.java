@@ -39,16 +39,16 @@ public class GpxWriteHandlerUnitTest {
     @Mock
     private Location location;
 
-    private String formattedTime = "2020-07-12T00:02:36.000Z" ;
-    private boolean append = true;
-
 
     @Before
     public void setUp(){
         ShadowLog.stream = System.out;
         gpxFile = mock(File.class);
         location = mock(Location.class);
-        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, append);
+        float signal = 0.0f;
+        String formattedTime = "2020-07-12T00:02:36.000Z";
+        boolean append = true;
+        gpxWriteHandler = new GpxWriteHandler(formattedTime, gpxFile, location, signal, append);
     }
 
     @Test

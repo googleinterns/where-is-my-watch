@@ -75,7 +75,7 @@ public class GpsDataCaptureServiceUnitTest {
     @Test
     public void testServiceStartCapture() throws IOException {
         ShadowLog.stream = System.out;
-        gpsDataCaptureService.startCapture(Utils.LocationApiType.LOCATIONMANAGER);
+        gpsDataCaptureService.startCapture();
 
         assertNotNull(gpxFileFolder.listFiles());
         assertEquals(1, gpxFileFolder.listFiles().length);
@@ -99,7 +99,7 @@ public class GpsDataCaptureServiceUnitTest {
             }
         }
 
-        gpsDataCaptureService.startCapture(Utils.LocationApiType.LOCATIONMANAGER);
+        gpsDataCaptureService.startCapture();
         assertEquals(2, gpxFileFolder.listFiles().length);
     }
 
@@ -109,7 +109,7 @@ public class GpsDataCaptureServiceUnitTest {
         GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
         gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
 
-        gpsDataCaptureService.startCapture(Utils.LocationApiType.LOCATIONMANAGER);
+        gpsDataCaptureService.startCapture();
 
         Location location = mock(Location.class);
         shadowLocationManager.simulateLocation(location);
@@ -132,7 +132,7 @@ public class GpsDataCaptureServiceUnitTest {
         //Given
         GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
         gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
-        gpsDataCaptureService.startCapture(Utils.LocationApiType.LOCATIONMANAGER);
+        gpsDataCaptureService.startCapture();
 
         //When
         gpsDataCaptureService.onGpsStatusChanged(1);
@@ -152,8 +152,8 @@ public class GpsDataCaptureServiceUnitTest {
     @Test
     public void testServiceStopCapture() {
         ShadowLog.stream = System.out;
-        gpsDataCaptureService.startCapture(Utils.LocationApiType.LOCATIONMANAGER);
-        gpsDataCaptureService.stopCapture(Utils.LocationApiType.LOCATIONMANAGER);
+        gpsDataCaptureService.startCapture();
+        gpsDataCaptureService.stopCapture();
 
         assertNotNull(gpxFileFolder.listFiles());
         assertEquals(1, gpxFileFolder.listFiles().length);
