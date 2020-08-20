@@ -134,8 +134,8 @@ class DeviationCalculatorTest(unittest.TestCase):
                      datetime(2020, 7, 22, 15, 49, 7, tzinfo=timezone.utc),
                      datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc)]
         distance_deviation_list = [0.0, 0.0, 0.0, 0.0, 0.0]
-        speed__deviation_list = [1.0, 0.0, 0.0, 0.0, 0.0]
-        altitude__deviation_list = [.3, 0.0, 0.0, 0.0, 0.0]
+        speed_deviation_list = [1.0, 0.0, 0.0, 0.0, 0.0]
+        altitude_deviation_list = [.3, 0.0, 0.0, 0.0, 0.0]
         set1_time_list = [datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 5, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc),
@@ -151,8 +151,8 @@ class DeviationCalculatorTest(unittest.TestCase):
         signal_deviation_list = [0.0, 0.0, 0.0, 0.0, 0.0]
         deviations_dataframe = pd.DataFrame({"Common Timestamp": time_list,
                                              "Distance Deviations": distance_deviation_list,
-                                             "Speed Deviations": speed__deviation_list,
-                                             "Altitude Deviations": altitude__deviation_list,
+                                             "Speed Deviations": speed_deviation_list,
+                                             "Altitude Deviations": altitude_deviation_list,
                                              "Set 1 Timestamp": set1_time_list,
                                              "Set 2 Timestamp": set2_time_list,
                                               "Set 1 Average Signal": set1_singal_list,
