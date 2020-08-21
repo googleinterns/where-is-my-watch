@@ -133,9 +133,9 @@ class DeviationCalculatorTest(unittest.TestCase):
                      datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc),
                      datetime(2020, 7, 22, 15, 49, 7, tzinfo=timezone.utc),
                      datetime(2020, 7, 22, 15, 49, 8, tzinfo=timezone.utc)]
-        deviation_list = [0.0, 0.0, 0.0, 0.0, 0.0]
-        speed_differentials = [1.0, 0.0, 0.0, 0.0, 0.0]
-        altitude_differentials = [.3, 0.0, 0.0, 0.0, 0.0]
+        distance_deviation_list = [0.0, 0.0, 0.0, 0.0, 0.0]
+        speed_deviation_list = [1.0, 0.0, 0.0, 0.0, 0.0]
+        altitude_deviation_list = [.3, 0.0, 0.0, 0.0, 0.0]
         set1_time_list = [datetime(2020, 7, 22, 15, 49, 4, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 5, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 6, tzinfo=timezone.utc),
@@ -146,12 +146,18 @@ class DeviationCalculatorTest(unittest.TestCase):
                           datetime(2020, 7, 22, 15, 49, 3, 626803, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 4, 626803, tzinfo=timezone.utc),
                           datetime(2020, 7, 22, 15, 49, 5, 626803, tzinfo=timezone.utc)]
+        set1_singal_list = [0.0, 0.0, 0.0, 0.0, 0.0]
+        set2_signal_list = [0.0, 0.0, 0.0, 0.0, 0.0]
+        signal_deviation_list = [0.0, 0.0, 0.0, 0.0, 0.0]
         deviations_dataframe = pd.DataFrame({"Common Timestamp": time_list,
-                                             "Deviations": deviation_list,
-                                             "Speed Differentials": speed_differentials,
-                                             "Altitude Differentials": altitude_differentials,
+                                             "Distance Deviations": distance_deviation_list,
+                                             "Speed Deviations": speed_deviation_list,
+                                             "Altitude Deviations": altitude_deviation_list,
                                              "Set 1 Timestamp": set1_time_list,
-                                             "Set 2 Timestamp": set2_time_list})
+                                             "Set 2 Timestamp": set2_time_list,
+                                              "Set 1 Average Signal": set1_singal_list,
+                                             "Set 2 Average Signal": set2_signal_list,
+                                             "Signal Deviations": signal_deviation_list})
         calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)
 
         result = calculator.get_deviation_dataframe()
@@ -160,11 +166,14 @@ class DeviationCalculatorTest(unittest.TestCase):
 
     def test_get_deviation_dataframe_no_lineup(self):
         deviations_dataframe = pd.DataFrame({"Common Timestamp": [],
-                                             "Deviations": [],
-                                             "Speed Differentials": [],
-                                             "Altitude Differentials": [],
+                                             "Distance Deviations": [],
+                                             "Speed Deviations": [],
+                                             "Altitude Deviations": [],
                                              "Set 1 Timestamp": [],
-                                             "Set 2 Timestamp": []})
+                                             "Set 2 Timestamp": [],
+                                             "Set 1 Average Signal": [],
+                                             "Set 2 Average Signal": [],
+                                             "Signal Deviations": []})
         for data_point in self.simulator_data_set.gps_data_list:
             data_point.time = data_point.time + timedelta(seconds=100)
         calculator = DataSetDeviationCalculator(self.watch_data_set, self.simulator_data_set)

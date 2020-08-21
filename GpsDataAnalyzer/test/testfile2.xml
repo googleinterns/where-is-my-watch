@@ -2,8 +2,10 @@
 <metadata><time>2020-07-07T18:45:47.005Z</time><device>sampleDevice</device><id>sampleId</id><manufacturer>sampleManufacturer</manufacturer><model>sampleModel</model></metadata>
 <trk>
 <trkseg>
-<trkpt lat="63.17964" lon="-174.12954"><ele>4.91</ele><time>2020-07-07T18:46:36.000Z</time><speed>0.0</speed><accuracy>3.216</accuracy><src>gps</src></trkpt>
-<trkpt lat="63.17965" lon="-174.12955"><ele>4.91</ele><time>2020-07-07T18:46:37.000Z</time><speed>0.16</speed><accuracy>3.216</accuracy><src>gps</src></trkpt>
+<trkpt lat="63.17964" lon="-174.12954"><ele>4.91</ele><time>2020-07-07T18:46:36.000Z</time><speed>0.0</speed><accuracy>3.216</accuracy><src>gps</src>
+<sat>8</sat><signal01>35.026</signal01><signal02>32.124</signal02><signal03>29.458</signal03><signal04>27.123</signal04><average>30.93275</average></trkpt>
+<trkpt lat="63.17965" lon="-174.12955"><ele>4.91</ele><time>2020-07-07T18:46:37.000Z</time><speed>0.16</speed><accuracy>3.216</accuracy><src>gps</src>
+<sat>6</sat><signal01>30.026</signal01><signal02>28.124</signal02><signal03>27.458</signal03><signal04>25.123</signal04><average>27.68275</average></trkpt>
 </trkseg>
 </trk>
 <time>2020-07-07T19:08:01.318Z</time>

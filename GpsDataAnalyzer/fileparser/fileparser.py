@@ -79,12 +79,12 @@ class FileParser:
         return time.replace(tzinfo=timezone.utc)
 
 
-    def parse_xml_metadata(self, root, prefix) -> GpsMetaData:
+    def parse_xml_metadata(self, root) -> GpsMetaData:
         """
         Helper function to parse metadata information in xml file
         """
         # Get metadata information
-        metadata = root.find(prefix + 'metadata')
+        metadata = root.find(PREFIX_URL+ 'metadata')
         if metadata is None:
             LOGGER.debug('Metadata is None, could not be parsed.')
             return None
@@ -95,36 +95,36 @@ class FileParser:
         tz_starttime = None
 
         for data in metadata.iter():
-            if data.tag == prefix + 'device':
+            if data.tag == PREFIX_URL + 'device':
                 device = data.text
-            elif data.tag == prefix + 'id':
+            elif data.tag == PREFIX_URL + 'id':
                 identifier = data.text
-            elif data.tag == prefix + 'manufacturer':
+            elif data.tag == PREFIX_URL + 'manufacturer':
                 manufacturer = data.text
-            elif data.tag == prefix + 'model':
+            elif data.tag == PREFIX_URL + 'model':
                 model = data.text
-            elif data.tag == prefix + 'time':
+            elif data.tag == PREFIX_URL + 'time':
                 tz_starttime = self.parse_time(data.text)
 
         # Parse end timestamp
-        endtimestr = root.find(prefix + 'time').text
+        endtimestr = root.find(PREFIX_URL + 'time').text
         tz_endtime = self.parse_time(endtimestr)
 
         return GpsMetaData(device, identifier, manufacturer, model, tz_starttime, tz_endtime)
 
 
-    def parse_xml_trkpts(self, root, prefix) -> []:
+    def parse_xml_trkpts(self, root) -> []:
         """
         Helper function to parse trkpts in xml file
         """
         xml_gpsdatalist = []
 
-        trk = root.find(prefix + 'trk')
+        trk = root.find(PREFIX_URL + 'trk')
         if trk is None:
             LOGGER.debug('trk is None, could not parse trkpts.')
             return None
 
-        trkseg = trk.find(prefix + 'trkseg')
+        trkseg = trk.find(PREFIX_URL + 'trkseg')
         if trkseg is None:
             LOGGER.debug('trkseg is None, could not parse trkpts.')
             return None
@@ -150,16 +150,44 @@ class FileParser:
 
             # Get the altitude, speed and time 
             alt, speed, tz_time = None, None, None
+            sat = 0
+            first_signal, second_signal, third_signal, forth_signal, average_signal = 0.0, 0.0, 0.0, 0.0, 0.0
+
             for data in trkpt.iter():
-                if data.tag == prefix + 'ele':
+                if data.tag == PREFIX_URL + 'ele':
                     alt = float(data.text)
-                elif data.tag == prefix + 'speed':
+                elif data.tag == PREFIX_URL + 'speed':
                     speed = float(data.text)
-                elif data.tag == prefix + 'time':
+                elif data.tag == PREFIX_URL + 'time':
                     tz_time = self.parse_time(data.text)
+                elif data.tag == PREFIX_URL + 'sat':
+                    sat = int(data.text)
+                elif data.tag == PREFIX_URL + 'signal01':
+                    first_signal = float(data.text)
+                elif data.tag == PREFIX_URL + 'signal02':
+                    second_signal = float(data.text)
+                elif data.tag == PREFIX_URL + 'signal03':
+                    third_signal = float(data.text)
+                elif data.tag == PREFIX_URL + 'signal04':
+                    forth_signal = float(data.text)
+                elif data.tag == PREFIX_URL + 'average':
+                    average_signal = float(data.text)
+
                         
-            dataPoint = GpsData(lat, lon, alt, speed, tz_time, distance)
-            xml_gpsdatalist.append(dataPoint)
+            data_point = GpsData(latitude=lat,
+                                 longitude=lon, 
+                                 altitude=alt, 
+                                 speed=speed, 
+                                 time=tz_time, 
+                                 distance=distance, 
+                                 satellites=sat, 
+                                 first_signal=first_signal, 
+                                 second_signal=second_signal, 
+                                 third_signal=third_signal, 
+                                 forth_signal=forth_signal, 
+                                 average_signal=average_signal)
+
+            xml_gpsdatalist.append(data_point)
 
         return xml_gpsdatalist
 
@@ -181,10 +209,10 @@ class FileParser:
         root = xmlTree.getroot()
 
         # Create the xml gpsmetadata
-        xml_gpsmetadata = self.parse_xml_metadata(root, PREFIX_URL)
+        xml_gpsmetadata = self.parse_xml_metadata(root)
 
         # Create the xml gpsdatalist
-        xml_gpsdatalist = self.parse_xml_trkpts(root, PREFIX_URL)
+        xml_gpsdatalist = self.parse_xml_trkpts(root)
 
         # Create the GpsDataSet
         return GpsDataSet(xml_gpsmetadata, xml_gpsdatalist)
