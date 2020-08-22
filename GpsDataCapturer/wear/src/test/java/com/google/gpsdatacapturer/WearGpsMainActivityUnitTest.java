@@ -57,8 +57,15 @@ public class WearGpsMainActivityUnitTest {
 
     private Button startAndStopButton;
     private RadioGroup apiRadioGroup;
-    private TextView gpsDataTextView;
-    private TextView gpsStatusTextView;
+    private View gpsDataContainer;
+    private View gpsStatusContainer;
+    private View satelliteContainer;
+
+    private TextView latDataTextView;
+    private TextView lonDataTextView;
+    private TextView speedDataTextView;
+    private TextView gpsEventTextView;
+    private TextView satelliteNumTextView;
 
     @Before
     public void setUp() {
@@ -98,19 +105,23 @@ public class WearGpsMainActivityUnitTest {
     public void testInitialUIShowingAsExpected() {
         apiRadioGroup = wearGpsMainActivity.findViewById(R.id.radio_group_location_api);
         startAndStopButton = wearGpsMainActivity.findViewById(R.id.button_start_stop);
-        gpsDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_data);
-        gpsStatusTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_status);
+
+        gpsDataContainer = wearGpsMainActivity.findViewById(R.id.gps_data_container);
+        gpsStatusContainer = wearGpsMainActivity.findViewById(R.id.gps_status_container);
+        satelliteContainer = wearGpsMainActivity.findViewById(R.id.satellite_container);
 
         assertNotNull(apiRadioGroup);
         assertNotNull(startAndStopButton);
-        assertNotNull(gpsDataTextView);
-        assertNotNull(gpsStatusTextView);
+        assertNotNull(gpsDataContainer);
+        assertNotNull(gpsStatusContainer);
+        assertNotNull(satelliteContainer);
 
         assertEquals(View.VISIBLE, apiRadioGroup.getVisibility());
         assertEquals(View.VISIBLE, startAndStopButton.getVisibility());
         assertEquals("START", startAndStopButton.getText());
-        assertEquals(View.GONE, gpsDataTextView.getVisibility());
-        assertEquals(View.GONE, gpsStatusTextView.getVisibility());
+        assertEquals(View.GONE, gpsDataContainer.getVisibility());
+        assertEquals(View.GONE, gpsStatusContainer.getVisibility());
+        assertEquals(View.GONE, satelliteContainer.getVisibility());
     }
 
     @Test
@@ -135,15 +146,17 @@ public class WearGpsMainActivityUnitTest {
     public void testStartButtonClickedUIChangedAsExpected() {
         apiRadioGroup = wearGpsMainActivity.findViewById(R.id.radio_group_location_api);
         startAndStopButton = wearGpsMainActivity.findViewById(R.id.button_start_stop);
-        gpsDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_data);
-        gpsStatusTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_status);
+        gpsDataContainer = wearGpsMainActivity.findViewById(R.id.gps_data_container);
+        gpsStatusContainer = wearGpsMainActivity.findViewById(R.id.gps_status_container);
+        satelliteContainer = wearGpsMainActivity.findViewById(R.id.satellite_container);
 
         startAndStopButton.performClick();
 
         assertEquals(View.GONE, apiRadioGroup.getVisibility());
         assertEquals("STOP", startAndStopButton.getText());
-        assertEquals(View.VISIBLE, gpsDataTextView.getVisibility());
-        assertEquals(View.VISIBLE, gpsStatusTextView.getVisibility());
+        assertEquals(View.VISIBLE, gpsDataContainer.getVisibility());
+        assertEquals(View.VISIBLE, gpsStatusContainer.getVisibility());
+        assertEquals(View.VISIBLE, satelliteContainer.getVisibility());
     }
 
     //The following test testing data binding successfully
@@ -206,45 +219,80 @@ public class WearGpsMainActivityUnitTest {
 
         //When
         when(gpsInfoViewModel.getGpsDataMutableLiveData()).thenReturn(gpsDataLiveData);
-        gpsDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_data);
+        latDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_lat_data);
+        lonDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_lon_data);
+        speedDataTextView = wearGpsMainActivity.findViewById(R.id.text_view_speed_data);
         Observer<GpsData> gpsDataObserver = new Observer<GpsData>() {
             @Override
             public void onChanged(GpsData gpsData) {
-                gpsDataTextView.setText(gpsData.getGpsDataString());
+                latDataTextView.setText(gpsData.getLatitude());
+                lonDataTextView.setText(gpsData.getLongitude());
+                speedDataTextView.setText(gpsData.getSpeed());
             }
         };
         gpsInfoViewModel.getGpsDataMutableLiveData().observeForever(
                 gpsDataObserver);
 
         //Then
-        String data = gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getGpsDataString();
-        assertEquals(data, gpsDataTextView.getText().toString());
+        String latData = gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getLatitude();
+        String lonData = gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getLongitude();
+        String speedData = gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getSpeed();
+        assertEquals(latData, latDataTextView.getText().toString());
+        assertEquals(lonData, lonDataTextView.getText().toString());
+        assertEquals(speedData, speedDataTextView.getText().toString());
+
     }
 
     @Test
     public void testGpsStatusTextViewUpdateAsExpected() {
         //Given
-        String gpsStatus = "Gps Status: GPS_EVENT_STARTED";
+        String gpsStatusEvent = "GPS_EVENT_STARTED";
         gpsInfoViewModel = mock(GpsInfoViewModel.class);
         gpsInfoViewModel.setGpsStatusMutableLiveData(1);
         MutableLiveData<String> gpsStatusLiveData = new MutableLiveData<>();
-        gpsStatusLiveData.setValue(gpsStatus);
+        gpsStatusLiveData.setValue(gpsStatusEvent);
 
         //When
         when(gpsInfoViewModel.getGpsStatusMutableLiveData()).thenReturn(gpsStatusLiveData);
-        gpsStatusTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_status);
+        gpsEventTextView = wearGpsMainActivity.findViewById(R.id.text_view_gps_event);
         Observer<String> gpsStatusObserver = new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                gpsStatusTextView.setText(s);
+                gpsEventTextView.setText(s);
             }
         };
         gpsInfoViewModel.getGpsStatusMutableLiveData().observeForever(
                 gpsStatusObserver);
 
         //Then
-        String status = gpsInfoViewModel.getGpsStatusMutableLiveData().getValue();
-        assertEquals(status, gpsStatusTextView.getText().toString());
+        String event = gpsInfoViewModel.getGpsStatusMutableLiveData().getValue();
+        assertEquals(event, gpsEventTextView.getText().toString());
+    }
+
+    @Test
+    public void testSatelliteNumTextViewUpdateAsExpected(){
+        //Given
+        gpsInfoViewModel = mock(GpsInfoViewModel.class);
+        gpsInfoViewModel.setSatellitesUsedInFix(8);
+        MutableLiveData<String> satelliteUsedInFix = new MutableLiveData<>();
+        satelliteUsedInFix.setValue("8");
+
+        //When
+        when(gpsInfoViewModel.getSatellitesUsedInFix()).thenReturn(satelliteUsedInFix);
+        satelliteNumTextView = wearGpsMainActivity.findViewById(R.id.text_view_satellites_num);
+
+        Observer<String> satelliteObserver = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                satelliteNumTextView.setText(s);
+            }
+        };
+        gpsInfoViewModel.getSatellitesUsedInFix().observeForever(
+                satelliteObserver);
+
+        //Then
+        String satelliteNum = gpsInfoViewModel.getSatellitesUsedInFix().getValue();
+        assertEquals(satelliteNum, satelliteNumTextView.getText().toString());
     }
 
     @After

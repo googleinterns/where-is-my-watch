@@ -11,21 +11,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.text.DecimalFormat;
+
 @RunWith(MockitoJUnitRunner.class)
 public class GpsDataUnitTest {
     private GpsData gpsData;
+    private DecimalFormat locationDF;
+    private DecimalFormat speedDF;
 
     @Test
     public void testGetGpsDataString() {
         //Given
-        String expected =
-                "GPS DATA \n" + "Lat: " + "0.000000\n" + "Lon: " + "0.000000\n" + "Speed: " + "0.0000\n";
         Location location = mock(Location.class);
+        locationDF= new DecimalFormat("0.000000");
+        speedDF = new DecimalFormat("0.0000");
 
         //When
         gpsData = new GpsData(location);
 
         //Then
-        assertEquals(expected, gpsData.getGpsDataString());
+        assertEquals(locationDF.format(location.getLatitude()), gpsData.getLatitude());
+        assertEquals(locationDF.format(location.getLongitude()), gpsData.getLongitude());
+        assertEquals(speedDF.format(location.getSpeed()), gpsData.getSpeed());
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Body text style -->
+    <style name="BodyTextStyle" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textSize">@dimen/complicationDrawable_textSize</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

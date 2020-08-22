@@ -1,110 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="gpsInfoViewModel"
-            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
-    </data>
-
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/darkGrey">
 
         <Button
             android:id="@+id/m_start_stop_button"
+            style="@style/BodyTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="120dp"
+            android:layout_marginTop="256dp"
+            android:background="@drawable/mobile_button_green"
             android:text="@string/start_capture"
-            android:textSize="18sp"
-            android:textColor="@color/primaryWhite"
-            android:background="@drawable/mobile_button_green"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RadioGroup
             android:id="@+id/m_raido_group_api"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:checkedButton="@+id/m_radio_button_LM">
+            android:layout_marginTop="128dp"
+            android:checkedButton="@+id/m_radio_button_LM"
+            app:layout_constraintBottom_toTopOf="@id/m_start_stop_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <RadioButton
                 android:id="@+id/m_radio_button_LM"
+                style="@style/BodyTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/locationmanager_api"
-                android:textColor="@color/primaryWhite"
                 android:buttonTint="@color/primaryWhite"
-                android:textSize="20sp" />
+                android:text="@string/locationmanager_api" />
 
             <RadioButton
                 android:id="@+id/m_radio_button_FLP"
+                style="@style/BodyTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/fusedlocationprovider_api"
-                android:textColor="@color/primaryWhite"
                 android:buttonTint="@color/primaryWhite"
-                android:textSize="20sp" />
+                android:text="@string/fusedlocationprovider_api" />
         </RadioGroup>
 
-        <TextView
-            android:id="@+id/m_text_view_gps_data"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/gps_data_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="128dp"
-            android:lines="4"
-            android:maxLines="5"
-            android:minLines="2"
-            android:scrollHorizontally="false"
-            android:singleLine="false"
-            android:textAlignment="center"
-            android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString()?? @string/waiting_gps_data}"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/primaryWhite"
+            android:layout_marginTop="64dp"
             android:visibility="gone"
-            tools:hint="GPS DATA"
-            tools:visibility="visible" />
+            app:layout_constraintBottom_toTopOf="@id/m_raido_group_api"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/m_text_view_gps_status"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/text_view_gps_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/gps_data"
+                android:text="@{gpsInfoViewModel.getGpsDataAvailability()? @string/gps_data : @string/waiting_gps_data}"
+                app:layout_constraintBottom_toTopOf="@id/text_view_lat"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_view_lat"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/lat"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBottom_toTopOf="@id/text_view_lon"
+                app:layout_constraintEnd_toStartOf="@id/text_view_lat_data"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_view_gps_data" />
+
+            <TextView
+                android:id="@+id/text_view_lat_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/loc_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLatitude()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBaseline_toBaselineOf="@id/text_view_lat"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_view_lat" />
+
+            <TextView
+                android:id="@+id/text_view_lon"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lon"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBottom_toTopOf="@id/text_view_speed"
+                app:layout_constraintEnd_toStartOf="@id/text_view_lon_data"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_view_lat" />
+
+            <TextView
+                android:id="@+id/text_view_lon_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="@string/loc_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLongitude()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBaseline_toBaselineOf="@id/text_view_lon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_view_lon"
+                app:layout_constraintTop_toBottomOf="@id/text_view_lat_data" />
+
+            <TextView
+                android:id="@+id/text_view_speed"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speed"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_speed_data"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_view_lon" />
+
+            <TextView
+                android:id="@+id/text_view_speed_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="@string/loc_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getSpeed()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
+                app:layout_constraintBaseline_toBaselineOf="@id/text_view_speed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_view_speed"
+                app:layout_constraintTop_toBottomOf="@id/text_view_lon" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/gps_status_container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/m_text_view_gps_data"
             android:layout_marginTop="16dp"
-            android:layout_centerHorizontal="true"
-            android:singleLine="true"
-            android:textAlignment="center"
-            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/primaryWhite"
             android:visibility="gone"
-            tools:hint="GPS Status"
-            tools:visibility="visible" />
+            app:layout_constraintBottom_toTopOf="@id/satellite_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gps_data_container"
+            tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/m_text_view_satellites"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/m_text_view_gps_status"
-            android:layout_centerHorizontal="true"
-            android:singleLine="true"
-            android:textAlignment="center"
-            android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/primaryWhite"
+            <TextView
+                android:id="@+id/text_view_gps_status"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gps_status"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_gps_event"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_view_gps_event"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
+                app:layout_constraintBaseline_toBaselineOf="@id/text_view_gps_status"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_view_gps_status"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:hint="GPS_EVENT_STARTED" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/satellite_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            tools:hint="Satellites"
-            tools:visibility="visible"
-            />
-    </RelativeLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gps_status_container"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/text_view_satellites"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satellites"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_satellites_num"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_view_satellites_num"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
+                app:layout_constraintBaseline_toBaselineOf="@id/text_view_satellites"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_view_satellites"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:hint="12" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="gpsInfoViewModel"
+            type="com.google.sharedlibrary.model.GpsInfoViewModel" />
+    </data>
 
 </layout>

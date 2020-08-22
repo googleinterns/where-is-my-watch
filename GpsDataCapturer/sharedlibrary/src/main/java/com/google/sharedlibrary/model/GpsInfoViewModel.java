@@ -18,12 +18,15 @@ public class GpsInfoViewModel extends ViewModel {
     private MutableLiveData<GpsData> gpsDataMutableLiveData;
     private MutableLiveData<String> gpsStatusMutableLiveData;
     private MutableLiveData<String>  satellitesUsedInFix;
+    private MutableLiveData<Boolean> isGpsDataAvailable;
 
     public GpsInfoViewModel() {
         Log.i("ViewModel", "Create GpsInfoViewModel");
         gpsDataMutableLiveData = new MutableLiveData<>();
         gpsStatusMutableLiveData = new MutableLiveData<>();
         satellitesUsedInFix = new MutableLiveData<>();
+        isGpsDataAvailable = new MutableLiveData<>();
+
     }
 
     /**
@@ -33,6 +36,7 @@ public class GpsInfoViewModel extends ViewModel {
     public void setGpsDataMutableLiveData(Location location) {
         Log.d(TAG, "setGpsDataMutableLiveData");
         gpsDataMutableLiveData.setValue(new GpsData(location));
+        isGpsDataAvailable.setValue(true);
     }
 
     /**
@@ -43,13 +47,13 @@ public class GpsInfoViewModel extends ViewModel {
         Log.d(TAG, "setGpsStatusMutableLiveData");
         switch (event) {
             case GpsStatus.GPS_EVENT_FIRST_FIX:
-                gpsStatusMutableLiveData.setValue("Gps Status: GPS_EVENT_FIRST_FIX");
+                gpsStatusMutableLiveData.setValue("GPS_EVENT_FIRST_FIX");
                 break;
             case GpsStatus.GPS_EVENT_STARTED:
-                gpsStatusMutableLiveData.setValue("Gps Status: GPS_EVENT_STARTED");
+                gpsStatusMutableLiveData.setValue("GPS_EVENT_STARTED");
                 break;
             case GpsStatus.GPS_EVENT_STOPPED:
-                gpsStatusMutableLiveData.setValue("Gps Status: GPS_EVENT_STOPPED");
+                gpsStatusMutableLiveData.setValue("GPS_EVENT_STOPPED");
                 break;
         }
     }
@@ -64,7 +68,7 @@ public class GpsInfoViewModel extends ViewModel {
             satellitesUsedInFix.setValue("UNKNOWN");
         }
         Log.d(TAG, "setSatellitesUsedInFix");
-        satellitesUsedInFix.setValue("Satellites: " + String.valueOf(satellites));
+        satellitesUsedInFix.setValue(String.valueOf(satellites));
     }
 
     /**
@@ -91,6 +95,13 @@ public class GpsInfoViewModel extends ViewModel {
     public LiveData<String> getSatellitesUsedInFix(){
         Log.d(TAG, "getSatellitesUsedInFix");
         return satellitesUsedInFix;
+    }
+
+    /**
+     * @return if gps data available
+     */
+    public LiveData<Boolean> getGpsDataAvailability(){
+        return isGpsDataAvailable;
     }
 
     @Override

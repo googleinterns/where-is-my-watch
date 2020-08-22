@@ -41,9 +41,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
     private RadioGroup apiRadioGroup;
     private Button startAndStopButton;
-    private TextView gpsDataTextView;
-    private TextView gpsStatusTextView;
-    private TextView satellitesTextView;
+    private View gpsDataContainer;
+    private View gpsStatusContainer;
+    private View satellitesContainer;
     private GpsInfoViewModel gpsInfoViewModel;
     private boolean gpsCaptureStopped;
 
@@ -66,11 +66,13 @@ public class MobileGpsMainActivity extends AppCompatActivity {
 
         //Initialize all the necessary variables
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         apiRadioGroup = (RadioGroup) findViewById(R.id.m_raido_group_api);
         startAndStopButton = (Button) findViewById(R.id.m_start_stop_button);
-        gpsDataTextView = (TextView) findViewById(R.id.m_text_view_gps_data);
-        gpsStatusTextView = (TextView) findViewById(R.id.m_text_view_gps_status);
-        satellitesTextView = (TextView) findViewById(R.id.m_text_view_satellites);
+
+        gpsDataContainer = (View) findViewById(R.id.gps_data_container);
+        gpsStatusContainer = (View) findViewById(R.id.gps_status_container);
+        satellitesContainer = (View) findViewById(R.id.satellite_container);
 
         //check and request for all necessary permissions
         if (!Utils.hasUserGrantedNecessaryPermissions(this)) {
@@ -283,14 +285,16 @@ public class MobileGpsMainActivity extends AppCompatActivity {
      * Show gps data and status text view
      */
     private void showGpsDataAndStatusTextView() {
-        gpsDataTextView.setVisibility(View.VISIBLE);
-        gpsStatusTextView.setVisibility(View.VISIBLE);
-        satellitesTextView.setVisibility(View.VISIBLE);
+        gpsDataContainer.setVisibility(View.VISIBLE);
+        gpsStatusContainer.setVisibility(View.VISIBLE);
+        satellitesContainer.setVisibility(View.VISIBLE);
 
         if (locationApiType == LocationApiType.FUSEDLOCATIONPROVIDERCLIENT) {
             Log.d(TAG, "GPS Status not available via FusedLocationProvider");
+            TextView gpsStatusTextView = (TextView) findViewById(R.id.text_view_gps_event);
             gpsStatusTextView.setText(R.string.gps_status_not_available);
-            satellitesTextView.setText(R.string.satellites_not_available);
+            TextView satellitesNumber = (TextView) findViewById(R.id.text_view_satellites_num) ;
+            satellitesNumber.setText(R.string.satellites_not_available);
         }
     }
 
@@ -298,9 +302,9 @@ public class MobileGpsMainActivity extends AppCompatActivity {
      * Hide gps data and status text view
      */
     private void hideGpsDataAndStatusTextView() {
-        gpsDataTextView.setVisibility(View.GONE);
-        gpsStatusTextView.setVisibility(View.GONE);
-        satellitesTextView.setVisibility(View.GONE);
+        gpsDataContainer.setVisibility(View.GONE);
+        gpsStatusContainer.setVisibility(View.GONE);
+        satellitesContainer.setVisibility(View.GONE);
     }
 
     /**

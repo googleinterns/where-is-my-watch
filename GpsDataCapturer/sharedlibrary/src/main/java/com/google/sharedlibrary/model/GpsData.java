@@ -1,6 +1,7 @@
 package com.google.sharedlibrary.model;
 
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 
 import java.text.DecimalFormat;
@@ -15,6 +16,10 @@ public class GpsData {
     private DecimalFormat locationDF= new DecimalFormat("0.000000");
     private DecimalFormat speedDF = new DecimalFormat("0.0000");
 
+    /**
+     * Constructor to create a GpsData object
+     * @param location
+     */
     public GpsData(Location location) {
         latitude = String.valueOf(locationDF.format(location.getLatitude()));
         longitude = String.valueOf(locationDF.format(location.getLongitude()));
@@ -22,19 +27,29 @@ public class GpsData {
     }
 
     /**
-     * Get the string of GpsData
-     * @return a string of GpsData
+     * Get the latitude of the GpsData
+     * @return latitude
      */
     @NonNull
-    public String getGpsDataString() {
-        StringBuilder gpsDataBuilder = new StringBuilder();
-        gpsDataBuilder.append("GPS DATA \n")
-                .append("Lat: ").append(latitude)
-                .append("\n")
-                .append("Lon: ").append(longitude)
-                .append("\n")
-                .append("Speed: ").append(speed)
-                .append("\n");
-        return gpsDataBuilder.toString();
+    public String getLatitude(){
+        return this.latitude;
+    }
+
+    /**
+     * Get the longitude of the GpsData
+     * @return longitude
+     */
+    @NonNull
+    public String getLongitude(){
+        return this.longitude;
+    }
+
+    /**
+     * Get the speed of the GpsData
+     * @return speed
+     */
+    @NonNull
+    public String getSpeed(){
+        return this.speed;
     }
 }

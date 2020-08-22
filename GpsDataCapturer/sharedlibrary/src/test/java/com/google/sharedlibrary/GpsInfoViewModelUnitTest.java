@@ -34,15 +34,15 @@ public class GpsInfoViewModelUnitTest {
     public void testSetGpsStatusMutableLiveData() {
         gpsInfoViewModel.setGpsStatusMutableLiveData(1);
         assertNotNull(gpsInfoViewModel.getGpsStatusMutableLiveData().getValue());
-        assertEquals("Gps Status: GPS_EVENT_STARTED",
+        assertEquals("GPS_EVENT_STARTED",
                 gpsInfoViewModel.getGpsStatusMutableLiveData().getValue());
 
         gpsInfoViewModel.setGpsStatusMutableLiveData(2);
-        assertEquals("Gps Status: GPS_EVENT_STOPPED",
+        assertEquals("GPS_EVENT_STOPPED",
                 gpsInfoViewModel.getGpsStatusMutableLiveData().getValue());
 
         gpsInfoViewModel.setGpsStatusMutableLiveData(3);
-        assertEquals("Gps Status: GPS_EVENT_FIRST_FIX",
+        assertEquals("GPS_EVENT_FIRST_FIX",
                 gpsInfoViewModel.getGpsStatusMutableLiveData().getValue());
     }
 
@@ -54,8 +54,19 @@ public class GpsInfoViewModelUnitTest {
         GpsData gpsData = new GpsData(location);
 
         assertNotNull(gpsInfoViewModel.getGpsDataMutableLiveData().getValue());
-        assertEquals(gpsData.getGpsDataString(),
-                gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getGpsDataString());
+        assertEquals(gpsData.getLatitude(),
+                gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getLatitude());
+        assertEquals(gpsData.getLongitude(),
+                gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getLongitude());
+        assertEquals(gpsData.getSpeed(),
+                gpsInfoViewModel.getGpsDataMutableLiveData().getValue().getSpeed());
+    }
+
+    @Test
+    public void testSetSatellitesUsedInFix(){
+        gpsInfoViewModel.setSatellitesUsedInFix(8);
+
+        assertEquals("8", gpsInfoViewModel.getSatellitesUsedInFix().getValue());
     }
 
     @After
