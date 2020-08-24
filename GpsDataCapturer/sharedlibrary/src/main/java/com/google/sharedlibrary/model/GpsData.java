@@ -11,8 +11,10 @@ public class GpsData {
   private final String latitude;
   private final String longitude;
   private final String speed;
-  private final DecimalFormat locationDF = new DecimalFormat("0.000000");
-  private final DecimalFormat speedDF = new DecimalFormat("0.0000");
+  private final String defaultLocFormat = "0.000000";
+  private final String defaultSpeedFormat = "0.0000";
+  private final DecimalFormat locationDF = new DecimalFormat(defaultLocFormat);
+  private final DecimalFormat speedDF = new DecimalFormat(defaultSpeedFormat);
 
   /**
    * Constructor to create a GpsData object
@@ -22,7 +24,7 @@ public class GpsData {
   public GpsData(Location location) {
     latitude = String.valueOf(locationDF.format(location.getLatitude()));
     longitude = String.valueOf(locationDF.format(location.getLongitude()));
-    speed = String.valueOf(location.hasSpeed() ? speedDF.format(location.getSpeed()) : "0.0000");
+    speed = String.valueOf(location.hasSpeed() ? speedDF.format(location.getSpeed()) : defaultSpeedFormat);
   }
 
   /**

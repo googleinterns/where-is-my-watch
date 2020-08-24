@@ -21,13 +21,15 @@ public class GpsDataUnitTest {
   private GpsData gpsData;
   private DecimalFormat locationDF;
   private DecimalFormat speedDF;
+  private final String defaultLocFormat = "0.000000";
+  private final String defaultSpeedFormat = "0.0000";
 
   @Test
   public void testGpsData() {
     // Given
     Location location = mock(Location.class);
-    locationDF = new DecimalFormat("0.000000");
-    speedDF = new DecimalFormat("0.0000");
+    locationDF = new DecimalFormat(defaultLocFormat);
+    speedDF = new DecimalFormat(defaultSpeedFormat);
 
     // When
     gpsData = new GpsData(location);
@@ -42,7 +44,7 @@ public class GpsDataUnitTest {
   public void testGpsDataToString() {
     // Given
     String expected =
-        "GPS DATA" + " Lat: " + "0.000000" + " Lon: " + "0.000000" + " Speed: " + "0.0000";
+        "GPS DATA" + " Lat: " + defaultLocFormat + " Lon: " + defaultLocFormat+ " Speed: " + defaultSpeedFormat;
     Location location = mock(Location.class);
 
     // When
