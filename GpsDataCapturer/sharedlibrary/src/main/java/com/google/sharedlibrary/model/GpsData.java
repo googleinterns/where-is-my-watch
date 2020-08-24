@@ -65,16 +65,13 @@ public class GpsData {
   public String toString() {
     StringBuilder gpsDataBuilder = new StringBuilder();
     gpsDataBuilder
-        .append("GPS DATA \n")
-        .append("Lat: ")
+        .append("GPS DATA")
+        .append(" Lat: ")
         .append(latitude)
-        .append("\n")
-        .append("Lon: ")
+        .append(" Lon: ")
         .append(longitude)
-        .append("\n")
-        .append("Speed: ")
-        .append(speed)
-        .append("\n");
+        .append(" Speed: ")
+        .append(speed);
     return gpsDataBuilder.toString();
   }
 
