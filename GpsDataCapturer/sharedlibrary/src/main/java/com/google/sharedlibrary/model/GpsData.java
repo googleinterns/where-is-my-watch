@@ -66,7 +66,7 @@ public class GpsData {
     StringBuilder gpsDataBuilder = new StringBuilder();
     gpsDataBuilder
         .append("GPS DATA \n")
-        .append("Lat: ")
+        .append(" Lat: ")
         .append(latitude)
         .append("\n")
         .append("Lon: ")
