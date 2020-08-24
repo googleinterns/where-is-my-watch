@@ -13,40 +13,34 @@ import com.google.sharedlibrary.service.GpsDataCaptureService;
  * location updates and Gps status via Location Manager API
  */
 public class LocationManagerListener implements LocationListener, GpsStatus.Listener {
-    private final String TAG = "GeneralLocationListener";
-    private GpsDataCaptureService gpsDataCaptureservice;
+  private final String TAG = "GeneralLocationListener";
+  private GpsDataCaptureService gpsDataCaptureservice;
 
-    public LocationManagerListener(GpsDataCaptureService service) {
-        Log.d(TAG, "Create LocationManagerListener!");
-        this.gpsDataCaptureservice = service;
+  public LocationManagerListener(GpsDataCaptureService service) {
+    Log.d(TAG, "Create LocationManagerListener!");
+    this.gpsDataCaptureservice = service;
+  }
+
+  @Override
+  public void onGpsStatusChanged(int event) {
+    Log.d(TAG, "onGpsStatusChanged");
+    gpsDataCaptureservice.onGpsStatusChanged(event);
+  }
+
+  @Override
+  public void onLocationChanged(Location location) {
+    if (location != null) {
+      Log.d(TAG, "onLocationChanged!");
+      gpsDataCaptureservice.onLocationChanged(location);
     }
+  }
 
-    @Override
-    public void onGpsStatusChanged(int event) {
-        Log.d(TAG, "onGpsStatusChanged");
-        gpsDataCaptureservice.onGpsStatusChanged(event);
-    }
+  @Override
+  public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            Log.d(TAG, "onLocationChanged!");
-            gpsDataCaptureservice.onLocationChanged(location);
-        }
-    }
+  @Override
+  public void onProviderEnabled(String provider) {}
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
+  @Override
+  public void onProviderDisabled(String provider) {}
 }

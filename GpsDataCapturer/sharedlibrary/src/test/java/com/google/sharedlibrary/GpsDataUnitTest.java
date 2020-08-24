@@ -15,23 +15,23 @@ import java.text.DecimalFormat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GpsDataUnitTest {
-    private GpsData gpsData;
-    private DecimalFormat locationDF;
-    private DecimalFormat speedDF;
+  private GpsData gpsData;
+  private DecimalFormat locationDF;
+  private DecimalFormat speedDF;
 
-    @Test
-    public void testGetGpsDataString() {
-        //Given
-        Location location = mock(Location.class);
-        locationDF= new DecimalFormat("0.000000");
-        speedDF = new DecimalFormat("0.0000");
+  @Test
+  public void testGetGpsDataString() {
+    // Given
+    Location location = mock(Location.class);
+    locationDF = new DecimalFormat("0.000000");
+    speedDF = new DecimalFormat("0.0000");
 
-        //When
-        gpsData = new GpsData(location);
+    // When
+    gpsData = new GpsData(location);
 
-        //Then
-        assertEquals(locationDF.format(location.getLatitude()), gpsData.getLatitude());
-        assertEquals(locationDF.format(location.getLongitude()), gpsData.getLongitude());
-        assertEquals(speedDF.format(location.getSpeed()), gpsData.getSpeed());
-    }
+    // Then
+    assertEquals(locationDF.format(location.getLatitude()), gpsData.getLatitude());
+    assertEquals(locationDF.format(location.getLongitude()), gpsData.getLongitude());
+    assertEquals(speedDF.format(location.getSpeed()), gpsData.getSpeed());
+  }
 }
