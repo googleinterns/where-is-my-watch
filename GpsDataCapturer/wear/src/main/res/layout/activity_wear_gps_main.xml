@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
                 android:textAlignment="center"
-                tools:hint="GPS_EVENT_STARTED" />
+                tools:hint="@string/default_gps_status" />
 
         </LinearLayout>
 
@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
                 android:textAlignment="center"
-                tools:hint="12" />
+                tools:hint="@string/default_satellite_num" />
         </LinearLayout>
 
         <RadioGroup
@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/text_view_lat"
                 android:layout_toEndOf="@id/text_view_lat"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLatitude()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
 
@@ -152,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/text_view_lon"
                 android:layout_toEndOf="@id/text_view_lon"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLongitude()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
 
@@ -172,7 +172,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/text_view_speed"
                 android:layout_toEndOf="@id/text_view_speed"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getSpeed()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
         </RelativeLayout>

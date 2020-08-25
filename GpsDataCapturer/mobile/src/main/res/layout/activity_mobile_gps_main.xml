@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLatitude()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
                 app:layout_constraintBaseline_toBaselineOf="@id/text_view_lat"
@@ -120,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLongitude()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
                 app:layout_constraintBaseline_toBaselineOf="@id/text_view_lon"
@@ -147,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:hint="@string/loc_data"
+                android:hint="@string/default_location_data"
                 android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getSpeed()}"
                 android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}"
                 app:layout_constraintBaseline_toBaselineOf="@id/text_view_speed"
@@ -191,7 +191,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_view_gps_status"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:hint="GPS_EVENT_STARTED" />
+                tools:hint="@string/default_gps_status" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -228,7 +228,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/text_view_satellites"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:hint="12" />
+                tools:hint="@string/default_satellite_num" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
