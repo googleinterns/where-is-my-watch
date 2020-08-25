@@ -44,7 +44,13 @@ public class GpsDataUnitTest {
   public void testGpsDataToString() {
     // Given
     String expected =
-        "GPS DATA" + " Lat: " + defaultLocFormat + " Lon: " + defaultLocFormat+ " Speed: " + defaultSpeedFormat;
+        "GPS DATA"
+            + " Lat: "
+            + defaultLocFormat
+            + " Lon: "
+            + defaultLocFormat
+            + " Speed: "
+            + defaultSpeedFormat;
     Location location = mock(Location.class);
 
     // When

@@ -24,7 +24,9 @@ public class GpsData {
   public GpsData(Location location) {
     latitude = String.valueOf(locationDF.format(location.getLatitude()));
     longitude = String.valueOf(locationDF.format(location.getLongitude()));
-    speed = String.valueOf(location.hasSpeed() ? speedDF.format(location.getSpeed()) : defaultSpeedFormat);
+    speed =
+        String.valueOf(
+            location.hasSpeed() ? speedDF.format(location.getSpeed()) : defaultSpeedFormat);
   }
 
   /**
