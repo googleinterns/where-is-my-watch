@@ -80,12 +80,13 @@ def main(args):
         
         dataset_title = "%s VS %s " % (device_1, device_2) 
         my_visualizer.draw_hist_graph(classified_deviation_df['Confidence'], 'Count', 'Confidence',  dataset_title + 'Distance', availability)
-        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Deviations'], 'Deviations (Meters)', dataset_title + 'Distance')
-        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Altitude Differentials'], 'Deviations (Meters)', dataset_title + 'Altitude')
-        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Speed Differentials'], 'Deviations (Meters)', dataset_title + 'Speed')
+        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Distance Deviations'], 'Deviations (Meters)', dataset_title + 'Distance')
+        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Altitude Deviations'], 'Deviations (Meters)', dataset_title + 'Altitude')
+        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Speed Deviations'], 'Deviations (Meters)', dataset_title + 'Speed')
+        my_visualizer.draw_line_graph(time, 'Time Duration: ', classified_deviation_df['Signal Deviations'], 'Deviations (SNR)', dataset_title + 'Satellites Signal Strength')
 
-        my_visualizer.draw_lines_graph(time, 'Time Duration: ', classified_deviation_df['Set 1 Average Signal'], classified_deviation_df['Set 2 Average Signal'], classified_deviation_df['Signal Differentials'],
-            'Average Signal (SNR)', dataset_title + 'Average Signal', device_1, device_2)
+        my_visualizer.draw_lines_graph(time, 'Time Duration: ', classified_deviation_df['Set 1 Average Signal'], classified_deviation_df['Set 2 Average Signal'],
+            'Average Signal (SNR)', dataset_title + 'Average Satellites Signal', device_1, device_2)
 
         # save deviation dataframe to csv
         deviation_data_file = "{}Deviation_Data_{}.csv".format(dataset_title, datetime.strftime(datetime.now(), "%Y-%m-%dT%H%M%S"))

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
@@ -9,14 +10,70 @@
 
         <Button
             android:id="@+id/button_start_stop"
+            style="@style/BodyTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/screen_percentage_05"
             android:background="@drawable/wear_button_green"
-            android:text="@string/start_capture"
-            android:textSize="@dimen/complicationDrawable_titleSize" />
+            android:text="@string/start_capture" />
+
+        <LinearLayout
+            android:id="@+id/gps_status_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/gps_data_container"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/text_view_gps_status"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gps_status"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/text_view_gps_event"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
+                android:textAlignment="center"
+                tools:hint="@string/default_gps_status" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/satellite_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/gps_status_container"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/text_view_satellites"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satellites"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/text_view_satellites_num"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
+                android:textAlignment="center"
+                tools:hint="@string/default_satellite_num" />
+        </LinearLayout>
 
         <RadioGroup
             android:id="@+id/radio_group_location_api"
@@ -27,73 +84,104 @@
 
             <RadioButton
                 android:id="@+id/radio_button_LM"
+                style="@style/BodyTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/locationmanager_api"
-                android:textSize="@dimen/complicationDrawable_textSize" />
+                android:text="@string/locationmanager_api" />
 
             <RadioButton
                 android:id="@+id/radio_button_FLP"
+                style="@style/BodyTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/screen_percentage_15"
-                android:text="@string/fusedlocationprovider_api"
-                android:textSize="@dimen/complicationDrawable_textSize" />
+                android:text="@string/fusedlocationprovider_api" />
         </RadioGroup>
 
-        <TextView
-            android:id="@+id/text_view_gps_data"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:id="@+id/gps_data_container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/screen_percentage_15"
-            android:lines="4"
-            android:maxLines="5"
-            android:minLines="2"
-            android:scrollHorizontally="false"
-            android:singleLine="false"
-            android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getGpsDataString()?? @string/waiting_gps_data}"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:textSize="@dimen/complicationDrawable_textSize"
             android:visibility="gone"
-            tools:hint="GPS DATA"
-            tools:visibility="visible" />
+            tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/text_view_gps_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/text_view_gps_data"
-            android:layout_centerHorizontal="true"
-            android:singleLine="true"
-            android:text="@{gpsInfoViewModel.getGpsStatusMutableLiveData().toString()?? @string/gps_status_not_available}"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:textSize="@dimen/complicationDrawable_textSize"
-            android:visibility="gone"
-            tools:hint="GPS Status"
-            tools:visibility="visible" />
+            <TextView
+                android:id="@+id/text_view_gps_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:hint="@string/gps_data"
+                android:text="@{gpsInfoViewModel.getGpsDataAvailability()? @string/gps_data : @string/waiting_gps_data}" />
 
-        <TextView
-            android:id="@+id/text_view_satellites"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/text_view_gps_status"
-            android:layout_centerHorizontal="true"
-            android:singleLine="true"
-            android:text="@{gpsInfoViewModel.getSatellitesUsedInFix().toString()?? @string/satellites_not_available}"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:textSize="@dimen/complicationDrawable_textSize"
-            android:visibility="gone"
-            tools:hint="Satellites"
-            tools:visibility="visible"
-            />
+            <TextView
+                android:id="@+id/text_view_lat"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_view_gps_data"
+                android:text="@string/lat"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+
+            <TextView
+                android:id="@+id/text_view_lat_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/text_view_lat"
+                android:layout_toEndOf="@id/text_view_lat"
+                android:hint="@string/default_location_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLatitude()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+
+            <TextView
+                android:id="@+id/text_view_lon"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_view_lat"
+                android:text="@string/lon"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+
+            <TextView
+                android:id="@+id/text_view_lon_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/text_view_lon"
+                android:layout_toEndOf="@id/text_view_lon"
+                android:hint="@string/default_location_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getLongitude()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+
+            <TextView
+                android:id="@+id/text_view_speed"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_view_lon"
+                android:text="@string/speed"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+
+            <TextView
+                android:id="@+id/text_view_speed_data"
+                style="@style/BodyTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/text_view_speed"
+                android:layout_toEndOf="@id/text_view_speed"
+                android:hint="@string/default_location_data"
+                android:text="@{gpsInfoViewModel.getGpsDataMutableLiveData().getSpeed()}"
+                android:visibility="@{safeUnbox(gpsInfoViewModel.getGpsDataAvailability()? View.VISIBLE: View.GONE)}" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
     <data>
+
+        <import type="android.view.View" />
 
         <variable
             name="gpsInfoViewModel"

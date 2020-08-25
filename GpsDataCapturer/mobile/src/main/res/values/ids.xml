@@ -7,4 +7,8 @@
     <item name="m_radio_button_LM" type="id" />
     <item name="m_radio_button_FLP" type="id" />
     <item name="m_start_stop_button" type="id" />
+    <item name="gps_data_container" type="id"/>
+    <item name="text_view_gps_data" type="id" />
+    <item name="text_view_lat" type="id" />
+
 </resources>

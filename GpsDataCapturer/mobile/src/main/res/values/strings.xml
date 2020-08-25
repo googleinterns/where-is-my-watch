@@ -4,7 +4,16 @@
     <string name="stop_capture" translatable="false">STOP</string>
     <string name="locationmanager_api" translatable="false">LocationManager API</string>
     <string name="fusedlocationprovider_api" translatable="false">FusedLocationProvider API</string>
+    <string name="gps_data" translatable="false">GPS Data</string>
     <string name="waiting_gps_data" translatable="false">Waiting for GPS Data...</string>
-    <string name="gps_status_not_available">GPS Status: Not Available</string>
-    <string name="satellites_not_available">Satellites: Not Available</string>
+    <string name="gps_status_not_available" translatable="false">Not Available</string>
+    <string name="satellites_not_available" translatable="false">Not Available</string>
+    <string name="satellites" translatable="false">Satellites:  </string>
+    <string name="gps_status" translatable="false">GPS Status:  </string>
+    <string name="lat" translatable="false">LAT:  </string>
+    <string name="default_location_data" translatable="false">00.000000</string>
+    <string name="lon" translatable="false">LON:  </string>
+    <string name="speed" translatable="false">SPEED:  </string>
+    <string name="default_gps_status">GPS_EVENT_STARTED</string>
+    <string name="default_satellite_num">12</string>
 </resources>
