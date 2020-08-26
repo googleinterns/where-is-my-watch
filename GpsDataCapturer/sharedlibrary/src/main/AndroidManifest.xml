@@ -2,24 +2,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.sharedlibrary">
     <!-- GPS location service -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <application>
+        <!-- SERVICES-->
+        <service
+            android:name="com.google.sharedlibrary.service.GpsDataCaptureService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.gpsdatacapturer.STOP_CAPTURE" />
+            </intent-filter>
+        </service>
+
+    </application>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Read and Write log files to storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Allow foreground service -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-
-    <application>
-        <!-- SERVICES-->
-        <service android:name="com.google.sharedlibrary.service.GpsDataCaptureService"
-            android:exported="true"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="com.google.gpsdatacapturer.STOP_CAPTURE"/>
-            </intent-filter>
-        </service>
-
-    </application>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

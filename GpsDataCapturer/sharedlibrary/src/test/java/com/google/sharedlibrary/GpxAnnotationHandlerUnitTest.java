@@ -26,37 +26,33 @@ import java.util.concurrent.ThreadPoolExecutor;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class GpxAnnotationHandlerUnitTest {
-    private GpxAnnotationHandler gpxAnnotationHandler;
+  private GpxAnnotationHandler gpxAnnotationHandler;
 
-    @Mock
-    private File gpxFile;
+  @Mock private File gpxFile;
 
-    private boolean append = true;
-    private boolean isHeader = true;
+  private boolean append = true;
+  private boolean isHeader = true;
 
+  @Before
+  public void setUp() {
+    ShadowLog.stream = System.out;
+    Locale locale = new Locale("en", "US");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", locale);
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    gpxFile = mock(File.class);
+    gpxAnnotationHandler = new GpxAnnotationHandler(sdf, gpxFile, append, isHeader);
+  }
 
-    @Before
-    public void setUp(){
-        ShadowLog.stream = System.out;
-        Locale locale = new Locale("en", "US");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                 locale);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        gpxFile = mock(File.class);
-        gpxAnnotationHandler = new GpxAnnotationHandler(sdf, gpxFile, append, isHeader);
-    }
+  @Test
+  public void testRun() throws Exception {
+    ThreadPoolExecutor executor = mock(ThreadPoolExecutor.class);
+    executor.execute(gpxAnnotationHandler);
+    verify(executor).execute(gpxAnnotationHandler);
+  }
 
-    @Test
-    public void testRun() throws Exception {
-        ThreadPoolExecutor executor = mock(ThreadPoolExecutor.class);
-        executor.execute(gpxAnnotationHandler);
-        verify(executor).execute(gpxAnnotationHandler);
-    }
-
-    @After
-    public void tearDown(){
-        gpxFile = null;
-        gpxAnnotationHandler = null;
-    }
-
+  @After
+  public void tearDown() {
+    gpxFile = null;
+    gpxAnnotationHandler = null;
+  }
 }

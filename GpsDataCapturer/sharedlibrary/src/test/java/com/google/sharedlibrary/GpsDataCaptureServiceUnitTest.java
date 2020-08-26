@@ -41,127 +41,121 @@ import java.io.IOException;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class GpsDataCaptureServiceUnitTest {
-    private GpsDataCaptureService gpsDataCaptureService;
-    @Mock
-    private LocationManager locationManager;
+  private GpsDataCaptureService gpsDataCaptureService;
+  @Mock private LocationManager locationManager;
 
-    @Mock
-    private LocationManagerListener locationManagerListener;
+  @Mock private LocationManagerListener locationManagerListener;
 
-    @Mock
-    private File gpxFile;
+  @Mock private File gpxFile;
 
-    private File gpxFileFolder;
-    private GpxFileWriter gpxFileWriter;
+  private File gpxFileFolder;
+  private GpxFileWriter gpxFileWriter;
 
-    private ShadowLocationManager shadowLocationManager;
+  private ShadowLocationManager shadowLocationManager;
 
-    @Before
-    public void setUp() {
-        ShadowLog.stream = System.out;
-        gpsDataCaptureService = Robolectric.buildService(
-                GpsDataCaptureService.class).create().get();
+  @Before
+  public void setUp() {
+    ShadowLog.stream = System.out;
+    gpsDataCaptureService = Robolectric.buildService(GpsDataCaptureService.class).create().get();
 
-        locationManager =
-                (LocationManager) gpsDataCaptureService.getSystemService(Context.LOCATION_SERVICE);
-        shadowLocationManager = Shadows.shadowOf(locationManager);
-        shadowLocationManager.setProviderEnabled(LocationManager.GPS_PROVIDER, true);
+    locationManager =
+        (LocationManager) gpsDataCaptureService.getSystemService(Context.LOCATION_SERVICE);
+    shadowLocationManager = Shadows.shadowOf(locationManager);
+    shadowLocationManager.setProviderEnabled(LocationManager.GPS_PROVIDER, true);
 
-        gpxFileFolder = createGpsDataFolder(gpsDataCaptureService);
+    gpxFileFolder = createGpsDataFolder(gpsDataCaptureService);
 
-        locationManagerListener = mock(LocationManagerListener.class);
-    }
+    locationManagerListener = mock(LocationManagerListener.class);
+  }
 
-    @Test
-    public void testServiceStartCapture() throws IOException {
-        ShadowLog.stream = System.out;
-        gpsDataCaptureService.startCapture();
+  @Test
+  public void testServiceStartCapture() throws IOException {
+    ShadowLog.stream = System.out;
+    gpsDataCaptureService.startCapture();
 
-        assertNotNull(gpxFileFolder.listFiles());
-        assertEquals(1, gpxFileFolder.listFiles().length);
-        assertEquals(1, shadowLocationManager.getRequestLocationUpdateListeners().size());
+    assertNotNull(gpxFileFolder.listFiles());
+    assertEquals(1, gpxFileFolder.listFiles().length);
+    assertEquals(1, shadowLocationManager.getRequestLocationUpdateListeners().size());
 
-        for(File file: gpxFileFolder.listFiles()){
-            assertNotNull(file);
-            assertTrue(file.exists());
-            try {
-                FileReader fileReader = new FileReader(file);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
-                StringBuilder content = new StringBuilder();
-                String line;
-                while((line = bufferedReader.readLine()) != null){
-                    content.append(line);
-                    content.append(System.lineSeparator());
-                }
-                System.out.println(content);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+    for (File file : gpxFileFolder.listFiles()) {
+      assertNotNull(file);
+      assertTrue(file.exists());
+      try {
+        FileReader fileReader = new FileReader(file);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        StringBuilder content = new StringBuilder();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+          content.append(line);
+          content.append(System.lineSeparator());
         }
-
-        gpsDataCaptureService.startCapture();
-        assertEquals(2, gpxFileFolder.listFiles().length);
+        System.out.println(content);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
     }
 
-    @Test
-    public void testOnLocationChanged() throws Exception {
-        //Given
-        GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
-        gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
+    gpsDataCaptureService.startCapture();
+    assertEquals(2, gpxFileFolder.listFiles().length);
+  }
 
-        gpsDataCaptureService.startCapture();
+  @Test
+  public void testOnLocationChanged() throws Exception {
+    // Given
+    GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
+    gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
 
-        Location location = mock(Location.class);
-        shadowLocationManager.simulateLocation(location);
+    gpsDataCaptureService.startCapture();
 
-        //When
-        gpsDataCaptureService.onLocationChanged(location);
+    Location location = mock(Location.class);
+    shadowLocationManager.simulateLocation(location);
 
+    // When
+    gpsDataCaptureService.onLocationChanged(location);
 
-        //Then
-        verify(gpsInfoViewModel).setGpsDataMutableLiveData(location);
-        verify(gpsInfoViewModel, times(1)).setGpsDataMutableLiveData(location);
+    // Then
+    verify(gpsInfoViewModel).setGpsDataMutableLiveData(location);
+    verify(gpsInfoViewModel, times(1)).setGpsDataMutableLiveData(location);
 
-        //When
-        gpsDataCaptureService.onLocationChanged(location);
-        verify(gpsInfoViewModel, times(2)).setGpsDataMutableLiveData(location);
-    }
+    // When
+    gpsDataCaptureService.onLocationChanged(location);
+    verify(gpsInfoViewModel, times(2)).setGpsDataMutableLiveData(location);
+  }
 
-    @Test
-    public void testOnGpsStatusChanged() {
-        //Given
-        GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
-        gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
-        gpsDataCaptureService.startCapture();
+  @Test
+  public void testOnGpsStatusChanged() {
+    // Given
+    GpsInfoViewModel gpsInfoViewModel = mock(GpsInfoViewModel.class);
+    gpsDataCaptureService.setGpsInfoViewModel(gpsInfoViewModel);
+    gpsDataCaptureService.startCapture();
 
-        //When
-        gpsDataCaptureService.onGpsStatusChanged(1);
+    // When
+    gpsDataCaptureService.onGpsStatusChanged(1);
 
-        //Then
-        verify(gpsInfoViewModel).setGpsStatusMutableLiveData(1);
-        verify(gpsInfoViewModel, times(1)).setGpsStatusMutableLiveData(1);
+    // Then
+    verify(gpsInfoViewModel).setGpsStatusMutableLiveData(1);
+    verify(gpsInfoViewModel, times(1)).setGpsStatusMutableLiveData(1);
 
-        //When
-        gpsDataCaptureService.onGpsStatusChanged(1);
+    // When
+    gpsDataCaptureService.onGpsStatusChanged(1);
 
-        //Then
-        verify(gpsInfoViewModel, times(2)).setGpsStatusMutableLiveData(1);
+    // Then
+    verify(gpsInfoViewModel, times(2)).setGpsStatusMutableLiveData(1);
+  }
 
-    }
+  @Test
+  public void testServiceStopCapture() {
+    ShadowLog.stream = System.out;
+    gpsDataCaptureService.startCapture();
+    gpsDataCaptureService.stopCapture();
 
-    @Test
-    public void testServiceStopCapture() {
-        ShadowLog.stream = System.out;
-        gpsDataCaptureService.startCapture();
-        gpsDataCaptureService.stopCapture();
+    assertNotNull(gpxFileFolder.listFiles());
+    assertEquals(1, gpxFileFolder.listFiles().length);
+    assertEquals(0, shadowLocationManager.getRequestLocationUpdateListeners().size());
+  }
 
-        assertNotNull(gpxFileFolder.listFiles());
-        assertEquals(1, gpxFileFolder.listFiles().length);
-        assertEquals(0, shadowLocationManager.getRequestLocationUpdateListeners().size());
-    }
-
-    @After
-    public void tearDown(){
-        gpsDataCaptureService.onDestroy();
-    }
+  @After
+  public void tearDown() {
+    gpsDataCaptureService.onDestroy();
+  }
 }

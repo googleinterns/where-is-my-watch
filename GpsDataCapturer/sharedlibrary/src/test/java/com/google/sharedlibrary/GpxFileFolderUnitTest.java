@@ -27,25 +27,24 @@ import java.io.File;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class GpxFileFolderUnitTest {
-    @Mock
-    private File gpxFileFolder;
+  @Mock private File gpxFileFolder;
 
-    @Mock
-    private Context context;
+  @Mock private Context context;
 
-    @Test
-    public void testCreateGpxFileFolder(){
-        ShadowLog.stream = System.out;
-        //Given
-        gpxFileFolder = mock(File.class);
-        context = mock(Context.class);
-        when(context.getExternalFilesDir(Environment.getExternalStorageDirectory().getAbsolutePath())).thenReturn(gpxFileFolder);
+  @Test
+  public void testCreateGpxFileFolder() {
+    ShadowLog.stream = System.out;
+    // Given
+    gpxFileFolder = mock(File.class);
+    context = mock(Context.class);
+    when(context.getExternalFilesDir(Environment.getExternalStorageDirectory().getAbsolutePath()))
+        .thenReturn(gpxFileFolder);
 
-        //When
-        GpxFileFolder.createGpsDataFolder(context);
+    // When
+    GpxFileFolder.createGpsDataFolder(context);
 
-        //Then
-        verify(context).getExternalFilesDir((String) any());
-        assertNotNull(gpxFileFolder);
-    }
+    // Then
+    verify(context).getExternalFilesDir((String) any());
+    assertNotNull(gpxFileFolder);
+  }
 }

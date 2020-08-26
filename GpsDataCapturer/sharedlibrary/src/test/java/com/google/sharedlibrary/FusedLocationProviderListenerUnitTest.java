@@ -29,49 +29,46 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Build.VERSION_CODES.P})
 public class FusedLocationProviderListenerUnitTest {
-    private FusedLocationProviderListener flpListener;
+  private FusedLocationProviderListener flpListener;
 
-    @Mock
-    private FusedLocationProviderClient flpClient;
+  @Mock private FusedLocationProviderClient flpClient;
 
-    @Mock
-    private GpsDataCaptureService service;
+  @Mock private GpsDataCaptureService service;
 
-    @Mock
-    private Location location;
+  @Mock private Location location;
 
-    @Before
-    public void setUp(){
-        ShadowLog.stream = System.out;
-        flpClient = mock(FusedLocationProviderClient.class);
-        service = mock(GpsDataCaptureService.class);
-        flpListener = new FusedLocationProviderListener(service);
-    }
+  @Before
+  public void setUp() {
+    ShadowLog.stream = System.out;
+    flpClient = mock(FusedLocationProviderClient.class);
+    service = mock(GpsDataCaptureService.class);
+    flpListener = new FusedLocationProviderListener(service);
+  }
 
-    @Test
-    public void testonLocationResult(){
-        //Given
-        location = mock(Location.class);
-        List<Location> locationList = new ArrayList<>();
-        locationList.add(location);
-        LocationResult locationResult = LocationResult.create(locationList);
+  @Test
+  public void testonLocationResult() {
+    // Given
+    location = mock(Location.class);
+    List<Location> locationList = new ArrayList<>();
+    locationList.add(location);
+    LocationResult locationResult = LocationResult.create(locationList);
 
-        //When
-        flpListener.onLocationResult(locationResult);
+    // When
+    flpListener.onLocationResult(locationResult);
 
-        //Then
-        verify(service).onLocationChanged(location);
-        verify(service, times(1)).onLocationChanged(location);
+    // Then
+    verify(service).onLocationChanged(location);
+    verify(service, times(1)).onLocationChanged(location);
 
-        //When
-        flpListener.onLocationResult(locationResult);
-        //Then
-        verify(service, times(2 )).onLocationChanged(location);
-    }
+    // When
+    flpListener.onLocationResult(locationResult);
+    // Then
+    verify(service, times(2)).onLocationChanged(location);
+  }
 
-    @After
-    public void tearDown(){
-        service.onDestroy();
-        flpListener = null;
-    }
+  @After
+  public void tearDown() {
+    service.onDestroy();
+    flpListener = null;
+  }
 }

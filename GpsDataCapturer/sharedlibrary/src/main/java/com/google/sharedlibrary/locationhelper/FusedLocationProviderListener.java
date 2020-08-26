@@ -12,22 +12,21 @@ import com.google.sharedlibrary.service.GpsDataCaptureService;
  * and Gps status updates via FusedLocationProviderClient API
  */
 public class FusedLocationProviderListener extends LocationCallback {
-    private GpsDataCaptureService gpsDataCaptureService;
+  private GpsDataCaptureService gpsDataCaptureService;
 
-    public FusedLocationProviderListener(GpsDataCaptureService gpsDataCaptureService) {
-        this.gpsDataCaptureService = gpsDataCaptureService;
+  public FusedLocationProviderListener(GpsDataCaptureService gpsDataCaptureService) {
+    this.gpsDataCaptureService = gpsDataCaptureService;
+  }
+
+  @Override
+  public void onLocationResult(LocationResult locationResult) {
+    if (locationResult == null) {
+      return;
     }
-
-    @Override
-    public void onLocationResult(LocationResult locationResult) {
-        if (locationResult == null) {
-            return;
-        }
-        for (Location location : locationResult.getLocations()) {
-            if (location != null) {
-                gpsDataCaptureService.onLocationChanged(location);
-
-            }
-        }
+    for (Location location : locationResult.getLocations()) {
+      if (location != null) {
+        gpsDataCaptureService.onLocationChanged(location);
+      }
     }
+  }
 }
